@@ -1,131 +1,100 @@
-# Aura Goli — Premium T-Shirt E-Commerce
+# Aura Goli — Premium Fashion E-Commerce
 
-Full-stack e-commerce platform built with Next.js 16, Prisma, Supabase, and SSLCommerz.
+> A complete, production-ready fashion e-commerce platform built for the Bangladeshi premium market. Full storefront, admin console, payments, auth, and more — all in one codebase.
+
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=flat-square&logo=tailwindcss)
+![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=flat-square&logo=vercel)
+
+---
+
+## What's Inside
+
+Aura Goli is a full-stack e-commerce platform with a customer storefront and a private admin console — built end-to-end with Next.js 16 App Router, Prisma ORM, and PostgreSQL. It covers every feature a real fashion brand needs to operate online.
+
+Built in 2026 by **Fahim Ahmed** in collaboration with **Claude** (Anthropic AI).
+
+---
+
+## Features
+
+### 🛍️ Storefront
+
+| Feature | Details |
+|---|---|
+| Homepage | Hero section, featured products, flash sale banner, category grid, trust bar |
+| Shop | Filter by category, color, price range · Sort by newest / price / popularity |
+| Product Page | Image gallery, size selector, color picker, size chart modal, reviews, stock status, waitlist |
+| Search | Full-text product search with live results |
+| Cart | Persistent cart with quantity controls, coupon codes, order summary |
+| Checkout | Address form, payment method selection, promo validation, order confirmation |
+| Order Tracking | Track any order by order number — no login required |
+| About Page | Live stats from database (customers, products, orders), team, values |
+| Static Pages | FAQ, Contact, Returns, Privacy Policy, Terms of Service |
+| WhatsApp Chat | Floating button links directly to WhatsApp for instant support |
+| Sitemap | Auto-generated `/sitemap.xml` |
+
+### 👤 Customer Accounts
+
+- Register, login, forgot password, reset password
+- Google OAuth sign-in
+- Email verification
+- Saved delivery addresses
+- Full order history with detail view
+- Wishlist
+- Loyalty points dashboard
+- Profile management
+
+### 🔧 Admin Console (`/admin`)
+
+| Section | Capabilities |
+|---|---|
+| Dashboard | Live revenue, orders, customers KPIs + Recharts graphs |
+| Products | Full CRUD with variants (size, color, images), draft/publish |
+| Orders | View all orders, update status (confirmed → packed → shipped → delivered) |
+| Customers | Browse, view profiles, block/unblock accounts |
+| Coupons | Create percent or flat discount codes with usage limits and expiry |
+| Flash Sales | Schedule time-limited sitewide discount banners |
+| Reviews | Approve or reject customer reviews |
+| Analytics | Revenue over time, top products, order funnel |
+| Settings | Store name, maintenance mode toggle |
+| Size Chart | Manage the size guide displayed on product pages |
+| Security | Admin activity audit log |
+
+### 🔐 Auth System
+
+- JWT access token (short-lived) + httpOnly refresh token cookie (long-lived)
+- Google OAuth 2.0 for both customers and admins (separate flows)
+- Admin access check: only users with `role = "admin"` can enter the admin console
+- Password reset via email (tokenized link)
+- Email verification on registration
+- Route protection via Next.js middleware
+
+### 💳 Payments
+
+- **SSLCommerz** integration (bKash, Nagad, Rocket, card, COD) — Bangladesh's leading payment gateway
+- IPN (Instant Payment Notification) for server-side payment confirmation
+- Success, fail, and cancel webhook handling
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Framework | Next.js 16.2 (App Router) |
-| Database | PostgreSQL via Supabase |
-| ORM | Prisma 7 (PgBouncer pooler adapter) |
-| Auth | JWT (access + refresh tokens, HttpOnly cookies) |
-| Payments | SSLCommerz (Bangladesh gateway) |
-| Email | Resend |
-| Media | Cloudinary |
-| 3D Hero | Three.js |
-| Charts | Recharts |
+| Language | TypeScript 5 |
 | Styling | Tailwind CSS v4 |
+| Database | PostgreSQL via [Neon](https://neon.tech) (serverless, never pauses) |
+| ORM | Prisma 7 |
+| Auth | JWT + Google OAuth 2.0 |
+| Email | [Resend](https://resend.com) |
+| Payments | SSLCommerz |
+| Media | Cloudinary |
+| Charts | Recharts |
 | Deployment | Vercel |
-
----
-
-## Local Development
-
-### 1. Clone and install
-
-```bash
-git clone <repo-url>
-cd threadco
-npm install
-```
-
-### 2. Set up environment variables
-
-```bash
-cp .env.example .env
-```
-
-Fill in `.env` with your actual values. See `.env.example` for descriptions of each variable.
-
-**Required to run locally:**
-- `DATABASE_URL` — Supabase pooler URL (port 6543)
-- `DIRECT_URL` — Supabase direct URL (port 5432, for schema push)
-- `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` — generate with `openssl rand -base64 64`
-- `NEXT_PUBLIC_APP_URL=http://localhost:3000`
-
-### 3. Push the database schema
-
-```bash
-# Uses DIRECT_URL (port 5432) — override DATABASE_URL for this command only
-$env:DATABASE_URL="postgresql://..." ; npx prisma db push
-npx prisma generate
-```
-
-### 4. Run the dev server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-Admin panel: [http://localhost:3000/admin](http://localhost:3000/admin)
-
----
-
-## Deployment — Vercel
-
-### 1. Push to GitHub
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/your-org/auragoli.git
-git push -u origin main
-```
-
-### 2. Import project in Vercel
-
-Go to [vercel.com/new](https://vercel.com/new), import your GitHub repo.
-
-Framework preset will be detected as **Next.js** automatically.
-
-### 3. Set environment variables in Vercel
-
-In the Vercel project dashboard → **Settings → Environment Variables**, add every variable from `.env.example` with your production values.
-
-Key production differences from local:
-| Variable | Local | Production |
-|---|---|---|
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | `https://auragoli.com` |
-| `SSLCOMMERZ_SANDBOX` | `true` | `false` |
-| `NODE_ENV` | `development` | `production` (set automatically) |
-
-### 4. Set up SSLCommerz callbacks
-
-In your [SSLCommerz merchant panel](https://merchant.sslcommerz.com), set the callback URLs:
-
-| Type | URL |
-|---|---|
-| Success URL | `https://auragoli.com/api/payment/success` |
-| Fail URL | `https://auragoli.com/api/payment/fail` |
-| Cancel URL | `https://auragoli.com/cart` |
-| IPN URL | `https://auragoli.com/api/payment/ipn` |
-
-### 5. Deploy
-
-Vercel auto-deploys on every push to `main`. The build command runs:
-
-```
-prisma generate && next build
-```
-
-This ensures the Prisma client is generated before Next.js builds.
-
----
-
-## Database Schema Changes
-
-Always use the direct URL (port 5432) to push schema changes — the pooler URL won't work for DDL.
-
-```bash
-# Windows PowerShell
-$env:DATABASE_URL="postgresql://postgres.[ref]:[pass]@...supabase.com:5432/postgres"
-npx prisma db push
-npx prisma generate
-```
 
 ---
 
@@ -134,60 +103,257 @@ npx prisma generate
 ```
 src/
 ├── app/
-│   ├── (store)/          # Public storefront
-│   │   ├── page.tsx      # Home with 3D hero
-│   │   ├── shop/         # Product listing
-│   │   ├── products/     # Product detail
-│   │   ├── cart/         # Shopping cart
-│   │   ├── checkout/     # 3-step checkout
-│   │   ├── account/      # My Account (auth-gated)
-│   │   ├── order-tracking/
+│   ├── (store)/               # Customer-facing storefront
+│   │   ├── page.tsx           # Homepage
+│   │   ├── shop/              # Product listing with filters
+│   │   ├── products/[slug]/   # Product detail page
+│   │   ├── cart/              # Shopping cart
+│   │   ├── checkout/          # Checkout flow
+│   │   ├── account/           # Protected customer account pages
+│   │   │   ├── orders/        # Order history + detail
+│   │   │   ├── wishlist/
+│   │   │   ├── addresses/
+│   │   │   ├── loyalty/
+│   │   │   └── profile/
 │   │   ├── search/
-│   │   ├── about/ faq/ contact/ returns/ privacy/ terms/
-│   ├── admin/            # Admin panel
-│   │   ├── dashboard/    # KPIs + charts
-│   │   ├── products/     # Product CRUD
-│   │   ├── orders/       # Order management
-│   │   ├── customers/    # Customer list
-│   │   └── reviews/      # Review moderation
-│   └── api/              # Route handlers
-│       ├── auth/         # Login, register, refresh, password reset
-│       ├── admin/        # Admin APIs (requireAdmin guard)
-│       ├── products/     # Catalog + reviews
-│       ├── checkout/     # Order creation + promo validation
-│       ├── payment/      # SSLCommerz callbacks
-│       ├── account/      # Profile + order history
-│       └── orders/       # Public order lookup (tracking)
+│   │   ├── order-tracking/
+│   │   ├── about/
+│   │   ├── contact/
+│   │   ├── faq/
+│   │   └── ...
+│   ├── admin/                 # Admin console (JWT-gated)
+│   │   ├── dashboard/
+│   │   ├── products/
+│   │   ├── orders/
+│   │   ├── customers/
+│   │   ├── analytics/
+│   │   ├── coupons/
+│   │   ├── flash-sale/
+│   │   ├── reviews/
+│   │   ├── settings/
+│   │   └── security/
+│   └── api/                   # REST API route handlers
+│       ├── auth/              # Login, register, OAuth, refresh, password reset
+│       ├── admin/             # Admin CRUD (products, orders, customers, coupons...)
+│       ├── products/          # Catalog, reviews
+│       ├── checkout/          # Order creation + promo validation
+│       ├── payment/           # SSLCommerz IPN, success, fail
+│       ├── account/           # Profile, order history, wishlist, addresses
+│       └── orders/            # Public order tracking
 ├── components/
-│   ├── admin/            # AdminShell, Sidebar, Topbar, ProductForm
-│   ├── storefront/       # Nav, Footer, HeroCanvas
-│   └── ui/               # FadeUp utility
+│   ├── storefront/            # Nav, Footer, ProductCard, WhatsAppButton, etc.
+│   └── admin/                 # AdminShell, Sidebar, charts
 └── lib/
-    ├── prisma.ts         # Prisma client (PgBouncer adapter)
-    ├── auth.ts           # JWT sign/verify
-    ├── password.ts       # bcrypt hash/verify
-    ├── rate-limit.ts     # In-memory rate limiter
-    ├── require-auth.ts   # requireAuth / requireAdmin guards
-    ├── validation.ts     # Input validation + sanitization
-    ├── sslcommerz.ts     # Payment gateway integration
-    ├── email.ts          # Resend email helpers
-    └── catalog-query.ts  # Prisma select shapes + filter builders
+    ├── prisma.ts              # Prisma client singleton
+    ├── auth.ts                # JWT sign/verify helpers
+    ├── settings.ts            # Cached store settings
+    ├── email.ts               # Resend email helpers
+    ├── sslcommerz.ts          # Payment gateway integration
+    └── require-auth.ts        # requireAuth / requireAdmin guards
 ```
 
 ---
 
-## Admin Access
+## Database Models
 
-Create an admin user directly in the database or via Prisma Studio:
+```
+User            customers and admins, Google OAuth, loyalty points
+Product         with variants (size/color), images, categories, reviews
+Category        product taxonomy
+Order           line items, payment status, shipping address, order status
+OrderItem       product snapshot at time of purchase
+Coupon          percent or flat, usage limits, expiry dates
+Review          customer reviews (moderated by admin)
+LoyaltyPoint    earn on purchase, redeem on checkout
+WishlistItem    saved products per user
+Address         saved shipping addresses per user
+FlashSale       time-limited sitewide discount
+RefreshToken    JWT refresh token store (server-side rotation)
+SizeChart       admin-managed size guide
+StoreSettings   global settings (store name, maintenance mode)
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- A PostgreSQL database ([Neon](https://neon.tech) free tier recommended)
+- [Google Cloud](https://console.cloud.google.com) OAuth 2.0 credentials
+- [Resend](https://resend.com) API key
+- [Cloudinary](https://cloudinary.com) account
+- [SSLCommerz](https://developer.sslcommerz.com) merchant credentials (for payments)
+
+### 1. Clone & Install
 
 ```bash
-npx prisma studio
+git clone https://github.com/fahimahmed420/Aura-Goli.git
+cd Aura-Goli
+npm install
 ```
 
-Set `role = "admin"` on the user record. Then log in at `/admin/login`.
+### 2. Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# ── Database ───────────────────────────────────────────
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
+
+# ── Auth ───────────────────────────────────────────────
+JWT_ACCESS_SECRET="generate with: openssl rand -base64 64"
+JWT_REFRESH_SECRET="generate with: openssl rand -base64 64"
+JWT_ACCESS_EXPIRES_IN="30d"
+
+# ── App ────────────────────────────────────────────────
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# ── Google OAuth ───────────────────────────────────────
+GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="GOCSPX-..."
+
+# ── Email ──────────────────────────────────────────────
+RESEND_API_KEY="re_..."
+EMAIL_FROM="Aura Goli <hello@yourdomain.com>"
+
+# ── Payments ───────────────────────────────────────────
+SSLCOMMERZ_STORE_ID="your-store-id"
+SSLCOMMERZ_STORE_PASSWORD="your-password"
+SSLCOMMERZ_SANDBOX="true"   # set to false in production
+
+# ── Media ──────────────────────────────────────────────
+CLOUDINARY_CLOUD_NAME="your-cloud-name"
+CLOUDINARY_API_KEY="your-api-key"
+CLOUDINARY_API_SECRET="your-api-secret"
+```
+
+### 3. Database Setup
+
+```bash
+# Push Prisma schema to your database
+npm run db:push
+
+# (Optional) Open Prisma Studio to browse and edit data
+npm run db:studio
+```
+
+### 4. Create Your Admin Account
+
+1. Register an account on the storefront at `/login`
+2. Open Prisma Studio (`npm run db:studio`)
+3. Find your user in the `User` table and set `role` to `admin`
+4. Log in at `/admin/login`
+
+### 5. Start the Dev Server
+
+```bash
+npm run dev
+```
+
+- Storefront → [http://localhost:3000](http://localhost:3000)
+- Admin → [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ---
 
-## Environment Variable Reference
+## Deployment (Vercel)
 
-See `.env.example` for the full list with descriptions.
+### 1. Push to GitHub
+
+```bash
+git add .
+git commit -m "initial commit"
+git push origin main
+```
+
+### 2. Import on Vercel
+
+Go to [vercel.com/new](https://vercel.com/new), import your GitHub repo. Next.js is auto-detected.
+
+### 3. Add Environment Variables
+
+In your Vercel project → **Settings → Environment Variables**, add all variables from `.env` with production values.
+
+Key production changes:
+
+| Variable | Development | Production |
+|---|---|---|
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | `https://your-domain.vercel.app` |
+| `SSLCOMMERZ_SANDBOX` | `true` | `false` |
+
+### 4. Update Google OAuth
+
+In [Google Cloud Console](https://console.cloud.google.com) → your OAuth app → **Authorized redirect URIs**, add:
+
+```
+https://your-domain.vercel.app/api/auth/google/callback
+```
+
+### 5. Set SSLCommerz Callback URLs
+
+In your SSLCommerz merchant panel, set:
+
+| Type | URL |
+|---|---|
+| Success | `https://your-domain.vercel.app/api/payment/success` |
+| Fail | `https://your-domain.vercel.app/api/payment/fail` |
+| Cancel | `https://your-domain.vercel.app/cart` |
+| IPN | `https://your-domain.vercel.app/api/payment/ipn` |
+
+### 6. Deploy
+
+Vercel will build automatically. The build command is:
+```
+prisma generate && next build
+```
+
+---
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run db:push` | Sync Prisma schema to database (no migration history) |
+| `npm run db:migrate` | Create and run a migration |
+| `npm run db:studio` | Open Prisma Studio (visual DB editor) |
+| `npm run db:seed` | Seed the database with sample data |
+
+---
+
+## Auth Flow
+
+```
+Customer login    /api/auth/login          → JWT access token + httpOnly refresh cookie
+Google (customer) /api/auth/google         → Google OAuth → /auth/callback → localStorage
+Google (admin)    /api/auth/google?admin=1 → Google OAuth → checks role=admin → /admin/dashboard
+Token refresh     /api/auth/refresh        → auto-handled by middleware on 401
+Password reset    /api/auth/forgot-password → email with tokenized link → /reset-password/[token]
+```
+
+---
+
+## Brand Design System
+
+| Token | Value | Usage |
+|---|---|---|
+| Ink | `#0b0b14` | Dark backgrounds, primary text |
+| Ivory | `#faf7f0` | Light backgrounds, reversed text |
+| Gold | `#c9a84c` | Primary accent, CTAs, highlights |
+| Violet | `#3d2b7a` | Secondary accent, hero overlays |
+| Display font | Playfair Display | Headings and hero text |
+| Body font | System sans-serif | Body copy and UI |
+
+---
+
+## Contact & Support
+
+- **WhatsApp**: [+8801774433063](https://wa.me/8801774433063)
+- **GitHub**: [@fahimahmed420](https://github.com/fahimahmed420)
+
+---
+
+*Built with Next.js · Deployed on Vercel · Database by Neon · Made in Dhaka 🇧🇩*
