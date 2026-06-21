@@ -9,7 +9,8 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const next = searchParams.get("next") ?? "/account/orders";
-  const state = Buffer.from(JSON.stringify({ next })).toString("base64url");
+  const admin = searchParams.get("admin") === "1";
+  const state = Buffer.from(JSON.stringify({ next, admin })).toString("base64url");
 
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);

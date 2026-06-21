@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import AdminShell from "@/components/admin/AdminShell";
+import Link from "next/link";
 
 interface Customer {
   id: string; name: string; email: string; isBlocked: boolean; createdAt: string;
@@ -132,13 +133,10 @@ export default function AdminCustomersPage() {
                     </span>
                   </div>
                   <div className="col-span-1 text-right">
-                    <button
-                      onClick={() => toggleBlock(c.id, c.isBlocked)}
-                      disabled={toggling === c.id}
-                      className="p-2 text-[#444748] hover:text-black transition-colors disabled:opacity-50"
-                    >
-                      <span className="material-symbols-outlined">visibility</span>
-                    </button>
+                    <Link href={`/admin/customers/${c.id}`}
+                      className="p-2 text-[#444748] hover:text-black transition-colors inline-flex">
+                      <span className="material-symbols-outlined">arrow_forward</span>
+                    </Link>
                   </div>
                 </div>
               );

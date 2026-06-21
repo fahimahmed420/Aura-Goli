@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
-interface FlashSale { id: string; name: string; bannerText: string; discountPercent: number; endsAt: string; isActive: boolean; createdAt: string; }
+interface FlashSale { id: string; name: string; bannerText: string; discountPercent: number; categorySlug: string | null; endsAt: string; isActive: boolean; createdAt: string; }
+interface Category { id: string; name: string; slug: string; }
 
-const EMPTY = { name: "", bannerText: "", discountPercent: "", endsAt: "" };
+const EMPTY = { name: "", bannerText: "", discountPercent: "", categorySlug: "", endsAt: "" };
 
 export default function AdminFlashSalePage() {
   const [sales, setSales] = useState<FlashSale[]>([]);
@@ -14,6 +15,7 @@ export default function AdminFlashSalePage() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const token = () => typeof window !== "undefined" ? localStorage.getItem("adminToken") : "";
   const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
@@ -27,7 +29,10 @@ export default function AdminFlashSalePage() {
     } catch { /* db not ready */ }
     setLoading(false);
   }
-  useEffect(() => { fetch_(); }, []);
+  useEffect(() => {
+    fetch_();
+    fetch("/api/categories").then(r => r.json()).then(d => setCategories(d.categories ?? [])).catch(() => {});
+  }, []);
 
   async function create() {
     setSaving(true); setError("");
@@ -74,7 +79,9 @@ export default function AdminFlashSalePage() {
             <span className="material-symbols-outlined text-xl" style={{ color: "#c9a84c" }}>bolt</span>
             <div>
               <p className="text-sm font-bold text-black">"{active.name}" is live right now</p>
-              <p className="text-xs text-[#747878]">Ends {new Date(active.endsAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+              <p className="text-xs text-[#747878]">
+                {active.discountPercent}% off {active.categorySlug ? `"${active.categorySlug}" products` : "all products"} · Ends {new Date(active.endsAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+              </p>
             </div>
           </div>
         )}
@@ -91,7 +98,7 @@ export default function AdminFlashSalePage() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: "1px solid #f0f0f0" }}>
-                  {["Name", "Discount", "Ends At", "Status", ""].map(h => (
+                  {["Name", "Category", "Discount", "Ends At", "Status", ""].map(h => (
                     <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-[#747878]">{h}</th>
                   ))}
                 </tr>
@@ -105,6 +112,12 @@ export default function AdminFlashSalePage() {
                       <td className="px-5 py-4">
                         <p className="font-semibold text-black">{s.name}</p>
                         <p className="text-xs text-[#747878] mt-0.5 truncate max-w-[200px]">{s.bannerText}</p>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-[#444748]">
+                        {s.categorySlug
+                          ? <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: "rgba(201,168,76,0.12)", color: "#9a7a2e" }}>{s.categorySlug}</span>
+                          : <span className="text-xs text-[#747878]">All categories</span>
+                        }
                       </td>
                       <td className="px-5 py-4 font-bold text-black">{s.discountPercent}%</td>
                       <td className="px-5 py-4 text-[#444748]">
@@ -158,6 +171,18 @@ export default function AdminFlashSalePage() {
                     className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black" />
                 </div>
               ))}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">Apply To</label>
+                <select value={form.categorySlug}
+                  onChange={e => setForm(p => ({ ...p, categorySlug: e.target.value }))}
+                  className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black bg-white">
+                  <option value="">All Categories</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-[#747878] mt-1.5">Leave as "All Categories" to apply discount sitewide.</p>
+              </div>
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">Ends At</label>
                 <input type="datetime-local" value={form.endsAt}

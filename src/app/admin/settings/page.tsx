@@ -7,7 +7,7 @@ interface Settings {
   storeName: string; legalName: string; email: string;
   phone: string; address: string; currency: string;
   timezone: string; weightUnit: string; maintenanceMode: boolean;
-  instagramUrl: string; facebookUrl: string; tiktokUrl: string;
+  instagramUrl: string; facebookUrl: string; tiktokUrl: string; youtubeUrl: string;
 }
 
 const INPUT = "w-full border border-[#e8e8e8] rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:border-[#5951b4] transition-colors bg-white";
@@ -16,7 +16,7 @@ export default function StoreSettingsPage() {
   const [form, setForm] = useState<Settings>({
     storeName: "", legalName: "", email: "", phone: "", address: "",
     currency: "BDT", timezone: "Asia/Dhaka", weightUnit: "kg", maintenanceMode: false,
-    instagramUrl: "", facebookUrl: "", tiktokUrl: "",
+    instagramUrl: "", facebookUrl: "", tiktokUrl: "", youtubeUrl: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -156,6 +156,7 @@ export default function StoreSettingsPage() {
               { key: "instagramUrl" as const, label: "Instagram URL", placeholder: "https://instagram.com/auragoli" },
               { key: "facebookUrl" as const, label: "Facebook URL", placeholder: "https://facebook.com/auragoli" },
               { key: "tiktokUrl" as const, label: "TikTok URL", placeholder: "https://tiktok.com/@auragoli" },
+              { key: "youtubeUrl" as const, label: "YouTube URL", placeholder: "https://youtube.com/@auragoli" },
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
                 <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-1.5">{label}</label>

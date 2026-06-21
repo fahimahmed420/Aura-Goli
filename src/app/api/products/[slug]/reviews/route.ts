@@ -4,29 +4,42 @@ import { requireAuth } from "@/lib/require-auth";
 import { apiError, sanitizeText } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
 
-// GET — public list of approved reviews for a product
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+// GET — public list of approved reviews for a product (paginated)
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const sp = req.nextUrl.searchParams;
+  const page = Math.max(1, parseInt(sp.get("page") ?? "1"));
+  const pageSize = Math.min(20, parseInt(sp.get("pageSize") ?? "10"));
 
   const product = await prisma.product.findUnique({ where: { slug }, select: { id: true } });
   if (!product) return apiError("Product not found", 404);
 
-  const reviews = await prisma.review.findMany({
-    where: { productId: product.id, isApproved: true },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true, rating: true, title: true, body: true, helpfulCount: true, createdAt: true,
-      user: { select: { name: true } },
-    },
-  });
+  const where = { productId: product.id, isApproved: true };
 
-  const total = reviews.length;
-  const avg = total > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / total : 0;
+  const [reviews, total, allRatings] = await Promise.all([
+    prisma.review.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      select: {
+        id: true, rating: true, title: true, body: true, helpfulCount: true, createdAt: true,
+        user: { select: { name: true } },
+      },
+    }),
+    prisma.review.count({ where }),
+    prisma.review.findMany({ where, select: { rating: true } }),
+  ]);
+
+  const avg = total > 0 ? allRatings.reduce((s, r) => s + r.rating, 0) / total : 0;
   const dist = [5, 4, 3, 2, 1].map((star) => ({
-    star, count: reviews.filter((r) => r.rating === star).length,
+    star, count: allRatings.filter((r) => r.rating === star).length,
   }));
 
-  return Response.json({ reviews, total, avg, dist });
+  return Response.json({
+    reviews, total, avg, dist,
+    pagination: { page, pageSize, totalPages: Math.ceil(total / pageSize) },
+  });
 }
 
 // POST — authenticated user submits a review (must have delivered order for this product)

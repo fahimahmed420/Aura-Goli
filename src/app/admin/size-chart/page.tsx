@@ -66,10 +66,10 @@ export default function AdminSizeChartPage() {
   }
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.1)",
+    background: "white",
+    border: "1px solid rgba(11,11,20,0.15)",
     borderRadius: "10px",
-    color: "#faf7f0",
+    color: "#0b0b14",
     padding: "8px 12px",
     fontSize: "13px",
     outline: "none",
@@ -83,8 +83,8 @@ export default function AdminSizeChartPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div>
-            <h1 className="font-['Playfair_Display'] text-2xl font-bold" style={{ color: "#faf7f0" }}>Size Chart</h1>
-            <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <h1 className="font-['Playfair_Display'] text-2xl font-bold" style={{ color: "#0b0b14" }}>Size Chart</h1>
+            <p className="text-sm mt-0.5" style={{ color: "rgba(11,11,20,0.5)" }}>
               Edit the size guide shown on product pages. Changes apply instantly.
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function AdminSizeChartPage() {
             <button
               onClick={addRow}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
-              style={{ background: "rgba(201,168,76,0.12)", color: "#c9a84c", border: "1px solid rgba(201,168,76,0.2)" }}>
+              style={{ background: "rgba(201,168,76,0.12)", color: "#9a7a2e", border: "1px solid rgba(201,168,76,0.35)" }}>
               <span className="material-symbols-outlined text-[18px]">add</span>
               Add Row
             </button>
@@ -100,7 +100,7 @@ export default function AdminSizeChartPage() {
               onClick={save}
               disabled={saving}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
-              style={{ background: "#c9a84c", color: "#0b0b14" }}>
+              style={{ background: "#0b0b14", color: "#faf7f0" }}>
               <span className="material-symbols-outlined text-[18px]">{saving ? "hourglass_empty" : "save"}</span>
               {saving ? "Saving…" : "Save Changes"}
             </button>
@@ -112,9 +112,9 @@ export default function AdminSizeChartPage() {
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-xl mb-5 text-sm font-semibold"
             style={{
-              background: status.type === "success" ? "rgba(22,163,74,0.1)" : "rgba(186,26,26,0.1)",
-              border: `1px solid ${status.type === "success" ? "rgba(22,163,74,0.25)" : "rgba(186,26,26,0.25)"}`,
-              color: status.type === "success" ? "#4ade80" : "#f87171",
+              background: status.type === "success" ? "rgba(22,163,74,0.08)" : "rgba(186,26,26,0.08)",
+              border: `1px solid ${status.type === "success" ? "rgba(22,163,74,0.3)" : "rgba(186,26,26,0.3)"}`,
+              color: status.type === "success" ? "#15803d" : "#b91c1c",
             }}>
             <span className="material-symbols-outlined text-[18px]">
               {status.type === "success" ? "check_circle" : "error"}
@@ -126,34 +126,34 @@ export default function AdminSizeChartPage() {
         {/* Table card */}
         <div
           className="rounded-2xl overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          style={{ background: "white", border: "1px solid rgba(11,11,20,0.1)", boxShadow: "0 1px 4px rgba(11,11,20,0.06)" }}>
           {/* Column headers */}
           <div
             className="grid gap-3 px-5 py-3"
             style={{
               gridTemplateColumns: "1fr 1.5fr 1.5fr 1.5fr 40px",
-              borderBottom: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(255,255,255,0.02)",
+              borderBottom: "1px solid rgba(11,11,20,0.08)",
+              background: "rgba(11,11,20,0.03)",
             }}>
             {["Size", "Chest", "Length", "Shoulder", ""].map((h) => (
               <span
                 key={h}
                 className="text-[10px] font-bold uppercase tracking-[0.22em]"
-                style={{ color: "rgba(255,255,255,0.3)" }}>
+                style={{ color: "rgba(11,11,20,0.4)" }}>
                 {h}
               </span>
             ))}
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-16" style={{ color: "rgba(255,255,255,0.3)" }}>
+            <div className="flex items-center justify-center py-16" style={{ color: "rgba(11,11,20,0.4)" }}>
               <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
               Loading…
             </div>
           ) : rows.length === 0 ? (
             <div className="py-20 text-center">
-              <span className="material-symbols-outlined text-5xl block mb-2" style={{ color: "rgba(255,255,255,0.1)" }}>straighten</span>
-              <p className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>No rows yet. Add a row to get started.</p>
+              <span className="material-symbols-outlined text-5xl block mb-2" style={{ color: "rgba(11,11,20,0.15)" }}>straighten</span>
+              <p className="text-sm" style={{ color: "rgba(11,11,20,0.4)" }}>No rows yet. Add a row to get started.</p>
             </div>
           ) : (
             <div>
@@ -163,7 +163,8 @@ export default function AdminSizeChartPage() {
                   className="grid gap-3 px-5 py-3 items-center"
                   style={{
                     gridTemplateColumns: "1fr 1.5fr 1.5fr 1.5fr 40px",
-                    borderBottom: idx < rows.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                    borderBottom: idx < rows.length - 1 ? "1px solid rgba(11,11,20,0.06)" : "none",
+                    background: idx % 2 === 1 ? "rgba(11,11,20,0.015)" : "transparent",
                   }}>
                   {(["size", "chest", "length", "shoulder"] as const).map((field) => (
                     <input
@@ -173,17 +174,17 @@ export default function AdminSizeChartPage() {
                       onChange={(e) => updateRow(idx, field, e.target.value)}
                       placeholder={field === "size" ? "e.g. M" : 'e.g. 38–40"'}
                       style={inputStyle}
-                      onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(201,168,76,0.5)"; }}
-                      onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+                      onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "#c9a84c"; }}
+                      onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(11,11,20,0.15)"; }}
                     />
                   ))}
                   <button
                     onClick={() => deleteRow(idx)}
                     className="w-9 h-9 flex items-center justify-center rounded-lg transition-all"
-                    style={{ color: "rgba(186,26,26,0.6)" }}
+                    style={{ color: "rgba(186,26,26,0.5)" }}
                     title="Delete row"
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(186,26,26,0.12)"; (e.currentTarget as HTMLButtonElement).style.color = "#f87171"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(186,26,26,0.6)"; }}>
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(186,26,26,0.08)"; (e.currentTarget as HTMLButtonElement).style.color = "#b91c1c"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(186,26,26,0.5)"; }}>
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
                 </div>
@@ -193,8 +194,8 @@ export default function AdminSizeChartPage() {
         </div>
 
         {/* Footer hint */}
-        <p className="mt-4 text-[12px]" style={{ color: "rgba(255,255,255,0.2)" }}>
-          Measurements are shown in inches on product pages. Changes are saved to <code style={{ color: "rgba(201,168,76,0.6)" }}>size-chart.json</code> at the project root.
+        <p className="mt-4 text-[12px]" style={{ color: "rgba(11,11,20,0.35)" }}>
+          Measurements are shown in inches on product pages. Changes are saved to <code style={{ color: "#9a7a2e", background: "rgba(201,168,76,0.1)", padding: "1px 5px", borderRadius: "4px" }}>size-chart.json</code> at the project root.
         </p>
       </div>
     </AdminShell>

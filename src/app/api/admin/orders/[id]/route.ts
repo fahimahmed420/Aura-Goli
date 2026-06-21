@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-auth";
 import { apiError } from "@/lib/validation";
 
-const VALID_STATUSES = ["pending_payment", "confirmed", "packed", "shipped", "delivered", "cancelled"];
+const VALID_STATUSES = ["pending_payment", "confirmed", "packed", "shipped", "delivered", "cancelled", "refunded"];
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(req);

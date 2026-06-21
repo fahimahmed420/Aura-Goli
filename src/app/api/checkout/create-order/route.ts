@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   if (!rl.allowed) return apiError("Too many requests. Please wait.", 429);
 
   const body = await req.json();
-  const { shippingAddress, items, promoCode, paymentMethod, guestEmail, isGift } = body;
+  const { shippingAddress, items, promoCode, paymentMethod, guestEmail, isGift, flashSaleId } = body;
   const GIFT_FEE = 50;
 
   // Derive userId from Bearer token — never trust client-supplied user-id headers
@@ -83,9 +83,30 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Apply flash sale discount server-side (verify against DB)
+  let flashSaleDiscount = 0;
+  if (flashSaleId) {
+    const sale = await prisma.flashSale.findFirst({
+      where: { id: flashSaleId, isActive: true, endsAt: { gt: new Date() } },
+    }).catch(() => null);
+    if (sale) {
+      // Re-fetch variants with category to verify eligibility server-side
+      const variantsWithCat = await prisma.productVariant.findMany({
+        where: { id: { in: variantIds } },
+        include: { product: { include: { category: { select: { slug: true } } } } },
+      });
+      for (const item of orderItems) {
+        const vWithCat = variantsWithCat.find(v => v.id === item.variant.id);
+        const catSlug = vWithCat?.product.category?.slug ?? null;
+        const matches = !sale.categorySlug || catSlug === sale.categorySlug;
+        if (matches) flashSaleDiscount += Math.round(item.unitPrice * item.quantity * (sale.discountPercent / 100));
+      }
+    }
+  }
+
   const shippingFee = subtotal >= 2000 ? 0 : 100;
   const giftFee = isGift === true ? GIFT_FEE : 0;
-  const total = subtotal + shippingFee + giftFee - discountAmount;
+  const total = subtotal + shippingFee + giftFee - discountAmount - flashSaleDiscount;
   const orderNumber = generateOrderNumber();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -105,7 +126,7 @@ export async function POST(req: NextRequest) {
         paymentStatus: "pending",
         subtotal,
         shippingFee,
-        discount: discountAmount,
+        discount: discountAmount + flashSaleDiscount,
         total,
         isGift: isGift === true,
         giftFee,

@@ -17,16 +17,14 @@ export default function LoginClient() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [storedReferralCode, setStoredReferralCode] = useState<string | null>(null);
-
-  useEffect(() => {
-    setStoredReferralCode(localStorage.getItem("referralCode"));
-  }, []);
 
   // Surface OAuth errors and password reset success from the callback redirect
   useEffect(() => {
     if (sp.get("reset") === "success") {
       setSuccess("Password updated! Sign in with your new password.");
+    }
+    if (sp.get("verified") === "1") {
+      setSuccess("Email verified! You can now sign in.");
     }
     const oauthError = sp.get("error");
     if (oauthError) {
@@ -52,9 +50,7 @@ export default function LoginClient() {
     setError("");
 
     const url = mode === "login" ? "/api/auth/login" : "/api/auth/register";
-    const registerBody: Record<string, string> = { name, email, password };
-    if (storedReferralCode) registerBody.referralCode = storedReferralCode;
-    const body = mode === "login" ? { email, password } : registerBody;
+    const body = mode === "login" ? { email, password } : { name, email, password };
 
     const res = await fetch(url, {
       method: "POST",
@@ -70,7 +66,6 @@ export default function LoginClient() {
     }
 
     localStorage.setItem("userToken", data.accessToken);
-    if (mode === "register") localStorage.removeItem("referralCode");
     window.dispatchEvent(new Event("user-updated"));
     router.push(next);
   }

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     return apiError("Invalid request body");
   }
 
-  const { name, email, password, referralCode: referralCodeFromBody } = body as Record<string, unknown>;
+  const { name, email, password } = body as Record<string, unknown>;
 
   if (typeof name !== "string" || !name.trim()) return apiError("Name is required");
   if (typeof email !== "string" || !isValidEmail(email)) return apiError("Valid email is required");
@@ -35,20 +35,12 @@ export async function POST(req: NextRequest) {
     return Response.json({ message: "If that email is new, a verification link has been sent." }, { status: 201 });
   }
 
-  function genCode(n: string) {
-    const base = n.replace(/[^a-zA-Z]/g, "").slice(0, 5).toUpperCase();
-    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-    return `${base}-${rand}`;
-  }
-
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
     data: {
       name: name.trim(),
       email: email.toLowerCase(),
       passwordHash,
-      referralCode: genCode(name.trim()),
-      referredBy: typeof referralCodeFromBody === "string" && referralCodeFromBody.trim() ? referralCodeFromBody.trim() : null,
     },
   });
 

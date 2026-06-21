@@ -12,7 +12,7 @@ interface Order {
   shippingAddress: { name: string; address: string; city: string; postalCode: string } | null;
 }
 
-const ORDER_STATUSES = ["pending_payment", "confirmed", "packed", "shipped", "delivered", "cancelled"];
+const ORDER_STATUSES = ["pending_payment", "confirmed", "packed", "shipped", "delivered", "cancelled", "refunded"];
 
 const STATUS_CHIP: Record<string, string> = {
   pending_payment: "bg-[#eeeeee] text-[#444748]",
@@ -21,6 +21,7 @@ const STATUS_CHIP: Record<string, string> = {
   shipped: "bg-[#9f97ff] text-[#33288d]",
   delivered: "bg-[#e5e2e1] text-[#474746]",
   cancelled: "bg-[#ffdad6] text-[#ba1a1a]",
+  refunded: "bg-[#fff8e1] text-[#b06000]",
 };
 
 const FILTER_LABELS: Record<string, string> = {
@@ -30,6 +31,7 @@ const FILTER_LABELS: Record<string, string> = {
   shipped: "Shipped",
   delivered: "Delivered",
   cancelled: "Cancelled",
+  refunded: "Refunded",
 };
 
 export default function AdminOrdersPage() {
@@ -74,7 +76,7 @@ export default function AdminOrdersPage() {
   }
 
   const totalPages = Math.ceil(total / 20);
-  const FILTER_KEYS = ["", "pending_payment", "confirmed", "shipped", "delivered", "cancelled"];
+  const FILTER_KEYS = ["", "pending_payment", "confirmed", "shipped", "delivered", "cancelled", "refunded"];
 
   return (
     <AdminShell title="Orders Management">

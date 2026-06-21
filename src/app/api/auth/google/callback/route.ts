@@ -41,10 +41,12 @@ export async function GET(req: NextRequest) {
   }
 
   let next = "/account/orders";
+  let isAdmin = false;
   try {
     if (stateRaw) {
       const parsed = JSON.parse(Buffer.from(stateRaw, "base64url").toString());
       if (typeof parsed.next === "string") next = parsed.next;
+      if (parsed.admin === true) isAdmin = true;
     }
   } catch { /* ignore */ }
 
@@ -110,6 +112,11 @@ export async function GET(req: NextRequest) {
     return Response.redirect(new URL("/login?error=account_suspended", appUrl));
   }
 
+  // Admin flow: reject non-admins
+  if (isAdmin && user.role !== "admin") {
+    return Response.redirect(new URL("/admin/login?error=not_admin", appUrl));
+  }
+
   const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
 
   const expiresAt = refreshTokenExpiry(false);
@@ -118,7 +125,12 @@ export async function GET(req: NextRequest) {
   await prisma.refreshToken.create({ data: { userId: user.id, token: rawRefreshToken, expiresAt } });
   await setRefreshCookie(rawRefreshToken, expiresAt);
 
-  // Pass the access token to the client via a short-lived redirect page
+  if (isAdmin) {
+    const callbackUrl = new URL("/admin/auth/callback", appUrl);
+    callbackUrl.searchParams.set("token", accessToken);
+    return Response.redirect(callbackUrl.toString());
+  }
+
   const callbackUrl = new URL("/auth/callback", appUrl);
   callbackUrl.searchParams.set("token", accessToken);
   callbackUrl.searchParams.set("next", next);

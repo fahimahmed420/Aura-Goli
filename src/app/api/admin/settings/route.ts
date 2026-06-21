@@ -13,7 +13,7 @@ export async function PUT(req: NextRequest) {
   if (auth instanceof Response) return auth;
 
   const body = await req.json();
-  const allowed = ["storeName", "legalName", "email", "phone", "address", "currency", "timezone", "weightUnit", "maintenanceMode"];
+  const allowed = ["storeName", "legalName", "email", "phone", "address", "currency", "timezone", "weightUnit", "maintenanceMode", "instagramUrl", "facebookUrl", "tiktokUrl", "youtubeUrl"];
   const patch: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) patch[key] = body[key];

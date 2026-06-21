@@ -25,6 +25,7 @@ enum OrderStatus {
   shipped
   delivered
   cancelled
+  refunded
 }
 
 enum PaymentStatus {
@@ -281,6 +282,7 @@ model FlashSale {
   name            String
   bannerText      String
   discountPercent Int
+  categorySlug    String?  // null = all categories
   endsAt          DateTime
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())

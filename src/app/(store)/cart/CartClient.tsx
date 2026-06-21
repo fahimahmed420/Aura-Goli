@@ -15,6 +15,7 @@ export interface CartItem {
   image: string | null;
   quantity: number;
   sku?: string;
+  categorySlug?: string | null;
 }
 
 function getCart(): CartItem[] {
@@ -33,6 +34,7 @@ export default function CartClient() {
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number } | null>(null);
   const [promoError, setPromoError] = useState("");
+  const [applyingPromo, setApplyingPromo] = useState(false);
   const [isGift, setIsGift] = useState(false);
   const GIFT_FEE = 50;
 
@@ -54,15 +56,20 @@ export default function CartClient() {
 
   async function applyPromo() {
     setPromoError("");
-    if (!promoCode.trim()) return;
-    const res = await fetch("/api/checkout/validate-promo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: promoCode.trim(), subtotal }),
-    });
-    const data = await res.json();
-    if (!res.ok) { setPromoError(data.error ?? "Invalid code"); return; }
-    setPromoApplied({ code: data.code, discount: data.discountAmount });
+    if (!promoCode.trim() || applyingPromo) return;
+    setApplyingPromo(true);
+    try {
+      const res = await fetch("/api/checkout/validate-promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoCode.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setPromoError(data.error ?? "Invalid code"); return; }
+      setPromoApplied({ code: data.code, discount: data.discountAmount });
+    } finally {
+      setApplyingPromo(false);
+    }
   }
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -133,11 +140,11 @@ export default function CartClient() {
                 <div className="flex items-center justify-between mt-4">
                   {/* Qty stepper */}
                   <div className="flex items-center border border-[#e8e8e8]">
-                    <button onClick={() => updateQty(item.variantId, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-[#f4f3f3] transition-colors">
+                    <button onClick={() => updateQty(item.variantId, -1)} className="w-11 h-11 flex items-center justify-center hover:bg-[#f4f3f3] transition-colors">
                       <span className="material-symbols-outlined text-sm">remove</span>
                     </button>
-                    <span className="w-8 h-8 flex items-center justify-center text-sm font-semibold border-x border-[#e8e8e8]">{item.quantity}</span>
-                    <button onClick={() => updateQty(item.variantId, 1)} className="w-8 h-8 flex items-center justify-center hover:bg-[#f4f3f3] transition-colors">
+                    <span className="w-10 h-11 flex items-center justify-center text-sm font-semibold border-x border-[#e8e8e8]">{item.quantity}</span>
+                    <button onClick={() => updateQty(item.variantId, 1)} className="w-11 h-11 flex items-center justify-center hover:bg-[#f4f3f3] transition-colors">
                       <span className="material-symbols-outlined text-sm">add</span>
                     </button>
                   </div>
@@ -146,7 +153,7 @@ export default function CartClient() {
                 </div>
               </div>
 
-              <button onClick={() => remove(item.variantId)} className="flex-shrink-0 text-[#747878] hover:text-[#ba1a1a] transition-colors self-start">
+              <button onClick={() => remove(item.variantId)} className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-[#747878] hover:text-[#ba1a1a] hover:bg-red-50 transition-colors self-start">
                 <span className="material-symbols-outlined text-xl">close</span>
               </button>
             </div>
@@ -222,10 +229,12 @@ export default function CartClient() {
                 />
                 <button
                   onClick={applyPromo}
-                  disabled={!!promoApplied}
-                  className="px-4 py-2 border border-black text-sm font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors disabled:opacity-40"
+                  disabled={!!promoApplied || applyingPromo}
+                  className="px-4 py-2 border border-black text-sm font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-colors disabled:opacity-40 flex items-center gap-1.5"
                 >
-                  Apply
+                  {applyingPromo
+                    ? <><span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />Checking</>
+                    : "Apply"}
                 </button>
               </div>
               {promoError && <p className="text-xs text-[#ba1a1a]">{promoError}</p>}

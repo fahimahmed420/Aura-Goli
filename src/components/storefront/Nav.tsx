@@ -7,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation";
 interface User { name: string; email: string; avatarUrl?: string | null; }
 interface Category { id: string; name: string; slug: string; }
 
-const DISMISS_KEY = "ag_flash_dismissed_until";
 
 export default function Nav({ storeName = "Aura Goli" }: { storeName?: string }) {
   const pathname = usePathname();
@@ -17,12 +16,19 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [bannerVisible, setBannerVisible] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const isHome = pathname === "/";
+  const isAccountPage = pathname.startsWith("/account");
+  const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
+
+  // Sync icon state when drawer is closed from inside AccountLayoutClient
+  useEffect(() => {
+    const handler = () => setAccountDrawerOpen(false);
+    window.addEventListener("account-drawer-closed", handler);
+    return () => window.removeEventListener("account-drawer-closed", handler);
+  }, []);
 
   useEffect(() => {
     const updateUser = async () => {
@@ -44,25 +50,11 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
     updateCart();
     fetch("/api/categories").then((r) => r.json()).then((d) => setCategories(d.categories?.slice(0, 5) ?? []));
 
-    // Track whether the flash banner is visible so we can push nav down
-    const checkBanner = () => {
-      const until = localStorage.getItem(DISMISS_KEY);
-      const suppressed = until && Date.now() < Number(until);
-      if (suppressed) { setBannerVisible(false); return; }
-      fetch("/api/flash-sale")
-        .then(r => r.ok ? r.json() : null)
-        .then(d => setBannerVisible(!!(d?.sale)))
-        .catch(() => setBannerVisible(false));
-    };
-    checkBanner();
-
     window.addEventListener("user-updated", updateUser);
     window.addEventListener("cart-updated", updateCart);
-    window.addEventListener("flash-banner-dismissed", () => setBannerVisible(false));
     return () => {
       window.removeEventListener("user-updated", updateUser);
       window.removeEventListener("cart-updated", updateCart);
-      window.removeEventListener("flash-banner-dismissed", () => setBannerVisible(false));
     };
   }, []);
 
@@ -118,7 +110,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
     return pathname.startsWith(link.href);
   }
 
-  const isTransparent = isHome && !scrolled && !menuOpen;
+  const isTransparent = isHome && !scrolled;
 
   const userInitial = user?.name?.charAt(0)?.toUpperCase() ?? "?";
 
@@ -126,14 +118,16 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
     <>
       {/* ── Top bar ───────────────────────────────────────────── */}
       <header
-        className="fixed inset-x-0 z-50 transition-all duration-300"
+        data-store-nav
+        className={`fixed inset-x-0 z-50 ${isAccountPage ? "" : "transition-[background,backdrop-filter,border-color,box-shadow] duration-300"}`}
         style={{
-          top: bannerVisible ? "2.5rem" : "0",
+          top: "0",
           background: isTransparent ? "transparent" : "rgba(11,11,20,0.96)",
           backdropFilter: isTransparent ? "none" : "blur(20px)",
           WebkitBackdropFilter: isTransparent ? "none" : "blur(20px)",
-          borderBottom: isTransparent ? "none" : "1px solid rgba(255,255,255,0.07)",
-          boxShadow: isTransparent ? "none" : "0 4px 24px rgba(11,11,20,0.5)",
+          zIndex: isAccountPage && accountDrawerOpen ? 90 : 50,
+          borderBottom: (isTransparent || isAccountPage) ? "none" : "1px solid rgba(255,255,255,0.07)",
+          boxShadow: (isTransparent || isAccountPage) ? "none" : "0 4px 24px rgba(11,11,20,0.5)",
         }}
       >
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
@@ -166,16 +160,16 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
 
           {/* Right actions */}
           <div className="flex items-center gap-1 ml-auto">
-            {/* Search */}
+            {/* Search — desktop only */}
             <button onClick={() => setSearchOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-full transition-all"
+              className="hidden md:flex w-10 h-10 items-center justify-center rounded-full transition-all"
               style={{ color: "rgba(255,255,255,0.7)" }} aria-label="Search">
               <span className="material-symbols-outlined text-xl">search</span>
             </button>
 
-            {/* Cart */}
+            {/* Cart — desktop only */}
             <Link href="/cart"
-              className="relative w-10 h-10 flex items-center justify-center rounded-full transition-all"
+              className="hidden md:flex relative w-10 h-10 items-center justify-center rounded-full transition-all"
               style={{ color: "rgba(255,255,255,0.7)" }} aria-label="Cart">
               <span className="material-symbols-outlined text-xl">shopping_bag</span>
               {cartCount > 0 && (
@@ -185,6 +179,55 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                 </span>
               )}
             </Link>
+
+            {/* Account name + avatar + drawer trigger — mobile account pages only */}
+            {isAccountPage && (
+              <>
+                {user && (
+                  <>
+                    <span className="md:hidden text-sm font-medium max-w-[80px] truncate" style={{ color: "rgba(255,255,255,0.55)" }}>
+                      {user.name.split(" ")[0]}
+                    </span>
+                    <div className="md:hidden w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0"
+                      style={{ background: "rgba(201,168,76,0.18)", color: "#c9a84c", border: "1.5px solid rgba(201,168,76,0.3)" }}>
+                      {user.avatarUrl
+                        ? <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        : user.name.charAt(0).toUpperCase()}
+                    </div>
+                  </>
+                )}
+                <button
+                  className="md:hidden w-10 h-10 flex items-center justify-center rounded-full transition-all"
+                  style={{ color: "rgba(255,255,255,0.7)" }}
+                  aria-label="Account menu"
+                  onClick={() => {
+                    if (accountDrawerOpen) {
+                      setAccountDrawerOpen(false);
+                      window.dispatchEvent(new Event("close-account-drawer"));
+                    } else {
+                      setAccountDrawerOpen(true);
+                      window.dispatchEvent(new Event("open-account-drawer"));
+                    }
+                  }}
+                >
+                  {/* Animated menu ↔ close icon */}
+                  <span style={{ position: "relative", width: 22, height: 22, display: "inline-block" }}>
+                    <span className="material-symbols-outlined text-xl" style={{
+                      position: "absolute", inset: 0,
+                      transition: "opacity 0.22s ease, transform 0.28s ease",
+                      opacity: accountDrawerOpen ? 0 : 1,
+                      transform: accountDrawerOpen ? "rotate(-45deg) scale(0.6)" : "rotate(0deg) scale(1)",
+                    }}>menu</span>
+                    <span className="material-symbols-outlined text-xl" style={{
+                      position: "absolute", inset: 0,
+                      transition: "opacity 0.22s ease, transform 0.28s ease",
+                      opacity: accountDrawerOpen ? 1 : 0,
+                      transform: accountDrawerOpen ? "rotate(0deg) scale(1)" : "rotate(45deg) scale(0.6)",
+                    }}>close</span>
+                  </span>
+                </button>
+              </>
+            )}
 
             {/* Account dropdown (desktop) */}
             <div className="hidden md:block relative group">
@@ -255,79 +298,9 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
               </div>
             </div>
 
-            {/* Hamburger (mobile) */}
-            <button onClick={() => setMenuOpen((o) => !o)}
-              className="md:hidden w-10 h-10 flex items-center justify-center rounded-full transition-all"
-              style={{ color: "rgba(255,255,255,0.7)" }} aria-label="Menu">
-              <span className="material-symbols-outlined text-xl">{menuOpen ? "close" : "menu"}</span>
-            </button>
           </div>
         </div>
       </header>
-
-      {/* ── Mobile drawer ─────────────────────────────────────── */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMenuOpen(false)}>
-          <div className="absolute inset-0" style={{ background: "rgba(11,11,20,0.7)", backdropFilter: "blur(4px)" }} />
-          <div className="absolute top-16 left-0 right-0 rounded-b-3xl overflow-hidden"
-            style={{ background: "#12103a", borderBottom: "1px solid rgba(255,255,255,0.1)" }}
-            onClick={(e) => e.stopPropagation()}>
-            <div className="px-4 py-4 space-y-1">
-              {navLinks.map((l) => {
-                const active = isActive(l);
-                return (
-                  <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors"
-                    style={{
-                      color: active ? "#c9a84c" : "rgba(255,255,255,0.75)",
-                      background: active ? "rgba(201,168,76,0.1)" : "transparent",
-                    }}>
-                    {l.label}
-                  </Link>
-                );
-              })}
-              <hr className="border-white/8 my-2" />
-              {user ? (
-                <>
-                  <div className="px-4 py-3 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold overflow-hidden shrink-0"
-                      style={{ background: "rgba(201,168,76,0.2)", color: "#c9a84c" }}>
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-                      ) : userInitial}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{user.name}</p>
-                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{user.email}</p>
-                    </div>
-                  </div>
-                  {[
-                    { href: "/account/profile", icon: "person", label: "Profile" },
-                    { href: "/account/orders", icon: "receipt_long", label: "My Orders" },
-                    { href: "/account/wishlist", icon: "favorite", label: "Wishlist" },
-                    { href: "/account/addresses", icon: "location_on", label: "Addresses" },
-                  ].map((item) => (
-                    <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors"
-                      style={{ color: "rgba(255,255,255,0.7)" }}>
-                      <span className="material-symbols-outlined text-base">{item.icon}</span> {item.label}
-                    </Link>
-                  ))}
-                  <button onClick={() => { logout(); setMenuOpen(false); }}
-                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm text-red-400">
-                    <span className="material-symbols-outlined text-base">logout</span> Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link href={`/login?next=${encodeURIComponent(pathname)}`} onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 mx-4 py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest btn-gold">
-                  Sign In / Register
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Search overlay ────────────────────────────────────── */}
       {searchOpen && (
@@ -350,7 +323,6 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
       )}
 
       {/* ── Mobile bottom nav ─────────────────────────────────── */}
-      {/* ── Bottom Nav: floating bubble style ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-50"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         {/* Extra top padding creates room for bubble to overflow upward */}
@@ -367,47 +339,37 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
               overflow: "visible",
             }}>
             {([
-              { href: "/", label: "Home", icon: "home" },
-              { href: "/shop", label: "Shop", icon: "storefront" },
-              { href: "/cart", label: "Bag", icon: "shopping_bag", badge: cartCount },
-              { href: user ? "/account/profile" : `/login?next=${encodeURIComponent(pathname)}`, label: user ? "Account" : "Sign In", icon: user ? "person" : "login" },
-            ] as { href: string; label: string; icon: string; badge?: number }[]).map((item) => {
-              const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-              return (
-                <Link key={item.href} href={item.href}
-                  className="relative flex flex-col items-center justify-center active:scale-90 transition-transform duration-150"
-                  style={{ width: "25%", height: "100%" }}>
-
+              { type: "link", href: "/", label: "Home", icon: "home" },
+              { type: "link", href: "/shop", label: "Shop", icon: "storefront" },
+              { type: "action", label: "Search", icon: "search" },
+              { type: "link", href: "/cart", label: "Bag", icon: "shopping_bag", badge: cartCount },
+              { type: "link", href: user ? "/account/profile" : `/login?next=${encodeURIComponent(pathname)}`, label: user ? "Account" : "Sign In", icon: user ? "person" : "login" },
+            ] as ({ type: "link"; href: string; label: string; icon: string; badge?: number } | { type: "action"; label: string; icon: string })[]).map((item) => {
+              const active = item.type === "action"
+                ? searchOpen
+                : (item.href === "/" ? pathname === "/" : pathname.startsWith(item.href));
+              const inner = (
+                <>
                   {active ? (
                     <>
-                      {/* Floating bubble — rises 28px above the bar */}
                       <span className="absolute flex items-center justify-center rounded-full"
                         style={{
-                          width: "54px",
-                          height: "54px",
-                          bottom: "32px",
-                          left: "50%",
+                          width: "54px", height: "54px", bottom: "32px", left: "50%",
                           transform: "translateX(-50%)",
                           background: "linear-gradient(145deg, #d4b05a 0%, #c9a84c 50%, #b8942e 100%)",
                           boxShadow: "0 4px 20px rgba(201,168,76,0.45), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.25)",
                         }}>
-                        {/* Badge on bubble */}
-                        {item.badge !== undefined && item.badge > 0 && (
-                          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-bold"
-                            style={{ background: "#ba1a1a", color: "white", boxShadow: "0 0 0 2px #0b0b14", padding: "0 3px" }}>
+                        {"badge" in item && item.badge !== undefined && item.badge > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-bold px-[3px]"
+                            style={{ background: "#ba1a1a", color: "white", boxShadow: "0 0 0 2px #0b0b14" }}>
                             {item.badge > 9 ? "9+" : item.badge}
                           </span>
                         )}
                         <span className="material-symbols-outlined"
-                          style={{
-                            fontSize: "24px",
-                            color: "#0b0b14",
-                            fontVariationSettings: "'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24",
-                          }}>
+                          style={{ fontSize: "24px", color: "#0b0b14", fontVariationSettings: "'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24" }}>
                           {item.icon}
                         </span>
                       </span>
-                      {/* Label inside bar */}
                       <span className="absolute bottom-[7px] text-[9px] font-bold tracking-wider uppercase"
                         style={{ color: "#c9a84c", letterSpacing: "0.07em" }}>
                         {item.label}
@@ -415,19 +377,14 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                     </>
                   ) : (
                     <>
-                      {/* Normal icon */}
                       <span className="relative">
                         <span className="material-symbols-outlined"
-                          style={{
-                            fontSize: "22px",
-                            color: "rgba(255,255,255,0.35)",
-                            fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
-                          }}>
+                          style={{ fontSize: "22px", color: "rgba(255,255,255,0.35)", fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
                           {item.icon}
                         </span>
-                        {item.badge !== undefined && item.badge > 0 && (
-                          <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] flex items-center justify-center rounded-full text-[9px] font-bold"
-                            style={{ background: "#ba1a1a", color: "white", boxShadow: "0 0 0 1.5px #0b0b14", padding: "0 2px" }}>
+                        {"badge" in item && item.badge !== undefined && item.badge > 0 && (
+                          <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] flex items-center justify-center rounded-full text-[9px] font-bold px-[2px]"
+                            style={{ background: "#ba1a1a", color: "white", boxShadow: "0 0 0 1.5px #0b0b14" }}>
                             {item.badge > 9 ? "9+" : item.badge}
                           </span>
                         )}
@@ -438,6 +395,23 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                       </span>
                     </>
                   )}
+                </>
+              );
+              if (item.type === "action") {
+                return (
+                  <button key={item.label}
+                    onClick={() => setSearchOpen(true)}
+                    className="relative flex flex-col items-center justify-center active:scale-90 transition-transform duration-150"
+                    style={{ width: "20%", height: "100%" }}>
+                    {inner}
+                  </button>
+                );
+              }
+              return (
+                <Link key={item.href} href={item.href}
+                  className="relative flex flex-col items-center justify-center active:scale-90 transition-transform duration-150"
+                  style={{ width: "20%", height: "100%" }}>
+                  {inner}
                 </Link>
               );
             })}
@@ -446,7 +420,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
       </nav>
 
       {/* Spacer */}
-      {!isHome && <div className="h-24" />}
+      {!isHome && <div className="h-14" />}
     </>
   );
 }

@@ -16,6 +16,7 @@ export interface StoreSettings {
   instagramUrl: string;
   facebookUrl: string;
   tiktokUrl: string;
+  youtubeUrl: string;
 }
 
 const DEFAULTS: StoreSettings = {
@@ -31,6 +32,7 @@ const DEFAULTS: StoreSettings = {
   instagramUrl: "",
   facebookUrl: "",
   tiktokUrl: "",
+  youtubeUrl: "",
 };
 
 export function getSettings(): StoreSettings {

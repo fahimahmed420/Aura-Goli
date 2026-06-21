@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     where: { orderNumber: tranId },
     include: {
       items: true,
-      user: { select: { id: true, email: true, name: true, referredBy: true } },
+      user: { select: { id: true, email: true, name: true } },
     },
   });
   if (!order) return Response.redirect(new URL("/cart?error=order_not_found", appUrl));
@@ -54,33 +54,6 @@ export async function POST(req: NextRequest) {
     };
     const customerEmail = order.user?.email ?? (addr as { email?: string }).email ?? "customer@example.com";
     const customerName  = order.user?.name ?? addr.name ?? "Customer";
-
-    // Referral: if first paid order and user was referred, issue coupons
-    if (order.userId && order.user?.referredBy) {
-      try {
-        const prevPaidCount = await prisma.order.count({
-          where: { userId: order.userId, paymentStatus: "paid", id: { not: order.id } },
-        });
-        if (prevPaidCount === 0) {
-          const rand = () => Math.random().toString(36).slice(2, 7).toUpperCase();
-          const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-          await prisma.coupon.create({
-            data: { code: `WELCOME10-${rand()}`, type: "percent", value: 10, usageLimit: 1, expiresAt },
-          });
-          const referrer = await prisma.user.findUnique({
-            where: { referralCode: order.user.referredBy },
-            select: { id: true },
-          });
-          if (referrer) {
-            await prisma.coupon.create({
-              data: { code: `THANKS-${rand()}`, type: "flat", value: 100, usageLimit: 1, expiresAt },
-            });
-          }
-        }
-      } catch (err) {
-        console.error("Referral coupon error:", err);
-      }
-    }
 
     sendOrderConfirmation({
       orderNumber: order.orderNumber,

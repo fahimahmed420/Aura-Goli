@@ -51,7 +51,7 @@ export default async function HomePage() {
             "Made in Bangladesh",
             "4.9★ Customer Rating",
           ].flatMap((t, i) => [
-            <span key={`a${i}`} className="text-[11px] font-bold uppercase tracking-[0.2em] px-6 shrink-0"
+            <span key={`a${i}`} className="text-[12px] font-bold uppercase tracking-[0.2em] px-6 shrink-0"
               style={{ color: "#0b0b14" }}>{t}</span>,
             <span key={`d${i}`} className="text-[11px] font-bold px-2 opacity-30 shrink-0"
               style={{ color: "#0b0b14" }}>·</span>,
@@ -65,7 +65,7 @@ export default async function HomePage() {
             "Made in Bangladesh",
             "4.9★ Customer Rating",
           ].flatMap((t, i) => [
-            <span key={`b${i}`} className="text-[11px] font-bold uppercase tracking-[0.2em] px-6 shrink-0"
+            <span key={`b${i}`} className="text-[12px] font-bold uppercase tracking-[0.2em] px-6 shrink-0"
               style={{ color: "#0b0b14" }}>{t}</span>,
             <span key={`e${i}`} className="text-[11px] font-bold px-2 opacity-30 shrink-0"
               style={{ color: "#0b0b14" }}>·</span>,
@@ -73,42 +73,67 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── BRAND STATEMENT ──────────────────────────────────────────── */}
-      <section style={{ background: "#faf7f0" }} className="py-14 md:py-28">
+      {/* ── WHY SHOP WITH US ─────────────────────────────────────────── */}
+      <section style={{ background: "#faf7f0" }} className="py-14 md:py-24">
         <div className="max-w-[1280px] mx-auto px-5 md:px-14">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-5" style={{ color: "#c9a84c" }}>
-            Our Philosophy
-          </p>
-          <h2 className="font-['Playfair_Display'] font-bold leading-[1.05] tracking-tight mb-5"
-            style={{ fontSize: "clamp(2rem, 8vw, 4.5rem)", color: "#12103a" }}>
-            Craft over<br />
-            <span style={{ color: "#3d2b7a" }}>convenience.</span>
-          </h2>
-          <p className="text-[15px] leading-relaxed mb-7" style={{ color: "#5a5358" }}>
-            Every piece starts with a question: does this deserve to exist?
-            We obsess over fabric weight, stitch tension, and silhouette before a single sample is cut.
-          </p>
-          <Link href="/shop"
-            className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] border-b pb-1"
-            style={{ color: "#12103a", borderColor: "#12103a" }}>
-            Explore the collection
-            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </Link>
 
-          {/* Stats — 3-col grid on all sizes */}
-          <div className="grid grid-cols-3 gap-3 md:gap-8 mt-10 pt-8"
-            style={{ borderTop: "1px solid rgba(18,16,58,0.1)" }}>
+          {/* Header */}
+          <div className="text-center mb-10 md:mb-14">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style={{ color: "#c9a84c" }}>
+              Why Choose Us
+            </p>
+            <h2 className="font-['Playfair_Display'] font-bold leading-tight"
+              style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", color: "#12103a" }}>
+              Shop with confidence
+            </h2>
+          </div>
+
+          {/* Benefits grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
             {[
-              { num: "100%", label: "Premium cotton" },
-              { num: "30+", label: "Styles this season" },
-              { num: "4.9★", label: "Customer rating" },
-            ].map((s) => (
-              <div key={s.label} className="rounded-2xl px-4 py-5 md:bg-transparent md:rounded-none md:px-0 md:py-0"
-                style={{ background: "white", boxShadow: "0 2px 12px rgba(11,11,20,0.05)" }}>
-                <p className="font-['Playfair_Display'] text-[1.6rem] md:text-[2.5rem] font-bold leading-none" style={{ color: "#3d2b7a" }}>{s.num}</p>
-                <p className="text-[11px] md:text-[13px] mt-1.5 leading-snug" style={{ color: "#5a5358" }}>{s.label}</p>
+              { icon: "local_shipping", title: "Free Delivery", sub: "On orders over ৳2,000", color: "#3d2b7a" },
+              { icon: "autorenew", title: "30-Day Returns", sub: "No questions asked", color: "#c9a84c" },
+              { icon: "verified", title: "100% Authentic", sub: "Genuine premium quality", color: "#3d2b7a" },
+              { icon: "support_agent", title: "Live Support", sub: "We reply within 24 hrs", color: "#c9a84c" },
+            ].map((b) => (
+              <div key={b.title}
+                className="flex flex-col items-center text-center px-4 py-6 rounded-2xl"
+                style={{ background: "white", border: "1px solid rgba(11,11,20,0.06)", boxShadow: "0 2px 16px rgba(11,11,20,0.04)" }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                  style={{ background: b.color === "#c9a84c" ? "rgba(201,168,76,0.1)" : "rgba(61,43,122,0.08)" }}>
+                  <span className="material-symbols-outlined text-2xl" style={{ color: b.color, fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
+                </div>
+                <p className="font-bold text-[14px] mb-1" style={{ color: "#12103a" }}>{b.title}</p>
+                <p className="text-[12px] leading-snug" style={{ color: "#8a8585" }}>{b.sub}</p>
               </div>
             ))}
+          </div>
+
+          {/* Social proof bar */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 px-6 py-5 rounded-2xl"
+            style={{ background: "linear-gradient(135deg, #12103a 0%, #1e1a4a 100%)" }}>
+            <div className="flex items-center gap-4">
+              {/* Star rating */}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1 mb-0.5">
+                  {[1,2,3,4,5].map(i => (
+                    <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#c9a84c"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  ))}
+                  <span className="font-bold text-[15px] ml-1" style={{ color: "#faf7f0" }}>4.9</span>
+                </div>
+                <p className="text-[11px]" style={{ color: "rgba(250,247,240,0.5)" }}>from 1,200+ happy customers</p>
+              </div>
+              <div className="w-px h-10 hidden md:block" style={{ background: "rgba(250,247,240,0.1)" }} />
+              <p className="text-[13px] font-medium" style={{ color: "rgba(250,247,240,0.7)" }}>
+                "Best quality tees I've found in Bangladesh. Will order again!"
+              </p>
+            </div>
+            <Link href="/shop"
+              className="shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl text-[13px] font-bold transition-all hover:opacity-90 active:scale-[0.98]"
+              style={{ background: "#c9a84c", color: "#0b0b14" }}>
+              Shop Now
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </Link>
           </div>
         </div>
       </section>

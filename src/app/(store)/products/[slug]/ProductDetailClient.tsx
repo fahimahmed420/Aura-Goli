@@ -149,6 +149,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
         variantId, productId: product.id, name: product.name, price: finalPrice,
         color: selectedColor, size: selectedSize,
         image: product.images[0]?.url ?? null, quantity: qty, sku: activeVariant?.sku,
+        categorySlug: product.category?.slug ?? null,
       });
     }
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -216,7 +217,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       .share-panel { animation: shareSlideDown 0.22s cubic-bezier(.4,0,.2,1) both; }
     `}</style>
 
-    <div style={{ fontFamily: "'Hanken Grotesk', sans-serif", background: "#faf7f0", minHeight: "100vh", paddingTop: "64px" }}>
+    <div style={{ fontFamily: "'Hanken Grotesk', sans-serif", background: "#faf7f0", minHeight: "100vh", paddingTop: "4px" }}>
 
       {/* ═══════════════════════════════════════════════════════
           MOBILE LAYOUT
@@ -224,7 +225,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       <div className="md:hidden">
 
         {/* Breadcrumbs */}
-        <div className="px-4 pb-3 flex items-center gap-1.5 text-[11px] flex-wrap" style={{ color: "rgba(18,16,58,0.4)" }}>
+        <div className="px-4 pt-4 pb-3 flex items-center gap-1.5 text-[11px] flex-wrap" style={{ color: "rgba(18,16,58,0.4)" }}>
           <Link href="/" className="hover:text-[#0b0b14] transition-colors">Home</Link>
           <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
           <Link href="/shop" className="hover:text-[#0b0b14] transition-colors">Shop</Link>
@@ -437,6 +438,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               ⚠ Only {lowStock} left in this size — order soon
             </p>
           )}
+
+          {/* Material */}
+          <div className="flex items-center gap-2 mb-4 px-3.5 py-2.5 rounded-xl"
+            style={{ background: "rgba(11,11,20,0.03)", border: "1px solid rgba(11,11,20,0.07)" }}>
+            <span className="material-symbols-outlined text-[16px]" style={{ color: "#3d2b7a" }}>texture</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(11,11,20,0.4)" }}>Material</span>
+            <span className="text-[13px] font-semibold ml-auto" style={{ color: "#0b0b14" }}>{product.material || "100% Cotton"}</span>
+          </div>
 
           {/* Quantity + ATC */}
           <div className="mb-5">
@@ -700,7 +709,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
           <div className="flex gap-12 lg:gap-16 items-start">
 
             {/* ── LEFT: Sticky image gallery — 56% ── */}
-            <div className="sticky top-6" style={{ width: "56%", flexShrink: 0 }}>
+            <div className="sticky top-[80px]" style={{ width: "56%", flexShrink: 0 }}>
               <div className="flex gap-4">
                 {/* Vertical thumbnails */}
                 {product.images.length > 1 && (
@@ -939,6 +948,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   ⚠ Only {lowStock} left in this size — order soon
                 </p>
               )}
+
+              {/* Material */}
+              <div className="flex items-center gap-2 mb-5 px-3.5 py-2.5 rounded-xl"
+                style={{ background: "rgba(11,11,20,0.03)", border: "1px solid rgba(11,11,20,0.07)" }}>
+                <span className="material-symbols-outlined text-[16px]" style={{ color: "#3d2b7a" }}>texture</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(11,11,20,0.4)" }}>Material</span>
+                <span className="text-[13px] font-semibold ml-auto" style={{ color: "#0b0b14" }}>{product.material || "100% Cotton"}</span>
+              </div>
 
               {/* Quantity */}
               <div className="pd-fade-up mb-6" style={{ animationDelay: "0.22s" }}>

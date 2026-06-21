@@ -38,6 +38,8 @@ const PAYMENT_METHODS = [
 
 const GIFT_FEE = 50;
 
+interface FlashSale { id: string; discountPercent: number; categorySlug: string | null; bannerText: string; }
+
 export default function CheckoutClient() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
@@ -49,11 +51,15 @@ export default function CheckoutClient() {
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isGift, setIsGift] = useState(false);
+  const [flashSale, setFlashSale] = useState<FlashSale | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("checkoutState");
     if (!raw) { router.replace("/cart"); return; }
     setState(JSON.parse(raw));
+
+    // Fetch active flash sale for auto-discount
+    fetch("/api/flash-sale").then(r => r.ok ? r.json() : null).then(d => setFlashSale(d?.sale ?? null)).catch(() => {});
 
     // Pre-fill from auth token + load saved addresses
     const token = localStorage.getItem("userToken");
@@ -102,8 +108,15 @@ export default function CheckoutClient() {
     applyAddress(a);
   }
 
+  const [shippingTouched, setShippingTouched] = useState(false);
+
   function validateShipping() {
-    return shipping.name && shipping.phone && shipping.address && shipping.city && shipping.email;
+    return !!(shipping.name && shipping.phone && shipping.address && shipping.city && shipping.email);
+  }
+
+  function fieldError(field: keyof ShippingForm) {
+    if (!shippingTouched) return false;
+    return !shipping[field];
   }
 
   async function placeOrder() {
@@ -126,6 +139,8 @@ export default function CheckoutClient() {
         guestEmail: shipping.email,
         isGift,
         giftFee: isGift ? GIFT_FEE : 0,
+        flashSaleId: flashSale?.id ?? null,
+        flashDiscount,
       }),
     });
 
@@ -151,10 +166,18 @@ export default function CheckoutClient() {
 
   if (!state) return null;
 
+  // Flash sale: compute discount on eligible items
+  const flashDiscount = flashSale
+    ? Math.round(state.cart.reduce((sum, item) => {
+        const matches = !flashSale.categorySlug || item.categorySlug === flashSale.categorySlug;
+        return matches ? sum + item.price * item.quantity * (flashSale.discountPercent / 100) : sum;
+      }, 0))
+    : 0;
+
   const subtotal = state.cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingFee = subtotal >= 2000 ? 0 : 100;
   const giftFee = isGift ? GIFT_FEE : 0;
-  const total = subtotal + shippingFee + giftFee - state.discount;
+  const total = subtotal + shippingFee + giftFee - state.discount - flashDiscount;
 
   const steps = [
     { n: 1, label: "Shipping" },
@@ -238,21 +261,21 @@ export default function CheckoutClient() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Full Name" required>
-                  <input value={shipping.name} onChange={(e) => setField("name", e.target.value)} className="field-input" placeholder="Faisal Ahmed" required />
+                <Field label="Full Name" required error={fieldError("name") ? "Required" : undefined}>
+                  <input value={shipping.name} onChange={(e) => setField("name", e.target.value)} className="field-input" placeholder="Faisal Ahmed" style={fieldError("name") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
-                <Field label="Phone" required>
-                  <input type="tel" value={shipping.phone} onChange={(e) => setField("phone", e.target.value)} className="field-input" placeholder="01XXXXXXXXX" required />
+                <Field label="Phone" required error={fieldError("phone") ? "Required" : undefined}>
+                  <input type="tel" value={shipping.phone} onChange={(e) => setField("phone", e.target.value)} className="field-input" placeholder="01XXXXXXXXX" style={fieldError("phone") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
-                <Field label="Email" required>
-                  <input type="email" value={shipping.email} onChange={(e) => setField("email", e.target.value)} className="field-input" placeholder="you@email.com" required />
+                <Field label="Email" required error={fieldError("email") ? "Required" : undefined}>
+                  <input type="email" value={shipping.email} onChange={(e) => setField("email", e.target.value)} className="field-input" placeholder="you@email.com" style={fieldError("email") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
-                <Field label="City" required>
-                  <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" required />
+                <Field label="City" required error={fieldError("city") ? "Required" : undefined}>
+                  <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" style={fieldError("city") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
                 <div className="md:col-span-2">
-                  <Field label="Address" required>
-                    <input value={shipping.address} onChange={(e) => setField("address", e.target.value)} className="field-input" placeholder="House, Road, Area" required />
+                  <Field label="Address" required error={fieldError("address") ? "Required" : undefined}>
+                    <input value={shipping.address} onChange={(e) => setField("address", e.target.value)} className="field-input" placeholder="House, Road, Area" style={fieldError("address") ? { borderColor: "#ba1a1a" } : {}} />
                   </Field>
                 </div>
                 <Field label="Postal Code">
@@ -301,9 +324,11 @@ export default function CheckoutClient() {
               </div>
 
               <button
-                onClick={() => { if (validateShipping()) setStep(2); }}
-                disabled={!validateShipping()}
-                className="w-full bg-black text-white py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#5951b4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                onClick={() => {
+                  setShippingTouched(true);
+                  if (validateShipping()) setStep(2);
+                }}
+                className="w-full bg-black text-white py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#5951b4] transition-colors flex items-center justify-center gap-2"
               >
                 Continue to Payment <span className="material-symbols-outlined text-lg">arrow_forward</span>
               </button>
@@ -482,7 +507,16 @@ export default function CheckoutClient() {
               )}
               {state.discount > 0 && (
                 <div className="flex justify-between text-green-600 font-semibold">
-                  <span>Discount</span><span>-৳{state.discount.toLocaleString()}</span>
+                  <span>Promo discount</span><span>-৳{state.discount.toLocaleString()}</span>
+                </div>
+              )}
+              {flashDiscount > 0 && (
+                <div className="flex justify-between font-semibold" style={{ color: "#c9a84c" }}>
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">bolt</span>
+                    Flash Sale ({flashSale!.discountPercent}% off{flashSale!.categorySlug ? ` · ${flashSale!.categorySlug}` : ""})
+                  </span>
+                  <span>-৳{flashDiscount.toLocaleString()}</span>
                 </div>
               )}
             </div>
@@ -497,13 +531,14 @@ export default function CheckoutClient() {
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <label className="block text-xs font-bold uppercase tracking-widest text-[#1a1c1c]">
         {label}{required && <span className="text-[#ba1a1a] ml-0.5">*</span>}
       </label>
       {children}
+      {error && <p className="text-[11px] text-[#ba1a1a] font-medium">{error}</p>}
     </div>
   );
 }

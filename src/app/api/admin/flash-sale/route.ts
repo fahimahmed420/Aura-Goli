@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
   const auth = requireAdmin(req);
   if (auth instanceof Response) return auth;
   try {
-    const { name, bannerText, discountPercent, endsAt } = await req.json();
+    const { name, bannerText, discountPercent, categorySlug, endsAt } = await req.json();
     if (!name || !bannerText || !discountPercent || !endsAt)
       return Response.json({ error: "All fields required" }, { status: 400 });
     await prisma.flashSale.updateMany({ where: { isActive: true }, data: { isActive: false } });
     const sale = await prisma.flashSale.create({
-      data: { name, bannerText, discountPercent: Number(discountPercent), endsAt: new Date(endsAt), isActive: true },
+      data: { name, bannerText, discountPercent: Number(discountPercent), categorySlug: categorySlug || null, endsAt: new Date(endsAt), isActive: true },
     });
     return Response.json({ sale }, { status: 201 });
   } catch (e) {
