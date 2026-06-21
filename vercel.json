@@ -1,0 +1,21 @@
+{
+  "buildCommand": "prisma generate && next build",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "env": {
+    "DATABASE_URL": "@database-url",
+    "DIRECT_URL": "@direct-url",
+    "JWT_ACCESS_SECRET": "@jwt-access-secret",
+    "JWT_REFRESH_SECRET": "@jwt-refresh-secret",
+    "JWT_ACCESS_EXPIRES_IN": "15m",
+    "NEXT_PUBLIC_APP_URL": "@app-url",
+    "SSLCOMMERZ_STORE_ID": "@sslcommerz-store-id",
+    "SSLCOMMERZ_STORE_PASSWORD": "@sslcommerz-store-password",
+    "SSLCOMMERZ_SANDBOX": "false",
+    "RESEND_API_KEY": "@resend-api-key",
+    "EMAIL_FROM": "@email-from",
+    "CLOUDINARY_CLOUD_NAME": "@cloudinary-cloud-name",
+    "CLOUDINARY_API_KEY": "@cloudinary-api-key",
+    "CLOUDINARY_API_SECRET": "@cloudinary-api-secret"
+  }
+}

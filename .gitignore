@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local data files (file-based settings & size chart — stored on server, not in repo)
+store-settings.json
+size-chart.json
+
+# Claude Code local config
+.claude/
+
+.gitignore
