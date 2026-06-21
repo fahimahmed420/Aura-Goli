@@ -1,5 +1,6 @@
 import Nav from "@/components/storefront/Nav";
 import Footer from "@/components/storefront/Footer";
+import WhatsAppButton from "@/components/storefront/WhatsAppButton";
 import FlashSaleBanner from "@/components/storefront/FlashSaleBanner";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
@@ -15,6 +16,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <main className="flex-1">{children}</main>
       <CompareDrawer />
       <Footer />
+      <WhatsAppButton />
 
       {maintenanceMode && (
         <div
