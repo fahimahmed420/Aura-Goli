@@ -82,11 +82,13 @@
 /* ── Page entry ─────────────────────────────────────────────── */
 html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
 
+/* Opacity-only (no translateY) so the fade never opens a gap that reveals the
+   body colour behind the dark hero — that was the original "bg flash". */
 @keyframes page-fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-main { animation: page-fade-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+main { animation: page-fade-in 0.4s ease both; }
 
 /* ── Skeleton shimmer ───────────────────────────────────────── */
 @keyframes shimmer {
@@ -273,7 +275,9 @@ button:active:not(:disabled), a:active { opacity: 0.82; transform: scale(0.97); 
 
 /* ── Mobile touch targets ───────────────────────────────────── */
 @media (max-width: 767px) {
-  button, a { min-height: 44px; }
+  /* Only interactive controls get a 44px min target — NOT inline text links,
+     which would otherwise inflate footer/legal links and create uneven gaps. */
+  button, [role="button"], a.tap-target { min-height: 44px; }
   select, input, textarea { font-size: 16px !important; } /* prevent iOS zoom */
 }
 

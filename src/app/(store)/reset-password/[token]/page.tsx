@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function ResetPasswordPage({ params }: { params: { token: string } }) {
+export default function ResetPasswordPage({ params }: { params: Promise<{ token: string }> }) {
   const router = useRouter();
-  const token = params.token;
+  const { token } = use(params);
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");

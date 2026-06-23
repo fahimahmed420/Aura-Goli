@@ -105,7 +105,9 @@ export async function POST(req: NextRequest) {
   }
 
   const shippingFee = subtotal >= 2000 ? 0 : 100;
-  const giftFee = isGift === true ? GIFT_FEE : 0;
+  // Gift packaging is charged per item (per unit quantity), not per order.
+  const totalQty = orderItems.reduce((s, oi) => s + oi.quantity, 0);
+  const giftFee = isGift === true ? GIFT_FEE * totalQty : 0;
   const total = subtotal + shippingFee + giftFee - discountAmount - flashSaleDiscount;
   const orderNumber = generateOrderNumber();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

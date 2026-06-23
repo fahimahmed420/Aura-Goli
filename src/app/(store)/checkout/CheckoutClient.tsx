@@ -36,8 +36,6 @@ const PAYMENT_METHODS = [
   { id: "cod", label: "Cash on Delivery", icon: "payments", sub: "Pay when received" },
 ];
 
-const GIFT_FEE = 50;
-
 interface FlashSale { id: string; discountPercent: number; categorySlug: string | null; bannerText: string; }
 
 export default function CheckoutClient() {
@@ -50,7 +48,6 @@ export default function CheckoutClient() {
   const [error, setError] = useState("");
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [isGift, setIsGift] = useState(false);
   const [flashSale, setFlashSale] = useState<FlashSale | null>(null);
 
   useEffect(() => {
@@ -137,8 +134,7 @@ export default function CheckoutClient() {
         promoCode: state.promoCode,
         paymentMethod,
         guestEmail: shipping.email,
-        isGift,
-        giftFee: isGift ? GIFT_FEE : 0,
+        isGift: state.isGift,
         flashSaleId: flashSale?.id ?? null,
         flashDiscount,
       }),
@@ -176,7 +172,9 @@ export default function CheckoutClient() {
 
   const subtotal = state.cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingFee = subtotal >= 2000 ? 0 : 100;
-  const giftFee = isGift ? GIFT_FEE : 0;
+  // Gift selection (and its per-item fee) is decided in the cart and carried here.
+  const isGift = state.isGift;
+  const giftFee = state.giftFee;
   const total = subtotal + shippingFee + giftFee - state.discount - flashDiscount;
 
   const steps = [
@@ -283,45 +281,16 @@ export default function CheckoutClient() {
                 </Field>
               </div>
 
-              {/* Gift Wrapping Toggle */}
-              <div
-                className="flex items-center gap-4 p-4 rounded-lg border transition-all"
-                style={{
-                  background: isGift ? "#faf7f0" : "#fff",
-                  borderColor: isGift ? "#c9a84c" : "#e2e2e2",
-                }}
-              >
-                <span
-                  className="material-symbols-outlined text-2xl flex-shrink-0"
-                  style={{
-                    fontVariationSettings: "'FILL' 1",
-                    color: isGift ? "#c9a84c" : "#747878",
-                  }}
-                >
-                  card_giftcard
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-[#0b0b14]">Gift Wrapping</p>
-                    <span className="text-sm font-semibold" style={{ color: "#c9a84c" }}>+৳{GIFT_FEE}</span>
+              {/* Gift selection is made in the cart; if chosen, show a read-only note here. */}
+              {isGift && (
+                <div className="flex items-center gap-3 p-4 rounded-lg border" style={{ background: "#faf7f0", borderColor: "#c9a84c" }}>
+                  <span className="material-symbols-outlined text-2xl flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1", color: "#c9a84c" }}>card_giftcard</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[#0b0b14]">Gift packaging added <span className="font-semibold" style={{ color: "#c9a84c" }}>+৳{giftFee}</span></p>
+                    <p className="text-xs text-[#747878] mt-0.5">Premium box &amp; ribbon wrap. Manage this in your <Link href="/cart" className="underline">cart</Link>.</p>
                   </div>
-                  <p className="text-xs text-[#747878] mt-0.5">We&apos;ll wrap it beautifully and include a gift note card</p>
                 </div>
-                {/* Pill toggle */}
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={isGift}
-                  onClick={() => setIsGift((v) => !v)}
-                  className="relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a84c] focus-visible:ring-offset-2"
-                  style={{ background: isGift ? "#c9a84c" : "#c4c7c7" }}
-                >
-                  <span
-                    className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
-                    style={{ transform: isGift ? "translateX(20px)" : "translateX(0)" }}
-                  />
-                </button>
-              </div>
+              )}
 
               <button
                 onClick={() => {

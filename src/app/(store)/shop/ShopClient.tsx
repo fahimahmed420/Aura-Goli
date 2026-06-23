@@ -120,7 +120,12 @@ export default function ShopClient() {
     if (maxPrice) params.set("maxPrice", maxPrice);
     selectedColors.forEach((c) => params.append("colors", c));
     selectedSizes.forEach((s) => params.append("sizes", s));
-    const res  = await fetch(`/api/products?${params}`);
+    let res = await fetch(`/api/products?${params}`);
+    if (!res.ok) {
+      // One retry — a cold first request can transiently fail; don't blank the shop.
+      await new Promise((r) => setTimeout(r, 600));
+      res = await fetch(`/api/products?${params}`);
+    }
     if (!res.ok) { setLoading(false); return; }
     const data = await res.json();
     const fetched: Product[] = data.products ?? [];

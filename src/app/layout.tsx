@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#f9f9f9] text-[#1a1c1c]" style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
+      <body className="min-h-full flex flex-col bg-[#faf7f0] text-[#1a1c1c]" style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
         {children}
       </body>
     </html>

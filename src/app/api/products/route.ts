@@ -35,7 +35,11 @@ export async function GET(req: NextRequest) {
   const where = buildCatalogWhere(filters);
   const orderBy = buildCatalogOrderBy(sort);
 
-  const [total, products] = await prisma.$transaction([
+  // NOTE: these two reads are independent and need no transactional consistency.
+  // Using $transaction([...]) here applied Prisma's 5s interactive-transaction cap,
+  // which a cold first request (route compile + cold DB connection) blew past → 500,
+  // leaving the shop empty until a reload. Promise.all has no such cap.
+  const [total, products] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,

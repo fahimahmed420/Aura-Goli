@@ -419,8 +419,8 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
         </div>
       </nav>
 
-      {/* Spacer */}
-      {!isHome && <div className="h-14" />}
+      {/* Spacer — matches the fixed 64px (h-16) header so content never tucks under it */}
+      {!isHome && <div className="h-16" />}
     </>
   );
 }

@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
     ],
   };
 
-  const [total, products] = await prisma.$transaction([
+  // Independent reads — Promise.all avoids the 5s interactive-transaction cap
+  // that made cold first requests fail (see api/products/route.ts).
+  const [total, products] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,

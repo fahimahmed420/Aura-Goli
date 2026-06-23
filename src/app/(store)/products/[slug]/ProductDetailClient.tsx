@@ -3,8 +3,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import RecentlyViewed, { trackView } from "@/components/storefront/RecentlyViewed";
+
+// Real WebGL garment viewer — client-only, lazy-loaded.
+const Product3DViewer = dynamic(() => import("@/components/storefront/Product3DViewer"), { ssr: false });
 
 function isVideo(url: string) { return /\.(mp4|webm|ogg)$/i.test(url); }
 
@@ -49,6 +53,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const tabsRef  = useRef<HTMLDivElement>(null);
   const atcRef   = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [show3D, setShow3D] = useState(false);
 
   function scrollToSizeChart() {
     setActiveTab("size-chart");
@@ -269,6 +274,20 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
             {/* Main image */}
             <div className="flex-1 relative rounded-xl img-zoom" style={{ aspectRatio: "4/5", background: "#ede9e1" }}>
+              {show3D && (
+                <div className="absolute inset-0 z-[5] rounded-xl overflow-hidden"
+                  style={{ background: "radial-gradient(125% 110% at 50% 18%, #f3efe6, #d8d1c4)" }}>
+                  <Product3DViewer color={selectedColor ?? colors[0] ?? null} />
+                  <span className="absolute bottom-3 inset-x-0 text-center text-[10px] uppercase tracking-[0.25em] pointer-events-none"
+                    style={{ color: "rgba(11,11,20,0.45)" }}>Drag to rotate</span>
+                </div>
+              )}
+              <button onClick={() => setShow3D((v) => !v)}
+                className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all"
+                style={{ background: show3D ? "#c9a84c" : "rgba(11,11,20,0.85)", color: show3D ? "#0b0b14" : "#faf7f0", backdropFilter: "blur(8px)", boxShadow: "0 2px 10px rgba(11,11,20,0.25)" }}>
+                <span className="material-symbols-outlined text-[16px]">3d_rotation</span>
+                {show3D ? "Photo" : "3D View"}
+              </button>
               {product.images[activeImage] ? (
                 isVideo(product.images[activeImage].url) ? (
                   <video src={product.images[activeImage].url}
@@ -741,6 +760,20 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 {/* Main image */}
                 <div className="flex-1 relative rounded-xl img-zoom"
                   style={{ aspectRatio: "4/5", background: "#ede9e1" }}>
+                  {show3D && (
+                    <div className="absolute inset-0 z-[5] rounded-xl overflow-hidden"
+                      style={{ background: "radial-gradient(125% 110% at 50% 18%, #f3efe6, #d8d1c4)" }}>
+                      <Product3DViewer color={selectedColor ?? colors[0] ?? null} />
+                      <span className="absolute bottom-4 inset-x-0 text-center text-[11px] uppercase tracking-[0.25em] pointer-events-none"
+                        style={{ color: "rgba(11,11,20,0.45)" }}>Drag to rotate · Pick a colour to recolour</span>
+                    </div>
+                  )}
+                  <button onClick={() => setShow3D((v) => !v)}
+                    className="absolute bottom-4 left-4 z-10 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-wider transition-all hover:scale-[1.03]"
+                    style={{ background: show3D ? "#c9a84c" : "rgba(11,11,20,0.85)", color: show3D ? "#0b0b14" : "#faf7f0", backdropFilter: "blur(8px)", boxShadow: "0 4px 14px rgba(11,11,20,0.3)" }}>
+                    <span className="material-symbols-outlined text-[18px]">3d_rotation</span>
+                    {show3D ? "View Photos" : "View in 3D"}
+                  </button>
                   {product.images[activeImage] ? (
                     isVideo(product.images[activeImage].url) ? (
                       <video

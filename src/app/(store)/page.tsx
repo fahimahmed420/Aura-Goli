@@ -5,14 +5,32 @@ import NewsletterForm from "@/components/storefront/NewsletterForm";
 import TestimonialSlider from "@/components/storefront/TestimonialSlider";
 import Hero3D from "@/components/storefront/Hero3D";
 
+const homeCardSelect = {
+  id: true, name: true, slug: true, price: true, compareAtPrice: true,
+  createdAt: true, salesCount: true,
+  category: { select: { name: true, slug: true } },
+  images: { select: { url: true, altText: true }, orderBy: { sortOrder: "asc" as const }, take: 1 },
+  variants: { select: { color: true, size: true, stockQuantity: true } },
+  _count: { select: { reviews: true } },
+};
+
 async function getHomeData() {
-  const [categories, featuredRes, latestReviews] = await Promise.all([
+  const [categories, bestsellers, newArrivals, latestReviews] = await Promise.all([
     prisma.category.findMany({
       select: { id: true, name: true, slug: true, imageUrl: true },
     }),
-    fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/products/featured`, { next: { revalidate: 300 } })
-      .then((r) => r.json())
-      .catch(() => ({ bestsellers: [], newArrivals: [] })),
+    prisma.product.findMany({
+      where: { status: "active" },
+      orderBy: { salesCount: "desc" },
+      take: 8,
+      select: homeCardSelect,
+    }),
+    prisma.product.findMany({
+      where: { status: "active" },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: homeCardSelect,
+    }),
     prisma.review.findMany({
       where: { isApproved: true },
       orderBy: { createdAt: "desc" },
@@ -28,7 +46,18 @@ async function getHomeData() {
       },
     }),
   ]);
-  return { categories, bestsellers: featuredRes.bestsellers ?? [], newArrivals: featuredRes.newArrivals ?? [], latestReviews: latestReviews.map(r => ({ ...r, createdAt: r.createdAt.toISOString() })) };
+  // Prisma returns Decimal for price fields — serialize to plain numbers for the cards.
+  const toCard = (p: (typeof bestsellers)[number]) => ({
+    ...p,
+    price: Number(p.price),
+    compareAtPrice: p.compareAtPrice != null ? Number(p.compareAtPrice) : undefined,
+  });
+  return {
+    categories,
+    bestsellers: bestsellers.map(toCard),
+    newArrivals: newArrivals.map(toCard),
+    latestReviews: latestReviews.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })),
+  };
 }
 
 export default async function HomePage() {

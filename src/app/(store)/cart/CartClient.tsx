@@ -73,9 +73,10 @@ export default function CartClient() {
   }
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
   const shippingFee = subtotal >= 2000 ? 0 : 100;
   const discount = promoApplied?.discount ?? 0;
-  const giftFee = isGift ? GIFT_FEE : 0;
+  const giftFee = isGift ? GIFT_FEE * totalQty : 0; // ৳50 per item
   const total = subtotal + shippingFee + giftFee - discount;
 
   if (cart.length === 0) {
@@ -180,7 +181,7 @@ export default function CartClient() {
               )}
               {isGift && (
                 <div className="flex justify-between text-[#5951b4] font-semibold">
-                  <span>Gift packaging</span><span>+৳{GIFT_FEE}</span>
+                  <span>Gift packaging ({totalQty} × ৳{GIFT_FEE})</span><span>+৳{giftFee}</span>
                 </div>
               )}
               {shippingFee > 0 && (
@@ -207,8 +208,8 @@ export default function CartClient() {
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-black">Buy as Gift <span className="text-[#5951b4]">+৳{GIFT_FEE}</span></p>
-                <p className="text-xs text-[#747878] mt-0.5">Premium box packaging &amp; ribbon wrap</p>
+                <p className="font-semibold text-sm text-black">Buy as Gift <span className="text-[#5951b4]">+৳{GIFT_FEE}/item</span></p>
+                <p className="text-xs text-[#747878] mt-0.5">Premium box packaging &amp; ribbon wrap{isGift ? ` · ${totalQty} item${totalQty !== 1 ? "s" : ""} = ৳${giftFee}` : ""}</p>
               </div>
               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                 isGift ? "border-[#5951b4] bg-[#5951b4]" : "border-[#c4c7c7]"

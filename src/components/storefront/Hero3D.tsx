@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Real WebGL silk background — loaded client-side only, never blocks first paint.
+const HeroFabricCanvas = dynamic(() => import("./HeroFabricCanvas"), { ssr: false });
 
 export default function Hero3D({ storeName }: { storeName?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,16 +78,16 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
         cursor: "crosshair",
       }}
     >
-      {/* Ambient glows */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-72 h-72 md:w-[520px] md:h-[520px] rounded-full blur-[90px] opacity-20"
-          style={{ background: "radial-gradient(circle,#c9a84c,transparent 70%)", transform: "translate(30%,-20%)" }} />
-        <div className="absolute bottom-0 left-0 w-56 h-56 md:w-96 md:h-96 rounded-full blur-[80px] opacity-15"
-          style={{ background: "radial-gradient(circle,#3d2b7a,transparent 70%)", transform: "translate(-20%,20%)" }} />
-        {/* Grid */}
-        <div className="absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: "repeating-linear-gradient(0deg,#fff 0,transparent 1px,transparent 64px,#fff 65px),repeating-linear-gradient(90deg,#fff 0,transparent 1px,transparent 64px,#fff 65px)" }} />
+      {/* Real WebGL silk background */}
+      <div className="absolute inset-0">
+        <HeroFabricCanvas />
       </div>
+
+      {/* Legibility scrim — keeps the headline readable over the cloth */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "linear-gradient(90deg, rgba(11,11,20,0.78) 0%, rgba(11,11,20,0.45) 38%, rgba(11,11,20,0) 70%)" }} />
+      <div className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+        style={{ background: "linear-gradient(to top, rgba(11,11,20,0.9), transparent)" }} />
 
       {/* ── 3D Floating Card — desktop right side ──────────────── */}
       <div
