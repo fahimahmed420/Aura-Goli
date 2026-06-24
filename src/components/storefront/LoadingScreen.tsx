@@ -18,6 +18,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { pageLoading } from "./pageLoading";
 
@@ -246,8 +247,8 @@ export default function LoadingScreen() {
       />
 
       {/* Top: brand mark */}
-      <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ display: "block", width: 28, height: 1, background: "#c9a84c" }} />
+      <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 12 }}>
+        <Image src="/logo-mark.png" alt="Aura Goli" width={27} height={30} priority style={{ height: 30, width: "auto" }} />
         <span
           style={{
             fontFamily: "'Playfair Display', serif",

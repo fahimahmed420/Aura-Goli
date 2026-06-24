@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
 interface User { name: string; email: string; avatarUrl?: string | null; }
@@ -132,12 +133,15 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
       >
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
 
-          {/* Logo */}
-          <Link href="/" className="font-['Playfair_Display'] text-xl font-bold tracking-tight shrink-0 mr-2"
+          {/* Logo — AG mark + wordmark lockup */}
+          <Link href="/" className="flex items-center gap-2 shrink-0 mr-2 font-['Playfair_Display'] text-xl font-bold tracking-tight"
             style={{ color: "#faf7f0" }}>
-            {storeName.includes(" ") ? (
-              <>{storeName.split(" ")[0]}<span style={{ color: "#c9a84c" }}> {storeName.split(" ").slice(1).join(" ")}</span></>
-            ) : storeName}
+            <Image src="/logo-mark.png" alt={storeName} width={26} height={28} priority className="h-7 w-auto" />
+            <span>
+              {storeName.includes(" ") ? (
+                <>{storeName.split(" ")[0]}<span style={{ color: "#c9a84c" }}> {storeName.split(" ").slice(1).join(" ")}</span></>
+              ) : storeName}
+            </span>
           </Link>
 
           {/* Desktop nav links */}

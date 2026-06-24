@@ -15,19 +15,29 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
   const rafRef = useRef<number>(0);
   const targetRef = useRef({ rx: 0, ry: 0 });
   const currentRef = useRef({ rx: 0, ry: 0 });
+  const runningRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
 
     function tick() {
-      currentRef.current.rx = lerp(currentRef.current.rx, targetRef.current.rx, 0.08);
-      currentRef.current.ry = lerp(currentRef.current.ry, targetRef.current.ry, 0.08);
-      setPos({ rx: currentRef.current.rx, ry: currentRef.current.ry });
+      const c = currentRef.current, t = targetRef.current;
+      c.rx = lerp(c.rx, t.rx, 0.08);
+      c.ry = lerp(c.ry, t.ry, 0.08);
+      // Settle: within sub-pixel of target → write once and stop. No idle churn.
+      const done = Math.abs(c.rx - t.rx) < 0.01 && Math.abs(c.ry - t.ry) < 0.01;
+      setPos({ rx: done ? t.rx : c.rx, ry: done ? t.ry : c.ry });
+      if (done) { runningRef.current = false; return; }
       rafRef.current = requestAnimationFrame(tick);
     }
-    rafRef.current = requestAnimationFrame(tick);
+    function kick() {
+      if (reduce || runningRef.current) return;
+      runningRef.current = true;
+      rafRef.current = requestAnimationFrame(tick);
+    }
 
     function onMove(e: MouseEvent | TouchEvent) {
       const el = containerRef.current;
@@ -44,10 +54,12 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
       const x = ((cx - rect.left) / rect.width - 0.5) * 2;
       const y = ((cy - rect.top) / rect.height - 0.5) * 2;
       targetRef.current = { rx: -y * 14, ry: x * 18 };
+      kick();
     }
 
     function onLeave() {
       targetRef.current = { rx: 0, ry: 0 };
+      kick();
     }
 
     const el = containerRef.current;

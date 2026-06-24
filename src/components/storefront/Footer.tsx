@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getSettings } from "@/lib/settings";
 
 export default function Footer() {
@@ -42,16 +43,19 @@ export default function Footer() {
 
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="font-['Playfair_Display'] text-2xl font-bold tracking-tight block mb-3"
+            <Link href="/" className="flex items-center gap-2.5 mb-3 font-['Playfair_Display'] text-2xl font-bold tracking-tight"
               style={{ color: "#faf7f0" }}>
-              {displayName.includes(" ") ? (
-                <>
-                  {displayName.split(" ")[0]}
-                  <span style={{ color: "#c9a84c" }}> {displayName.split(" ").slice(1).join(" ")}</span>
-                </>
-              ) : (
-                <span style={{ color: "#faf7f0" }}>{displayName}</span>
-              )}
+              <Image src="/logo-mark.png" alt={displayName} width={29} height={32} className="h-8 w-auto" />
+              <span>
+                {displayName.includes(" ") ? (
+                  <>
+                    {displayName.split(" ")[0]}
+                    <span style={{ color: "#c9a84c" }}> {displayName.split(" ").slice(1).join(" ")}</span>
+                  </>
+                ) : (
+                  <span style={{ color: "#faf7f0" }}>{displayName}</span>
+                )}
+              </span>
             </Link>
             <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(250,247,240,0.4)" }}>
               Premium threads crafted with intention. Every piece is designed to endure — in quality, in style, in feeling.
