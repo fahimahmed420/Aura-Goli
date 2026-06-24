@@ -41,6 +41,12 @@ export async function POST(req: NextRequest) {
   if (!user || !passwordMatch) return apiError(GENERIC_ERROR, 401);
   if (user.isBlocked) return apiError("Your account has been suspended. Please contact support.", 403);
 
+  // Silently link any guest orders that used this email
+  await prisma.order.updateMany({
+    where: { guestEmail: user.email, userId: null },
+    data: { userId: user.id },
+  }).catch(() => {});
+
   const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
 
   const remember = rememberMe === true;

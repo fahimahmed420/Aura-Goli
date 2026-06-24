@@ -123,6 +123,7 @@ export async function POST(req: NextRequest) {
       data: {
         orderNumber,
         userId: userId ?? undefined,
+        guestEmail: userId ? undefined : (guestEmail ?? undefined),
         status: "pending_payment",
         paymentMethod: paymentMethod as PaymentMethod,
         paymentStatus: "pending",

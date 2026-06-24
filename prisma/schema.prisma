@@ -325,6 +325,7 @@ model Order {
   id              String        @id @default(cuid())
   orderNumber     String        @unique
   userId          String?
+  guestEmail      String?
   addressId       String?
   status          OrderStatus   @default(pending_payment)
   subtotal        Decimal       @db.Decimal(10, 2)

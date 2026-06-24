@@ -3,6 +3,7 @@ import Footer from "@/components/storefront/Footer";
 import WhatsAppButton from "@/components/storefront/WhatsAppButton";
 import FlashSaleBanner from "@/components/storefront/FlashSaleBanner";
 import LoadingScreen from "@/components/storefront/LoadingScreen";
+import ScrollToTop from "@/components/storefront/ScrollToTop";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
 
@@ -12,6 +13,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
 
   return (
     <CompareProvider>
+      <ScrollToTop />
       <LoadingScreen />
       <FlashSaleBanner />
       <Nav storeName={name} />

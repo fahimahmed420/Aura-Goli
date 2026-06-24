@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Link any guest orders placed with this email before registration
+  await prisma.order.updateMany({
+    where: { guestEmail: email.toLowerCase(), userId: null },
+    data: { userId: user.id },
+  });
+
   const token = generateSecureToken();
   await prisma.emailVerificationToken.create({
     data: {

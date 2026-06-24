@@ -3,12 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import RecentlyViewed, { trackView } from "@/components/storefront/RecentlyViewed";
-
-// Real WebGL garment viewer — client-only, lazy-loaded.
-const Product3DViewer = dynamic(() => import("@/components/storefront/Product3DViewer"), { ssr: false });
 
 function isVideo(url: string) { return /\.(mp4|webm|ogg)$/i.test(url); }
 
@@ -40,7 +36,8 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize]   = useState<string | null>(null);
   const [qty, setQty]                     = useState(1);
-  const [activeTab, setActiveTab]         = useState<"description" | "size-chart" | "reviews">("description");
+  const [activeTab, setActiveTab]         = useState<"description" | "reviews">("description");
+  const [sizeModalOpen, setSizeModalOpen] = useState(false);
   const [addedToCart, setAddedToCart]     = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("details");
   const [colorError, setColorError]       = useState(false);
@@ -53,13 +50,9 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const tabsRef  = useRef<HTMLDivElement>(null);
   const atcRef   = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
-  const [show3D, setShow3D] = useState(false);
 
-  function scrollToSizeChart() {
-    setActiveTab("size-chart");
-    setTimeout(() => {
-      tabsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
+  function openSizeChart() {
+    setSizeModalOpen(true);
   }
 
   useEffect(() => {
@@ -186,10 +179,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
   const tabs = [
     { key: "description" as const, label: "Product Details" },
-    { key: "size-chart" as const, label: "Size Chart" },
     { key: "reviews" as const, label: `Reviews (${product.reviews.length})` },
   ];
   const tabIdx = tabs.findIndex(t => t.key === activeTab);
+  const tabWidthPct = 100 / tabs.length;
 
   const sizeChartRows = sizeChart.length > 0 ? sizeChart : [
     { size: "XS", chest: '34–36"', length: '26"', shoulder: '15"' },
@@ -273,21 +266,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             )}
 
             {/* Main image */}
-            <div className="flex-1 relative rounded-xl img-zoom" style={{ aspectRatio: "4/5", background: "#ede9e1" }}>
-              {show3D && (
-                <div className="absolute inset-0 z-[5] rounded-xl overflow-hidden"
-                  style={{ background: "radial-gradient(125% 110% at 50% 18%, #f3efe6, #d8d1c4)" }}>
-                  <Product3DViewer color={selectedColor ?? colors[0] ?? null} />
-                  <span className="absolute bottom-3 inset-x-0 text-center text-[10px] uppercase tracking-[0.25em] pointer-events-none"
-                    style={{ color: "rgba(11,11,20,0.45)" }}>Drag to rotate</span>
-                </div>
-              )}
-              <button onClick={() => setShow3D((v) => !v)}
-                className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all"
-                style={{ background: show3D ? "#c9a84c" : "rgba(11,11,20,0.85)", color: show3D ? "#0b0b14" : "#faf7f0", backdropFilter: "blur(8px)", boxShadow: "0 2px 10px rgba(11,11,20,0.25)" }}>
-                <span className="material-symbols-outlined text-[16px]">3d_rotation</span>
-                {show3D ? "Photo" : "3D View"}
-              </button>
+            <div className="flex-1 relative rounded-xl img-zoom" style={{ aspectRatio: "3/4", background: "#ede9e1" }}>
               {product.images[activeImage] ? (
                 isVideo(product.images[activeImage].url) ? (
                   <video src={product.images[activeImage].url}
@@ -337,7 +316,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
         </div>
 
         {/* Product info */}
-        <div className="px-4 mt-4 pd-fade-up" style={{ animationDelay: "0.1s" }}>
+        <div className="px-4 mt-3 pd-fade-up" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-start justify-between gap-2 mb-1">
             <div className="flex-1 min-w-0">
               {product.category && (
@@ -374,13 +353,13 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             </div>
           )}
 
-          <div style={{ height: "1px", background: "rgba(11,11,20,0.07)", marginBottom: "16px" }} />
+          <div style={{ height: "1px", background: "rgba(11,11,20,0.07)", marginBottom: "12px" }} />
 
           {/* Color selector */}
           {colors.length > 0 && (
-            <div ref={colorRef} className={`mb-4 ${colorError ? "shake" : ""}`}
-              style={colorError ? { padding: "8px 10px", background: "rgba(186,26,26,0.05)", border: "1px solid rgba(186,26,26,0.25)", borderRadius: "12px" } : undefined}>
-              <div className="flex items-center justify-between mb-2">
+            <div ref={colorRef} className={`mb-3 ${colorError ? "shake" : ""}`}
+              style={colorError ? { padding: "6px 10px", background: "rgba(186,26,26,0.05)", border: "1px solid rgba(186,26,26,0.25)", borderRadius: "12px" } : undefined}>
+              <div className="flex items-center justify-between mb-1.5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em]"
                   style={{ color: colorError ? "#ba1a1a" : "rgba(11,11,20,0.45)" }}>
                   Colour{colorError
@@ -395,14 +374,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   <button key={c}
                     onClick={() => { setSelectedColor(c === selectedColor ? null : c); setColorError(false); }}
                     title={c}
-                    className="w-10 h-10 rounded-full transition-all flex items-center justify-center"
+                    className="w-8 h-8 rounded-full transition-all flex items-center justify-center"
                     style={{
                       backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
                       border: selectedColor === c ? "2px solid #0b0b14" : "2px solid transparent",
                       boxShadow: selectedColor === c ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14" : "0 0 0 1px rgba(11,11,20,0.15)",
                     }}>
                     {selectedColor === c && (
-                      <span className="material-symbols-outlined text-[12px]"
+                      <span className="material-symbols-outlined text-[11px]"
                         style={{ color: ["white","beige","yellow","cream"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
                         check
                       </span>
@@ -415,19 +394,19 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
           {/* Size selector */}
           {sizes.length > 0 && (
-            <div ref={sizeRef} className={`mb-4 ${sizeError ? "shake" : ""}`}
-              style={sizeError ? { padding: "8px 10px", background: "rgba(186,26,26,0.05)", border: "1px solid rgba(186,26,26,0.25)", borderRadius: "12px" } : undefined}>
-              <div className="flex items-center justify-between mb-2">
+            <div ref={sizeRef} className={`mb-3 ${sizeError ? "shake" : ""}`}
+              style={sizeError ? { padding: "6px 10px", background: "rgba(186,26,26,0.05)", border: "1px solid rgba(186,26,26,0.25)", borderRadius: "12px" } : undefined}>
+              <div className="flex items-center justify-between mb-1.5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em]"
                   style={{ color: sizeError ? "#ba1a1a" : "rgba(11,11,20,0.45)" }}>
                   Size{sizeError && <span className="normal-case tracking-normal font-semibold"> — select</span>}
                 </p>
-                <button onClick={scrollToSizeChart} className="text-[11px] font-semibold flex items-center gap-0.5" style={{ color: "#c9a84c" }}>
+                <button onClick={openSizeChart} className="text-[11px] font-semibold flex items-center gap-0.5" style={{ color: "#c9a84c" }}>
                   <span className="material-symbols-outlined text-[13px]">straighten</span>
                   Size Guide
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {sizes.map((s) => {
                   const variantForSize = product.variants.find((v) => v.size === s && (!selectedColor || v.color === selectedColor));
                   const oos = variantForSize ? variantForSize.stockQuantity === 0 : false;
@@ -435,7 +414,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                     <button key={s}
                       onClick={() => { if (!oos) { setSelectedSize(s === selectedSize ? null : s); setSizeError(false); } }}
                       disabled={oos}
-                      className="size-pill min-w-[48px] h-11 px-3.5 rounded-xl text-[13px] font-semibold text-center"
+                      className="size-pill min-w-[44px] h-9 px-3 rounded-lg text-[12px] font-semibold text-center"
                       style={{
                         background: selectedSize === s ? "#0b0b14" : oos ? "transparent" : "white",
                         color: selectedSize === s ? "#faf7f0" : oos ? "rgba(11,11,20,0.2)" : "#0b0b14",
@@ -453,39 +432,39 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
           {/* Scarcity indicator */}
           {lowStock && (
-            <p className="text-[12px] font-semibold mb-4" style={{ color: "#ba1a1a" }}>
+            <p className="text-[11px] font-semibold mb-3" style={{ color: "#ba1a1a" }}>
               ⚠ Only {lowStock} left in this size — order soon
             </p>
           )}
 
           {/* Material */}
-          <div className="flex items-center gap-2 mb-4 px-3.5 py-2.5 rounded-xl"
+          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl"
             style={{ background: "rgba(11,11,20,0.03)", border: "1px solid rgba(11,11,20,0.07)" }}>
-            <span className="material-symbols-outlined text-[16px]" style={{ color: "#3d2b7a" }}>texture</span>
-            <span className="text-[11px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(11,11,20,0.4)" }}>Material</span>
-            <span className="text-[13px] font-semibold ml-auto" style={{ color: "#0b0b14" }}>{product.material || "100% Cotton"}</span>
+            <span className="material-symbols-outlined text-[15px]" style={{ color: "#3d2b7a" }}>texture</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(11,11,20,0.4)" }}>Material</span>
+            <span className="text-[12px] font-semibold ml-auto" style={{ color: "#0b0b14" }}>{product.material || "100% Cotton"}</span>
           </div>
 
           {/* Quantity + ATC */}
-          <div className="mb-5">
-            <div className="flex items-center justify-between mb-3">
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "rgba(11,11,20,0.45)" }}>Quantity</span>
               <div className="flex items-center rounded-xl overflow-hidden"
                 style={{ border: "1px solid rgba(11,11,20,0.13)", background: "white" }}>
                 <button onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 flex items-center justify-center" style={{ color: "#0b0b14" }}>
-                  <span className="material-symbols-outlined text-[18px]">remove</span>
+                  className="w-9 h-9 flex items-center justify-center" style={{ color: "#0b0b14" }}>
+                  <span className="material-symbols-outlined text-[17px]">remove</span>
                 </button>
-                <span className="w-10 text-center text-[13px] font-bold" style={{ color: "#0b0b14" }}>{qty}</span>
+                <span className="w-9 text-center text-[13px] font-bold" style={{ color: "#0b0b14" }}>{qty}</span>
                 <button onClick={() => setQty((q) => q + 1)}
-                  className="w-10 h-10 flex items-center justify-center" style={{ color: "#0b0b14" }}>
-                  <span className="material-symbols-outlined text-[18px]">add</span>
+                  className="w-9 h-9 flex items-center justify-center" style={{ color: "#0b0b14" }}>
+                  <span className="material-symbols-outlined text-[17px]">add</span>
                 </button>
               </div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => addToCart()} disabled={!inStock}
-                className="flex-1 h-12 rounded-xl text-[13px] font-bold atc-btn active:scale-[0.98]"
+                className="flex-1 h-11 rounded-xl text-[13px] font-bold atc-btn active:scale-[0.98]"
                 style={{
                   background: addedToCart ? "#16a34a" : inStock ? "#0b0b14" : "rgba(11,11,20,0.1)",
                   color: addedToCart ? "white" : inStock ? "#faf7f0" : "rgba(11,11,20,0.3)",
@@ -493,7 +472,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 {addedToCart ? "✓ Added to Bag" : inStock ? `Add to Bag — ৳${(finalPrice * qty).toLocaleString()}` : "Out of Stock"}
               </button>
               <button onClick={buyNow} disabled={!inStock}
-                className="h-12 px-4 rounded-xl text-[13px] font-bold transition-all active:scale-[0.98] shrink-0"
+                className="h-11 px-4 rounded-xl text-[13px] font-bold transition-all active:scale-[0.98] shrink-0"
                 style={{
                   border: "1.5px solid rgba(11,11,20,0.18)",
                   color: inStock ? "#0b0b14" : "rgba(11,11,20,0.25)",
@@ -540,36 +519,6 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       <p>{product.careInstructions}</p>
                     </div>
                   )}
-                </div>
-              ),
-            },
-            {
-              key: "size-chart",
-              label: "Size Chart",
-              content: (
-                <div className="overflow-x-auto -mx-4 px-4">
-                  <table className="w-full text-[12px] border-collapse min-w-[260px]">
-                    <thead>
-                      <tr style={{ background: "rgba(11,11,20,0.04)" }}>
-                        {["Size", "Chest", "Length", "Shoulder"].map((h) => (
-                          <th key={h} className="px-2.5 py-2 text-left text-[9px] font-bold uppercase tracking-wider"
-                            style={{ color: "rgba(11,11,20,0.45)", borderBottom: "1px solid rgba(11,11,20,0.07)" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sizeChartRows.map((row) => (
-                        <tr key={row.size}>
-                          {[row.size, row.chest, row.length, row.shoulder].map((cell, i) => (
-                            <td key={i} className="px-2.5 py-2 font-medium"
-                              style={{ color: i === 0 ? "#0b0b14" : "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>
-                              {cell}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
                 </div>
               ),
             },
@@ -760,20 +709,6 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 {/* Main image */}
                 <div className="flex-1 relative rounded-xl img-zoom"
                   style={{ aspectRatio: "4/5", background: "#ede9e1" }}>
-                  {show3D && (
-                    <div className="absolute inset-0 z-[5] rounded-xl overflow-hidden"
-                      style={{ background: "radial-gradient(125% 110% at 50% 18%, #f3efe6, #d8d1c4)" }}>
-                      <Product3DViewer color={selectedColor ?? colors[0] ?? null} />
-                      <span className="absolute bottom-4 inset-x-0 text-center text-[11px] uppercase tracking-[0.25em] pointer-events-none"
-                        style={{ color: "rgba(11,11,20,0.45)" }}>Drag to rotate · Pick a colour to recolour</span>
-                    </div>
-                  )}
-                  <button onClick={() => setShow3D((v) => !v)}
-                    className="absolute bottom-4 left-4 z-10 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[12px] font-bold uppercase tracking-wider transition-all hover:scale-[1.03]"
-                    style={{ background: show3D ? "#c9a84c" : "rgba(11,11,20,0.85)", color: show3D ? "#0b0b14" : "#faf7f0", backdropFilter: "blur(8px)", boxShadow: "0 4px 14px rgba(11,11,20,0.3)" }}>
-                    <span className="material-symbols-outlined text-[18px]">3d_rotation</span>
-                    {show3D ? "View Photos" : "View in 3D"}
-                  </button>
                   {product.images[activeImage] ? (
                     isVideo(product.images[activeImage].url) ? (
                       <video
@@ -945,7 +880,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       Size
                       {sizeError && <span className="normal-case tracking-normal font-semibold"> — Please select</span>}
                     </p>
-                    <button onClick={scrollToSizeChart}
+                    <button onClick={openSizeChart}
                       className="text-xs font-semibold transition-colors hover:opacity-70"
                       style={{ color: "#c9a84c" }}>
                       Size Chart →
@@ -1074,7 +1009,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                     className="tab-btn px-6 py-4 text-sm font-semibold relative"
                     style={{
                       color: activeTab === tab.key ? "#0b0b14" : "rgba(11,11,20,0.4)",
-                      minWidth: "25%",
+                      minWidth: `${tabWidthPct}%`,
                     }}>
                     {tab.label}
                   </button>
@@ -1085,8 +1020,8 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 className="absolute bottom-0 h-[2px] rounded-full"
                 style={{
                   background: "#0b0b14",
-                  width: "25%",
-                  left: `${tabIdx * 25}%`,
+                  width: `${tabWidthPct}%`,
+                  left: `${tabIdx * tabWidthPct}%`,
                   transition: "left 0.3s cubic-bezier(.4,0,.2,1)",
                 }}
               />
@@ -1109,36 +1044,6 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       <p>{product.careInstructions}</p>
                     </div>
                   )}
-                </div>
-              )}
-              {activeTab === "size-chart" && (
-                <div className="pd-fade-in">
-                  <h3 className="font-['Playfair_Display'] text-xl font-bold mb-6" style={{ color: "#0b0b14" }}>Size Guide</h3>
-                  <p className="text-sm mb-6" style={{ color: "rgba(11,11,20,0.5)" }}>All measurements are in inches. For the best fit, measure yourself and compare to the chart below.</p>
-                  <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e8e4dc" }}>
-                    <table className="w-full text-sm border-collapse">
-                      <thead>
-                        <tr style={{ background: "#f3f0e8" }}>
-                          {["Size", "Chest", "Length", "Shoulder"].map((h) => (
-                            <th key={h} className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-[0.2em]"
-                              style={{ color: "rgba(11,11,20,0.45)", borderBottom: "1px solid #e8e4dc" }}>
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sizeChartRows.map((row, i) => (
-                          <tr key={row.size} style={{ background: i % 2 === 0 ? "white" : "rgba(243,240,232,0.4)" }}>
-                            <td className="px-5 py-3.5 font-bold text-sm" style={{ color: "#0b0b14", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.size}</td>
-                            <td className="px-5 py-3.5" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.chest}</td>
-                            <td className="px-5 py-3.5" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.length}</td>
-                            <td className="px-5 py-3.5" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.shoulder}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
                 </div>
               )}
               {activeTab === "reviews" && (
@@ -1179,6 +1084,57 @@ export default function ProductDetailClient({ product, related }: { product: Pro
         </div>
       </div>
       <RecentlyViewed excludeId={product.id} />
+
+      {/* ── Size chart modal (PC + mobile) ───────────────────── */}
+      {sizeModalOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4"
+          onClick={() => setSizeModalOpen(false)}>
+          <div className="absolute inset-0" style={{ background: "rgba(11,11,20,0.6)", backdropFilter: "blur(4px)" }} />
+          <div className="share-panel relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#faf7f0", border: "1px solid rgba(11,11,20,0.08)", boxShadow: "0 24px 60px rgba(11,11,20,0.4)" }}>
+            <div className="sticky top-0 flex items-center justify-between px-5 py-4"
+              style={{ background: "#faf7f0", borderBottom: "1px solid #e8e4dc" }}>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px]" style={{ color: "#c9a84c" }}>straighten</span>
+                <h3 className="font-['Playfair_Display'] text-lg font-bold" style={{ color: "#0b0b14" }}>Size Guide</h3>
+              </div>
+              <button onClick={() => setSizeModalOpen(false)}
+                className="w-9 h-9 flex items-center justify-center rounded-full"
+                style={{ color: "rgba(11,11,20,0.5)" }} aria-label="Close">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-5">
+              <p className="text-[13px] mb-4" style={{ color: "rgba(11,11,20,0.55)" }}>
+                All measurements are in inches. For the best fit, measure yourself and compare to the chart below.
+              </p>
+              <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e8e4dc" }}>
+                <table className="w-full text-[13px] border-collapse">
+                  <thead>
+                    <tr style={{ background: "#f3f0e8" }}>
+                      {["Size", "Chest", "Length", "Shoulder"].map((h) => (
+                        <th key={h} className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em]"
+                          style={{ color: "rgba(11,11,20,0.45)", borderBottom: "1px solid #e8e4dc" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sizeChartRows.map((row, i) => (
+                      <tr key={row.size} style={{ background: i % 2 === 0 ? "white" : "rgba(243,240,232,0.4)" }}>
+                        <td className="px-3 py-3 font-bold" style={{ color: "#0b0b14", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.size}</td>
+                        <td className="px-3 py-3" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.chest}</td>
+                        <td className="px-3 py-3" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.length}</td>
+                        <td className="px-3 py-3" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.shoulder}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </>
   );

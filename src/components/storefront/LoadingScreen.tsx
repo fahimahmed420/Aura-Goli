@@ -30,6 +30,13 @@ const MIN_CLICK = 650;  // min visible on a client navigation
 const RAMP_MS = 1600;   // counter ramp 0 → ~90 while waiting
 const SAFETY_MS = 8000; // never strand the user behind the curtain
 
+const LOADING_PHRASES = [
+  "Entering the goli...",
+  "Charging your aura...",
+  "Weaving premium cotton...",
+  "Adjusting the vibe...",
+];
+
 type Phase = "cover" | "reveal" | "idle";
 type Slide = "down" | "in" | "up";
 
@@ -42,6 +49,7 @@ export default function LoadingScreen() {
   const [phase, setPhase] = useState<Phase>("cover");
   const [slide, setSlide] = useState<Slide>("in");
   const [count, setCount] = useState(0);
+  const [phrase, setPhrase] = useState(LOADING_PHRASES[0]);
   // Mirrors prefers-reduced-motion for the render path; the ref version is used
   // inside callbacks. Starts false so SSR and first client render match.
   const [reduce, setReduce] = useState(false);
@@ -138,6 +146,7 @@ export default function LoadingScreen() {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     reduceRef.current = reduceMotion;
     if (reduceMotion) setReduce(true);
+    setPhrase(LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)]);
     modeRef.current = "initial";
     coverStartRef.current = performance.now();
     const firstVisit = !sessionStorage.getItem("ag_intro_done");
@@ -170,6 +179,7 @@ export default function LoadingScreen() {
       targetRef.current = new URL(href, window.location.href).pathname;
       minVisibleRef.current = MIN_CLICK;
       coverStartRef.current = performance.now();
+      setPhrase(LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)]);
       setCount(0);
       document.body.style.overflow = "hidden";
       setPhase("cover");
@@ -261,6 +271,36 @@ export default function LoadingScreen() {
           Aura <span style={{ color: "#c9a84c" }}>Goli</span>
         </span>
       </div>
+
+      {/* Middle: rotating brand phrase */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pointerEvents: "none",
+          padding: "0 24px",
+        }}
+      >
+        <span
+          key={phrase}
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(1.4rem, 4.5vw, 2.4rem)",
+            fontWeight: 600,
+            fontStyle: "italic",
+            color: "rgba(250,247,240,0.92)",
+            textAlign: "center",
+            letterSpacing: "0.01em",
+            animation: reduce ? "none" : "ag-phrase-in 0.7s cubic-bezier(0.22,1,0.36,1) both",
+          }}
+        >
+          {phrase}
+        </span>
+      </div>
+      <style>{`@keyframes ag-phrase-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }`}</style>
 
       {/* Bottom: counter + progress line */}
       <div style={{ position: "relative" }}>
