@@ -184,9 +184,9 @@ export default function CheckoutClient() {
   ];
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 md:px-12 py-10">
+    <div className="max-w-[1280px] mx-auto px-4 md:px-12 py-6 min-h-screen">
       {/* Step indicator */}
-      <div className="flex items-center justify-center gap-4 mb-10">
+      <div className="flex items-center justify-center mb-10">
         {steps.map((s, i) => (
           <div key={s.n} className="flex items-center gap-4">
             <div className="flex flex-col items-center gap-1">
@@ -260,7 +260,7 @@ export default function CheckoutClient() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Full Name" required error={fieldError("name") ? "Required" : undefined}>
-                  <input value={shipping.name} onChange={(e) => setField("name", e.target.value)} className="field-input" placeholder="Faisal Ahmed" style={fieldError("name") ? { borderColor: "#ba1a1a" } : {}} />
+                  <input value={shipping.name} onChange={(e) => setField("name", e.target.value)} className="field-input" placeholder="Your Name" style={fieldError("name") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
                 <Field label="Phone" required error={fieldError("phone") ? "Required" : undefined}>
                   <input type="tel" value={shipping.phone} onChange={(e) => setField("phone", e.target.value)} className="field-input" placeholder="01XXXXXXXXX" style={fieldError("phone") ? { borderColor: "#ba1a1a" } : {}} />

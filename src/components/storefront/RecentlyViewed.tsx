@@ -31,31 +31,49 @@ export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-10 md:py-14" style={{ background: "#faf7f0" }}>
-      <div className="max-w-[1280px] mx-auto px-5 md:px-14">
-        <h2 className="font-['Playfair_Display'] text-xl md:text-2xl font-bold mb-6" style={{ color: "#12103a" }}>
-          Recently Viewed
-        </h2>
-        <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 md:mx-0 md:px-0 snap-x snap-mandatory md:grid md:grid-cols-6">
-          {products.map(p => (
-            <Link key={p.id} href={`/products/${p.slug}`}
-              className="shrink-0 snap-start w-36 md:w-auto group">
-              <div className="aspect-square rounded-xl overflow-hidden mb-2" style={{ background: "#f4f3f3" }}>
-                {p.imageUrl ? (
-                  <Image src={p.imageUrl} alt={p.name} width={160} height={160}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="material-symbols-outlined text-2xl text-[#c4c7c7]">checkroom</span>
-                  </div>
-                )}
+   <section className="py-10 md:py-14 bg-[#faf7f0]">
+  <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-12">
+    <h2 className="font-['Playfair_Display'] text-2xl md:text-3xl font-bold text-[#12103a] mb-6">
+      Recently Viewed
+    </h2>
+
+    {/* Mobile Slider / Desktop Grid */}
+    <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-hide pb-2">
+      {products.map((p) => (
+        <Link
+          key={p.id}
+          href={`/products/${p.slug}`}
+          className="group flex-shrink-0 w-[160px] md:w-auto snap-start"
+        >
+          <div className="aspect-square rounded-2xl overflow-hidden bg-[#f4f3f3] mb-3">
+            {p.imageUrl ? (
+              <Image
+                src={p.imageUrl}
+                alt={p.name}
+                width={300}
+                height={300}
+                className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-3xl text-[#c4c7c7]">
+                  checkroom
+                </span>
               </div>
-              <p className="text-xs font-semibold text-black truncate">{p.name}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#c9a84c" }}>৳{Number(p.price).toLocaleString()}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
+            )}
+          </div>
+
+          <h3 className="text-sm font-medium text-black line-clamp-2 group-hover:text-[#c9a84c] transition-colors">
+            {p.name}
+          </h3>
+
+          <p className="mt-1 text-sm font-semibold text-[#c9a84c]">
+            ৳{Number(p.price).toLocaleString()}
+          </p>
+        </Link>
+      ))}
+    </div>
+  </div>
+</section>
   );
 }
