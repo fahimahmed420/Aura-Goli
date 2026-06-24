@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
+import { usePageContentLoading } from "@/components/storefront/pageLoading";
 
 interface Product {
   id: string; name: string; slug: string; price: number; compareAtPrice?: number;
@@ -48,6 +49,9 @@ export default function ShopClient() {
   const [minPriceLocal, setMinPriceLocal] = useState(minPrice);
   const [maxPriceLocal, setMaxPriceLocal] = useState(maxPrice);
   const priceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Hold the page-loading curtain until the product grid has finished loading.
+  usePageContentLoading(loading);
 
 
   function updateParam(key: string, value: string, multi = false) {

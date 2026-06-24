@@ -2,7 +2,7 @@ import Nav from "@/components/storefront/Nav";
 import Footer from "@/components/storefront/Footer";
 import WhatsAppButton from "@/components/storefront/WhatsAppButton";
 import FlashSaleBanner from "@/components/storefront/FlashSaleBanner";
-import Preloader from "@/components/storefront/Preloader";
+import LoadingScreen from "@/components/storefront/LoadingScreen";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
 
@@ -12,7 +12,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
 
   return (
     <CompareProvider>
-      <Preloader />
+      <LoadingScreen />
       <FlashSaleBanner />
       <Nav storeName={name} />
       <main className="flex-1">{children}</main>
