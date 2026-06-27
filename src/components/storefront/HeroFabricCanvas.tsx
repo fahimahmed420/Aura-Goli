@@ -33,11 +33,20 @@ export default function HeroFabricCanvas() {
 
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+      // Device-adaptive quality: phones/low-power devices get a lighter mesh,
+      // no antialiasing, a capped pixel ratio, and fewer particles. This roughly
+      // halves the per-frame GPU/CPU cost while keeping the same look.
+      const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
+      const lowPower =
+        window.matchMedia("(max-width: 1023px)").matches ||
+        nav.connection?.saveData === true ||
+        (typeof nav.deviceMemory === "number" && nav.deviceMemory <= 4);
+
       const w = mount.clientWidth || window.innerWidth;
       const h = mount.clientHeight || window.innerHeight;
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      const renderer = new THREE.WebGLRenderer({ antialias: !lowPower, alpha: true, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.5 : 2));
       renderer.setSize(w, h);
       renderer.setClearColor(0x000000, 0);
       mount.appendChild(renderer.domElement);
@@ -48,7 +57,9 @@ export default function HeroFabricCanvas() {
       camera.position.set(0, 0, 7);
 
       // ── Silk cloth ───────────────────────────────────────────
-      const geo = new THREE.PlaneGeometry(16, 11, 160, 110);
+      const geo = lowPower
+        ? new THREE.PlaneGeometry(16, 11, 90, 62)
+        : new THREE.PlaneGeometry(16, 11, 160, 110);
 
       const uniforms = {
         uTime: { value: 0 },
@@ -139,7 +150,7 @@ export default function HeroFabricCanvas() {
       scene.add(cloth);
 
       // ── Particle dust ────────────────────────────────────────
-      const COUNT = 220;
+      const COUNT = lowPower ? 90 : 220;
       const pos = new Float32Array(COUNT * 3);
       for (let i = 0; i < COUNT; i++) {
         pos[i * 3] = (Math.random() - 0.5) * 16;

@@ -19,14 +19,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { pageLoading } from "./pageLoading";
 
 const REVEAL_MS = 720;  // curtain lifts away
 const SETTLE_MS = 140;  // let the destination register its content-loading state
-const MIN_FIRST = 1500; // min visible on the very first visit (intro feel)
-const MIN_RELOAD = 750; // min visible on a hard reload
-const MIN_CLICK = 650;  // min visible on a client navigation
+const MIN_FIRST = 600;  // brief first-visit intro; lifts as soon as content is ready
+const MIN_RELOAD = 0;   // no artificial hold on reload — never delay the real page
 const RAMP_MS = 1600;   // counter ramp 0 → ~90 while waiting
 const SAFETY_MS = 8000; // never strand the user behind the curtain
 
@@ -41,7 +40,6 @@ type Phase = "cover" | "reveal" | "idle";
 type Slide = "down" | "in" | "up";
 
 export default function LoadingScreen() {
-  const router = useRouter();
   const pathname = usePathname();
 
   // Start covering on first paint (SSR) so a hard load/reload never flashes the
@@ -169,56 +167,9 @@ export default function LoadingScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, phase]);
 
-  // Begin a curtain for an internal link click.
-  const beginClick = useCallback(
-    (href: string) => {
-      clearAll();
-      gatingRef.current = false;
-      arrivedRef.current = false;
-      modeRef.current = "click";
-      targetRef.current = new URL(href, window.location.href).pathname;
-      minVisibleRef.current = MIN_CLICK;
-      coverStartRef.current = performance.now();
-      setPhrase(LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)]);
-      setCount(0);
-      document.body.style.overflow = "hidden";
-      setPhase("cover");
-      // Cover instantly (no rAF dependency) so the curtain reliably hides the
-      // destination even when the main thread is busy rendering it. The elegant
-      // sweep is kept for the reveal.
-      setSlide("in");
-      startCounter();
-      router.push(href);
-      after(SAFETY_MS, reveal);
-    },
-    [router, startCounter, reveal, clearAll]
-  );
-
-  // Intercept internal link clicks app-wide (capture phase, before Next's <Link>).
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (phase !== "idle") return;
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      const a = (e.target as HTMLElement | null)?.closest("a");
-      if (!a || a.hasAttribute("download") || a.dataset.noTransition !== undefined) return;
-      const target = a.getAttribute("target");
-      if (target && target !== "_self") return;
-      const raw = a.getAttribute("href");
-      if (!raw || raw.startsWith("#")) return;
-      let url: URL;
-      try {
-        url = new URL(a.href, window.location.href);
-      } catch {
-        return;
-      }
-      if (url.origin !== window.location.origin) return;     // external / mailto / tel
-      if (url.pathname === window.location.pathname) return;  // same page (hash / query only)
-      e.preventDefault();
-      beginClick(url.pathname + url.search + url.hash);
-    };
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
-  }, [phase, beginClick]);
+  // NOTE: internal link clicks are intentionally NOT intercepted. Client
+  // navigations use Next.js routing directly (instant, no artificial gate) so
+  // we never add latency to INP. The curtain is a first-load/reload intro only.
 
   if (phase === "idle") return null;
 

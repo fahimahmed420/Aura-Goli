@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Self-hosted Playfair Display + Hanken Grotesk (woff2 in /public/fonts).
+   Removes the render-blocking Google Fonts stylesheet and the font-swap CLS. */
+@import "./fonts.css";
 
 @theme inline {
   /* ── Type ─────────────────────────────────────────────── */
@@ -29,7 +32,10 @@
 * { scrollbar-width: thin; scrollbar-color: #e2e2e2 transparent; }
 
 /* ── Page entry ─────────────────────────────────────────────── */
-html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+html { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 
 /* Opacity-only (no translateY) so the fade never opens a gap that reveals the
    body colour behind the dark hero — that was the original "bg flash". */
@@ -155,8 +161,19 @@ button:active:not(:disabled), a:active { opacity: 0.82; transform: scale(0.97); 
 
 /* ── Marquee ────────────────────────────────────────────────── */
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee 18s linear infinite;
+}
+@media (max-width: 768px) {
+  .marquee-track {
+    animation-duration: 12s;
+  }
 }
 
 /* ── Spin loader ────────────────────────────────────────────── */
