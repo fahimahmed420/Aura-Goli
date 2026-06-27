@@ -5,6 +5,10 @@ import NewsletterForm from "@/components/storefront/NewsletterForm";
 import TestimonialSlider from "@/components/storefront/TestimonialSlider";
 import Hero3D from "@/components/storefront/Hero3D";
 
+// ISR: regenerate the homepage at most every 5 minutes instead of querying
+// Postgres on every request. Admin product/category edits call revalidatePath("/").
+export const revalidate = 300;
+
 const homeCardSelect = {
   id: true, name: true, slug: true, price: true, compareAtPrice: true,
   createdAt: true, salesCount: true,
@@ -62,6 +66,16 @@ async function getHomeData() {
 
 export default async function HomePage() {
   const { categories, bestsellers, newArrivals, latestReviews } = await getHomeData();
+
+  // Shoppable lookbook built from real catalog imagery (deduped, max 6) — replaces
+  // the previous hardcoded placeholder photos.
+  const lookbook = Array.from(
+    new Map(
+      [...bestsellers, ...newArrivals]
+        .filter((p) => p.images?.[0]?.url)
+        .map((p) => [p.images[0].url, { src: p.images[0].url, alt: p.name, slug: p.slug }])
+    ).values()
+  ).slice(0, 6);
 
   return (
     <div style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
@@ -133,7 +147,7 @@ export default async function HomePage() {
                   {/* Solid background for transparent PNGs */}
                   <div className="absolute inset-0" style={{ background: "#faf7f0" }} />
                   {cat.imageUrl && (
-                    <Image src={cat.imageUrl} alt={cat.name} fill className="object-cover" />
+                    <Image src={cat.imageUrl} alt={cat.name} fill sizes="68vw" className="object-cover" />
                   )}
                   {/* Always-visible text panel */}
                   <div className="absolute inset-x-0 bottom-0 p-5 pt-20"
@@ -160,6 +174,7 @@ export default async function HomePage() {
                     style={{ background: "#faf7f0" }}>
                     {cat.imageUrl && (
                       <Image src={cat.imageUrl} alt={cat.name} fill
+                        sizes={i === 0 ? "(max-width: 1280px) 50vw, 640px" : "(max-width: 1280px) 25vw, 320px"}
                         className="object-cover group-hover:scale-105 transition-transform duration-700" />
                     )}
                     <div className="absolute inset-0 flex flex-col justify-end p-7">
@@ -248,7 +263,7 @@ export default async function HomePage() {
                 </h2>
                 <Link href="/shop?sort=newest"
                   className="text-[11px] font-bold uppercase tracking-[0.15em] mb-1 shrink-0"
-                  style={{ color: "rgba(250,247,240,0.45)" }}>
+                  style={{ color: "rgba(250,247,240,0.7)" }}>
                   See all
                 </Link>
               </div>
@@ -264,7 +279,7 @@ export default async function HomePage() {
                 <Link key={p.id} href={`/products/${p.slug}`} className="group active:scale-[0.97] transition-transform">
                   <div className="relative overflow-hidden rounded-xl mb-2.5" style={{ aspectRatio: "3/4", background: "#2d1a4a" }}>
                     {p.images?.[0] ? (
-                      <Image src={p.images[0].url} alt={p.name} fill className="object-cover opacity-85" />
+                      <Image src={p.images[0].url} alt={p.name} fill sizes="50vw" className="object-cover opacity-85" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="material-symbols-outlined text-3xl" style={{ color: "rgba(201,168,76,0.3)" }}>checkroom</span>
@@ -289,6 +304,7 @@ export default async function HomePage() {
                     <div className="relative overflow-hidden mb-3 rounded-xl" style={{ aspectRatio: "3/4", background: "#2d1a4a" }}>
                       {p.images?.[0] ? (
                         <Image src={p.images[0].url} alt={p.name} fill
+                          sizes="(max-width: 1280px) 25vw, 280px"
                           className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -298,7 +314,7 @@ export default async function HomePage() {
                     </div>
                     <p className="text-[13px] font-semibold truncate group-hover:text-[#c9a84c] transition-colors"
                       style={{ color: "#faf7f0" }}>{p.name}</p>
-                    <p className="text-[13px]" style={{ color: "rgba(250,247,240,0.45)" }}>
+                    <p className="text-[13px]" style={{ color: "rgba(250,247,240,0.7)" }}>
                       ৳{Number(p.price).toLocaleString()}
                     </p>
                   </Link>
@@ -332,44 +348,40 @@ export default async function HomePage() {
         <TestimonialSlider reviews={latestReviews} />
       </div>
 
-      {/* ── COMMUNITY GRID ───────────────────────────────────────────── */}
-      <section style={{ background: "#12103a" }} className="py-14 md:py-24">
-        <div className="max-w-[1280px] mx-auto px-5 md:px-14">
-          <div className="text-center mb-8 md:mb-14">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style={{ color: "#c9a84c" }}>
-              Community
-            </p>
-            <h2 className="font-['Playfair_Display'] text-[1.8rem] md:text-[2.8rem] font-bold" style={{ color: "#faf7f0" }}>
-              As Seen On You
-            </h2>
-            <p className="mt-2 text-[13px]" style={{ color: "rgba(250,247,240,0.35)" }}>
-              Tag @AuraGoli #VibeWithAura to be featured
-            </p>
-          </div>
+      {/* ── LOOKBOOK — shoppable grid from real catalog imagery ───────── */}
+      {lookbook.length > 0 && (
+        <section style={{ background: "#12103a" }} className="py-14 md:py-24">
+          <div className="max-w-[1280px] mx-auto px-5 md:px-14">
+            <div className="text-center mb-8 md:mb-14">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style={{ color: "#c9a84c" }}>
+                The Lookbook
+              </p>
+              <h2 className="font-['Playfair_Display'] text-[1.8rem] md:text-[2.8rem] font-bold" style={{ color: "#faf7f0" }}>
+                Styled by Aura
+              </h2>
+              <p className="mt-2 text-[13px]" style={{ color: "rgba(250,247,240,0.65)" }}>
+                Tap a piece to shop the look
+              </p>
+            </div>
 
-          {/* 3-col on mobile, 6-col on desktop */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
-            {[
-              { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuD-S5NXdww9MHc6phc6VZ7ocisNV1r5dPFiOVQgstRMqjx55YkCm1NDjX2_pYzajxBAPpz4td8wHg_R1HDqapJkgdMuuesgj1ntsLK1_vVhawEp_FPU67Jkxy9eqyMWixdQPrtDEAeGckMTykbVc-mwSWOcij2junZgeqazCi0tsh_Md_OHXoov0X11R2kVluAsPrA9LtIOHHdln8-yI01jz8rtMYqsFYuBhwgq3103pELnYMeFkXd9moDJOlApjJu-rMqS1HvGE5I", alt: "Community photo 1" },
-              { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCkropPmpETmrWSyMUJ1xDDT7ifO_fhsH4mF1vc_2mVVMhI6tSiBfOoSRH8NJZCUvALFazgjuws1NKBiaNZZjLHmEuwoKYvYnLCWzAmFq9pMxI7hC4C0wLYo3T1SqdHTvPrQ2_KgqIHy9V6sb7ezD8_L5ahkFrADfVhTSnjMJBtBGFb27Okvm6zmjza4QrBivdV0jlTYO5TNfRmXASEf_QwvFakli6Cvtt4VbYatne3WBH_fKZfcjYcercEVUKvTouC458p6L8s09M", alt: "Community photo 2" },
-              { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCFXs0hgnNBfXLCpbLKKnmgAB9HuzkHAC_l3S5ErFeJF7cRxUn_yAi8pkd2Fo-o85H8vvMyTM5Sz1FuQb8DkUngNN0Q98u048jKiCut3EQcQ19hi_MtaxgRK2s1w_yWUzfSM9JZA5f0mVM6waXk5Qgl-Cp2Yz_J2WnFAHMpgCosbouu3ol6cd5raufSgzmvTdJJUsBqdzFpRMlXG4Jp3mHWpz8HJ-EPaCC_BBWqXD4WjXpTcmN-wo2BRxQrWsq48yPGpMnGCtNeaCg", alt: "Community photo 3" },
-              { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCINZwFC_VvRhIGLMrXJ5a_rAeclEWw9kqDNUz2sVzpd65ZL7GgoXPwWjvOfiR_Te67A6ZtIEVS0revvpTI0EWGXdpCMkxfp68eeZaK3AyzMUg_ZPffuDuy7dSrZd9wUPmtDJ3CqWuVwfxMcnApp8KyxqgUXmNJHsdfv_Ukyk9TTYVWdRGMRPhMrXo2GhFHwvKjARxhniEiHWakjftZwzbtPpuB8PmfiaQGhNZT22bWYyHN0_pA9QYHDkDmEtgzkyRnI03kTF1M7IQ", alt: "Community photo 4" },
-              { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuATkmBaM_30Pw07gDyvZX-dhJk7ztyasC5agqS2VcOgY7ZheqD5MLPA4v4Wk_pikuNGUUtYaeyKdEj8q6IAQTicBE3YL4LH3U0lyo8Gud4vWA3X-hufvrY86d6dEeYpUiFynuAmlmXBO90VeSf4sDC3E6cZMiH0gGjXqoSNdb1PPEHbSv-UhpreQaguJJU-Palfns9ahLWMlEvRXHz2oBq2ZX-SWxcDxqZO5Y_XdUJ7vkcO_0tqQjwJgEd7Cr521MLdWrPyfCd8FVU", alt: "Community photo 5" },
-              { src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDfozlM0A1Hq9UUPeIavlDtdAU39gsO5QC-zQd3Z7SBsTXvDrH2Qc2ntVbDGT7qv7TTPjA9Ckytrc9j9mRd806SHUuCWlW0mvQ53dt6DToS4JS_uInu7FSqa1hS1K0FuAk2dnwX2uaj9oY0EoWVtR7b03qZOALtJtDWwjD3NcOpxM7NoFArCmrinz2hSwuRPuTZ_fDwCE6aXsM7dr3pyLwmn2S4-MrFnLDp0DL-0JJJbGoN2A8Fwawl_5CbMrH1lo95Zr0VdO2l3M4", alt: "Community photo 6" },
-            ].map((img, i) => (
-              <div key={i} className="aspect-square relative overflow-hidden rounded-lg">
-                <Image src={img.src} alt={img.alt} fill
-                  sizes="(max-width: 768px) 33vw, 16vw"
-                  className="object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 active:opacity-100 md:hover:opacity-100 transition-opacity duration-200"
-                  style={{ background: "rgba(201,168,76,0.2)" }}>
-                  <span className="material-symbols-outlined text-xl" style={{ color: "#c9a84c", fontVariationSettings: "'FILL' 1" }}>favorite</span>
-                </div>
-              </div>
-            ))}
+            {/* 3-col on mobile, 6-col on desktop */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
+              {lookbook.map((img, i) => (
+                <Link key={i} href={`/products/${img.slug}`}
+                  className="aspect-square relative overflow-hidden rounded-lg block active:scale-[0.97] transition-transform">
+                  <Image src={img.src} alt={img.alt} fill
+                    sizes="(max-width: 768px) 33vw, 16vw"
+                    className="object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 active:opacity-100 md:hover:opacity-100 transition-opacity duration-200"
+                    style={{ background: "rgba(201,168,76,0.2)" }}>
+                    <span className="material-symbols-outlined text-xl" style={{ color: "#c9a84c" }}>shopping_bag</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── WHY US — 3 quick value props ─────────────────────────────── */}
       <section style={{ background: "#0b0b14" }} className="py-14 md:py-20">
@@ -410,7 +422,7 @@ export default async function HomePage() {
               style={{ fontSize: "clamp(2rem, 8vw, 4rem)", color: "#faf7f0" }}>
               Join the <span style={{ color: "#c9a84c" }}>Aura</span>
             </h2>
-            <p className="text-[14px] leading-relaxed mb-8" style={{ color: "rgba(250,247,240,0.45)" }}>
+            <p className="text-[14px] leading-relaxed mb-8" style={{ color: "rgba(250,247,240,0.7)" }}>
               First access to limited drops, exclusive events, and stories behind each collection. No spam — just the good stuff.
             </p>
             <NewsletterForm />
@@ -432,15 +444,25 @@ interface Product {
   images: { url: string }[];
   averageRating?: number;
   _count?: { reviews: number };
+  variants?: { stockQuantity: number }[];
 }
 
 function ProductCard({ product }: { product: Product }) {
+  const stock = (product.variants ?? []).reduce((s, v) => s + v.stockQuantity, 0);
+  const lowStock = stock > 0 && stock <= 6;
   return (
     <Link href={`/products/${product.slug}`} className="group block active:scale-[0.97] transition-transform">
       <div className="relative overflow-hidden mb-3 rounded-xl"
         style={{ aspectRatio: "3/4", background: "#ede8e0" }}>
+        {lowStock && (
+          <span className="absolute top-2.5 left-2.5 z-10 text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full"
+            style={{ background: "rgba(186,26,26,0.92)", color: "#fff" }}>
+            Only {stock} left
+          </span>
+        )}
         {product.images?.[0] ? (
           <Image src={product.images[0].url} alt={product.name} fill
+            sizes="(max-width: 768px) 60vw, (max-width: 1280px) 25vw, 280px"
             className="object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center"

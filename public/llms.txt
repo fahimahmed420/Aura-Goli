@@ -1,0 +1,23 @@
+# Aura Goli
+
+> Aura Goli is a premium T-shirt brand based in Bangladesh, crafting minimalist,
+> ethically sourced apparel from 220 GSM Supima cotton. We sell directly online
+> with free shipping on orders above ৳2,000 and 30-day returns.
+
+## Key pages
+- [Home](https://auragoli.com/): Brand overview and featured collections.
+- [Shop](https://auragoli.com/shop): Full catalog of T-shirts, filterable by category, color, size, and price.
+- [About](https://auragoli.com/about): Brand story, sourcing, and quality promise.
+- [FAQ](https://auragoli.com/faq): Sizing, shipping, returns, and care questions.
+- [Returns](https://auragoli.com/returns): 30-day return and exchange policy.
+- [Contact](https://auragoli.com/contact): Customer support and enquiries.
+- [Order Tracking](https://auragoli.com/order-tracking): Track an order by number.
+
+## Policies
+- Free shipping on orders above ৳2,000; same-day delivery across Dhaka.
+- 30-day returns; lifetime quality guarantee on stitching, printing, and fabric.
+- 100% Supima cotton from GOTS-certified mills.
+
+## Notes
+- Product, pricing, and availability data is exposed as schema.org Product JSON-LD on each product page.
+- The /admin and /api paths are not public content and should not be indexed.

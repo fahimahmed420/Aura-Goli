@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-auth";
 import { buildCatalogWhere, buildCatalogOrderBy, type CatalogSort } from "@/lib/catalog-query";
@@ -105,5 +106,7 @@ export async function POST(req: NextRequest) {
     include: { images: true, variants: true, category: true },
   });
 
+  revalidatePath("/");
+  revalidatePath("/shop");
   return Response.json({ product }, { status: 201 });
 }
