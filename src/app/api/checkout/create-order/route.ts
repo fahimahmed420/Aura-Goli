@@ -6,6 +6,7 @@ import { verifyAccessToken } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { randomBytes } from "crypto";
 import { sendOrderConfirmation } from "@/lib/email";
+import { getCartIdentity, cartWhere } from "@/lib/cart";
 
 const VALID_PAYMENT_METHODS = ["card", "bkash", "nagad", "rocket", "cod"] as const;
 type PaymentMethod = typeof VALID_PAYMENT_METHODS[number];
@@ -17,7 +18,7 @@ function generateOrderNumber() {
 export async function POST(req: NextRequest) {
   // Rate-limit by IP to prevent checkout abuse
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`checkout:${ip}`, { limit: 10, windowSecs: 60 });
+  const rl = await rateLimit(`checkout:${ip}`, { limit: 10, windowSecs: 60 });
   if (!rl.allowed) return apiError("Too many requests. Please wait.", 429);
 
   const body = await req.json();
@@ -174,6 +175,12 @@ export async function POST(req: NextRequest) {
 
     return o;
   });
+
+  // The cart is now an order — clear the persisted mirror so it isn't treated as abandoned.
+  try {
+    const where = cartWhere(await getCartIdentity(req, false));
+    if (where) await prisma.cart.deleteMany({ where });
+  } catch { /* non-critical */ }
 
   // COD — skip payment gateway
   if (paymentMethod === "cod") {

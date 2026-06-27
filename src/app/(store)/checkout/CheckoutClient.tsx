@@ -59,7 +59,7 @@ export default function CheckoutClient() {
     fetch("/api/flash-sale").then(r => r.ok ? r.json() : null).then(d => setFlashSale(d?.sale ?? null)).catch(() => {});
 
     // Pre-fill from auth token + load saved addresses
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (token) {
       fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.json())
@@ -121,7 +121,7 @@ export default function CheckoutClient() {
     setPlacing(true);
     setError("");
 
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -266,7 +266,15 @@ export default function CheckoutClient() {
                   <input type="tel" value={shipping.phone} onChange={(e) => setField("phone", e.target.value)} className="field-input" placeholder="01XXXXXXXXX" style={fieldError("phone") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
                 <Field label="Email" required error={fieldError("email") ? "Required" : undefined}>
-                  <input type="email" value={shipping.email} onChange={(e) => setField("email", e.target.value)} className="field-input" placeholder="you@email.com" style={fieldError("email") ? { borderColor: "#ba1a1a" } : {}} />
+                  <input type="email" value={shipping.email} onChange={(e) => setField("email", e.target.value)}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      // Capture a valid email onto the cart so an abandoned guest cart is recoverable.
+                      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
+                        fetch("/api/cart/email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: v }) }).catch(() => {});
+                      }
+                    }}
+                    className="field-input" placeholder="you@email.com" style={fieldError("email") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
                 <Field label="City" required error={fieldError("city") ? "Required" : undefined}>
                   <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" style={fieldError("city") ? { borderColor: "#ba1a1a" } : {}} />

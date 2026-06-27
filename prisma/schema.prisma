@@ -293,11 +293,13 @@ model FlashSale {
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 model Cart {
-  id        String   @id @default(cuid())
-  userId    String?  @unique
-  sessionId String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String    @id @default(cuid())
+  userId         String?   @unique
+  sessionId      String?   @unique
+  email          String? // guest email (captured at checkout) for cart-recovery
+  reminderSentAt DateTime? // abandoned-cart reminder dedupe; reset to null on cart change
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   user  User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   items CartItem[]
