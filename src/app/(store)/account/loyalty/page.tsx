@@ -17,7 +17,7 @@ export default function LoyaltyPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     fetch("/api/account/loyalty", { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : { points: 0, transactions: [] })
       .then(d => { setPoints(d.points ?? 0); setTransactions(d.transactions ?? []); })

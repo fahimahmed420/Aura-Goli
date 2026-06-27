@@ -19,7 +19,7 @@ export default function AccountProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     fetch("/api/account/profile", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => {
@@ -61,7 +61,7 @@ export default function AccountProfilePage() {
     e.preventDefault();
     setSaving(true);
     setMsg(null);
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     const name = [firstName, lastName].filter(Boolean).join(" ");
     const body: Record<string, string> = { name, phone, bio, avatarUrl: avatarSrc ?? "" };
     if (newPassword) { body.currentPassword = currentPassword; body.newPassword = newPassword; }

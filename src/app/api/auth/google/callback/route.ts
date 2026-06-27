@@ -6,7 +6,7 @@ import {
   refreshTokenExpiry,
   generateSecureToken,
 } from "@/lib/auth";
-import { setRefreshCookie } from "@/lib/cookies";
+import { setRefreshCookie, setAccessCookie } from "@/lib/cookies";
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -131,8 +131,10 @@ export async function GET(req: NextRequest) {
     return Response.redirect(callbackUrl.toString());
   }
 
+  // Storefront session: set the HttpOnly access cookie and redirect WITHOUT the
+  // token in the URL (a JWT in the query string leaks to history/Referer/logs).
+  await setAccessCookie(accessToken);
   const callbackUrl = new URL("/auth/callback", appUrl);
-  callbackUrl.searchParams.set("token", accessToken);
   callbackUrl.searchParams.set("next", next);
 
   return Response.redirect(callbackUrl.toString());

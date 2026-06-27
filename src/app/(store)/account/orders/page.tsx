@@ -32,7 +32,7 @@ export default function AccountOrdersPage() {
   const [filter, setFilter] = useState("All Orders");
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     fetch("/api/account/orders", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => setOrders(d.orders ?? []))

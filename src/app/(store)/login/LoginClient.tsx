@@ -65,7 +65,9 @@ export default function LoginClient() {
       return;
     }
 
-    localStorage.setItem("userToken", data.accessToken);
+    // The JWT now lives in an HttpOnly cookie set by the server. We only keep a
+    // non-sensitive flag so the client can cheaply know it's signed in.
+    if (data.accessToken) localStorage.setItem("ag_authed", "1");
     window.dispatchEvent(new Event("user-updated"));
     router.push(next);
   }

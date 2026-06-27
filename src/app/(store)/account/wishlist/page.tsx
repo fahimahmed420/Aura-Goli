@@ -20,7 +20,7 @@ export default function WishlistPage() {
   const [removing, setRemoving] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     fetch("/api/account/wishlist", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => setItems(d.items ?? []))
@@ -29,7 +29,7 @@ export default function WishlistPage() {
 
   async function remove(productId: string) {
     setRemoving(productId);
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     await fetch("/api/account/wishlist", {
       method: "DELETE",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

@@ -21,7 +21,7 @@ export default function AddressesPage() {
   const [error, setError] = useState("");
 
   async function fetchAddresses() {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     const res = await fetch("/api/account/addresses", { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
     setAddresses(data.addresses ?? []);
@@ -34,7 +34,7 @@ export default function AddressesPage() {
     e.preventDefault();
     setSaving(true);
     setError("");
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     const res = await fetch("/api/account/addresses", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -52,7 +52,7 @@ export default function AddressesPage() {
   }
 
   async function setDefault(id: string) {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     await fetch(`/api/account/addresses/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -63,7 +63,7 @@ export default function AddressesPage() {
 
   async function remove(id: string) {
     setDeleting(id);
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     await fetch(`/api/account/addresses/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
     setAddresses((prev) => prev.filter((a) => a.id !== id));
     setDeleting(null);

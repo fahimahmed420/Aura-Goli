@@ -82,7 +82,7 @@ export default function ShopClient() {
   useEffect(() => {
     fetch("/api/products/filters").then((r) => r.json()).then((d) => setFiltersData(d));
     fetch("/api/categories").then((r) => r.json()).then((d) => setCategories(d.categories ?? []));
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (token) {
       fetch("/api/account/wishlist", { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => r.json())
@@ -96,7 +96,7 @@ export default function ShopClient() {
 
   function toggleWishlist(e: React.MouseEvent, productId: string) {
     e.preventDefault(); e.stopPropagation();
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (!token) { window.location.href = "/login"; return; }
     const wasWishlisted = wishlist.has(productId);
     setWishlist((prev) => { const next = new Set(prev); wasWishlisted ? next.delete(productId) : next.add(productId); return next; });

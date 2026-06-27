@@ -33,12 +33,12 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
 
   useEffect(() => {
     const updateUser = async () => {
-      const t = localStorage.getItem("userToken");
+      const t = localStorage.getItem("ag_authed");
       if (!t) { setUser(null); return; }
       try {
         const r = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${t}` } });
         if (r.ok) { const d = await r.json(); setUser(d.user); }
-        else { localStorage.removeItem("userToken"); setUser(null); }
+        else { localStorage.removeItem("ag_authed"); setUser(null); }
       } catch { /* offline */ }
     };
     const updateCart = () => {
@@ -79,7 +79,9 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
   }
 
   function logout() {
-    localStorage.removeItem("userToken");
+    // Clear the server-side HttpOnly cookies, then drop the local flag.
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    localStorage.removeItem("ag_authed");
     window.dispatchEvent(new Event("user-updated"));
     router.push("/");
   }
@@ -195,7 +197,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                     <div className="md:hidden w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0"
                       style={{ background: "rgba(201,168,76,0.18)", color: "#c9a84c", border: "1.5px solid rgba(201,168,76,0.3)" }}>
                       {user.avatarUrl
-                        ? <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ? <img src={user.avatarUrl} alt="" width={36} height={36} decoding="async" className="w-full h-full object-cover" />
                         : user.name.charAt(0).toUpperCase()}
                     </div>
                   </>
@@ -243,7 +245,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                   color: user ? "#c9a84c" : "rgba(255,255,255,0.7)",
                 }}>
                 {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                  <img src={user.avatarUrl} alt={user.name} width={40} height={40} decoding="async" className="w-full h-full object-cover" />
                 ) : user ? (
                   <span className="text-sm font-bold">{userInitial}</span>
                 ) : (
@@ -309,6 +311,8 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
       {/* ── Search overlay ────────────────────────────────────── */}
       {searchOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
+          role="dialog" aria-modal="true" aria-label="Search products"
+          onKeyDown={(e) => { if (e.key === "Escape") setSearchOpen(false); }}
           onClick={() => setSearchOpen(false)}>
           <div className="absolute inset-0" style={{ background: "rgba(11,11,20,0.85)", backdropFilter: "blur(10px)" }} />
           <form onSubmit={handleSearch} className="relative w-full max-w-xl" onClick={(e) => e.stopPropagation()}>
@@ -383,7 +387,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                     <>
                       <span className="relative">
                         <span className="material-symbols-outlined"
-                          style={{ fontSize: "22px", color: "rgba(255,255,255,0.35)", fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
+                          style={{ fontSize: "22px", color: "rgba(255,255,255,0.55)", fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
                           {item.icon}
                         </span>
                         {"badge" in item && item.badge !== undefined && item.badge > 0 && (
@@ -394,7 +398,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
                         )}
                       </span>
                       <span className="text-[9px] font-medium mt-0.5"
-                        style={{ color: "rgba(255,255,255,0.25)", letterSpacing: "0.04em" }}>
+                        style={{ color: "rgba(255,255,255,0.62)", letterSpacing: "0.04em" }}>
                         {item.label}
                       </span>
                     </>

@@ -1,4 +1,4 @@
-import { getRefreshCookie, clearRefreshCookie } from "@/lib/cookies";
+import { getRefreshCookie, clearRefreshCookie, clearAccessCookie } from "@/lib/cookies";
 import { prisma } from "@/lib/prisma";
 
 export async function POST() {
@@ -9,5 +9,6 @@ export async function POST() {
   }
 
   await clearRefreshCookie();
+  await clearAccessCookie();
   return Response.json({ ok: true });
 }

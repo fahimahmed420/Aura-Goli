@@ -17,6 +17,12 @@ export async function POST(req: NextRequest) {
   const order = await prisma.order.findUnique({ where: { orderNumber: tranId } });
   if (!order || order.paymentStatus === "paid") return new Response("OK");
 
+  // Guard against amount tampering — the gateway-validated amount must cover the
+  // order total (1 BDT tolerance for rounding). Never mark paid for less.
+  if (Number(validation.amount) + 1 < Number(order.total)) {
+    return new Response("OK");
+  }
+
   await prisma.order.update({
     where: { id: order.id },
     data: { status: "confirmed", paymentStatus: "paid" },

@@ -8,7 +8,7 @@ import {
   refreshTokenExpiry,
   generateSecureToken,
 } from "@/lib/auth";
-import { setRefreshCookie } from "@/lib/cookies";
+import { setRefreshCookie, setAccessCookie } from "@/lib/cookies";
 import { rateLimit, authRateLimits } from "@/lib/rate-limit";
 import { isValidEmail, apiError } from "@/lib/validation";
 
@@ -16,7 +16,7 @@ const GENERIC_ERROR = "Invalid email or password";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`login:${ip}`, authRateLimits.login);
+  const rl = await rateLimit(`login:${ip}`, authRateLimits.login);
   if (!rl.allowed) return apiError("Too many login attempts. Please wait.", 429);
 
   let body: unknown;
@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
   });
 
   await setRefreshCookie(rawRefreshToken, expiresAt);
+  // Access token now lives in an HttpOnly cookie (not JS-readable) to prevent XSS theft.
+  await setAccessCookie(accessToken);
 
   return Response.json({
     accessToken,

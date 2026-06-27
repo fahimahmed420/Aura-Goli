@@ -8,12 +8,12 @@ function CallbackInner() {
   const sp = useSearchParams();
 
   useEffect(() => {
-    const token = sp.get("token");
+    // The access token is now set server-side as an HttpOnly cookie during the
+    // OAuth callback — it is no longer passed in the URL. Reaching this page means
+    // sign-in succeeded, so just record the non-sensitive flag and continue.
     const next = sp.get("next") ?? "/account/orders";
-    if (token) {
-      localStorage.setItem("userToken", token);
-      window.dispatchEvent(new Event("user-updated"));
-    }
+    localStorage.setItem("ag_authed", "1");
+    window.dispatchEvent(new Event("user-updated"));
     router.replace(next);
   }, [router, sp]);
 

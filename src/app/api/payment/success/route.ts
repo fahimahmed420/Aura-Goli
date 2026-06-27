@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
   });
   if (!order) return Response.redirect(new URL("/cart?error=order_not_found", appUrl));
 
+  // Guard against amount tampering — gateway-validated amount must cover the order total.
+  if (Number(validation.amount) + 1 < Number(order.total)) {
+    return Response.redirect(new URL("/cart?error=payment_invalid", appUrl));
+  }
+
   if (order.paymentStatus !== "paid") {
     /* Loyalty: 1 point per ৳10 spent */
     const loyaltyEarned = order.userId ? Math.floor(Number(order.total) / 10) : 0;

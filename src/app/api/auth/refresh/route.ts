@@ -1,4 +1,4 @@
-import { getRefreshCookie, setRefreshCookie, clearRefreshCookie } from "@/lib/cookies";
+import { getRefreshCookie, setRefreshCookie, clearRefreshCookie, setAccessCookie } from "@/lib/cookies";
 import { prisma } from "@/lib/prisma";
 import { signAccessToken, generateSecureToken, refreshTokenExpiry } from "@/lib/auth";
 import { apiError } from "@/lib/validation";
@@ -33,6 +33,7 @@ export async function POST() {
   await setRefreshCookie(newRawToken, expiresAt);
 
   const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
+  await setAccessCookie(accessToken);
 
   return Response.json({ accessToken });
 }

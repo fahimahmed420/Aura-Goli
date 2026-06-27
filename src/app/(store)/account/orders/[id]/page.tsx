@@ -31,7 +31,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     fetch(`/api/account/orders/${id}`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(d => setOrder(d.order ?? null)).finally(() => setLoading(false));
   }, [id]);

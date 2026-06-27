@@ -22,12 +22,12 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (!token) { router.replace("/login?next=" + pathname); return; }
 
     fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => {
-        if (!r.ok) { localStorage.removeItem("userToken"); router.replace("/login?next=" + pathname); return null; }
+        if (!r.ok) { localStorage.removeItem("ag_authed"); router.replace("/login?next=" + pathname); return null; }
         return r.json();
       })
       .then((d) => { if (d) { setName(d.user?.name ?? ""); setAvatarUrl(d.user?.avatarUrl ?? null); setChecking(false); } })
@@ -133,7 +133,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
                   );
                 })}
                 <button
-                  onClick={() => { localStorage.removeItem("userToken"); router.push("/"); }}
+                  onClick={() => { fetch("/api/auth/logout", { method: "POST" }).catch(() => {}); localStorage.removeItem("ag_authed"); window.dispatchEvent(new Event("user-updated")); router.push("/"); }}
                   className="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium transition-colors"
                   style={{ color: "#ba1a1a", borderLeft: "3px solid transparent" }}
                 >
@@ -244,7 +244,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
           </Link>
 
           <button
-            onClick={() => { localStorage.removeItem("userToken"); router.push("/"); }}
+            onClick={() => { fetch("/api/auth/logout", { method: "POST" }).catch(() => {}); localStorage.removeItem("ag_authed"); window.dispatchEvent(new Event("user-updated")); router.push("/"); }}
             className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all hover:bg-white/5"
           >
             <div
