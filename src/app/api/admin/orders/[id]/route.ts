@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-auth";
 import { apiError } from "@/lib/validation";
+import { sendReviewRequest } from "@/lib/email";
 
 const VALID_STATUSES = ["pending_payment", "confirmed", "packed", "shipped", "delivered", "cancelled", "refunded"];
 
@@ -34,6 +35,27 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     return o;
   });
+
+  // On first transition to "delivered", ask the customer to review their purchase.
+  if (status === "delivered" && order.status !== "delivered") {
+    try {
+      const full = await prisma.order.findUnique({
+        where: { id },
+        select: {
+          guestEmail: true, shippingAddress: true,
+          user: { select: { email: true, name: true } },
+          items: { select: { variant: { select: { product: { select: { slug: true, name: true } } } } } },
+        },
+      });
+      const addr = full?.shippingAddress as { name?: string; email?: string } | null;
+      const email = full?.user?.email ?? full?.guestEmail ?? addr?.email;
+      const name = full?.user?.name ?? addr?.name ?? "there";
+      const product = full?.items.find((it) => it.variant?.product?.slug)?.variant?.product;
+      if (email && product) {
+        await sendReviewRequest(email, name, product.name, product.slug);
+      }
+    } catch { /* email failure must not block the status update */ }
+  }
 
   return Response.json({ order: updated });
 }

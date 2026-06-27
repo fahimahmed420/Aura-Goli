@@ -1,15 +1,81 @@
+import { createHmac, timingSafeEqual } from "crypto";
+import { prisma } from "@/lib/prisma";
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 const FROM    = process.env.EMAIL_FROM ?? "Aura Goli <no-reply@auragoli.com>";
 const BRAND   = "Aura Goli";
 
-async function send(to: string, subject: string, html: string) {
+// ─── Unsubscribe / suppression ────────────────────────────────────────────────
+// Stateless HMAC token (no per-recipient DB row needed); secret reuses the JWT
+// secret unless UNSUBSCRIBE_SECRET is set.
+const UNSUB_SECRET = process.env.UNSUBSCRIBE_SECRET ?? process.env.JWT_ACCESS_SECRET ?? "unsubscribe-dev-secret";
+
+export function unsubscribeToken(email: string): string {
+  return createHmac("sha256", UNSUB_SECRET).update(email.toLowerCase()).digest("hex");
+}
+
+export function verifyUnsubscribeToken(email: string, token: string): boolean {
+  const expected = Buffer.from(unsubscribeToken(email));
+  const got = Buffer.from(token);
+  return expected.length === got.length && timingSafeEqual(expected, got);
+}
+
+function unsubscribeUrl(email: string): string {
+  return `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email.toLowerCase())}&token=${unsubscribeToken(email)}`;
+}
+
+// Suppressed if the address opted out of the newsletter OR a matching user turned
+// email notifications off. Covers guests (by email) and account holders.
+async function isSuppressed(email: string): Promise<boolean> {
+  const lower = email.toLowerCase();
+  const sub = await prisma.newsletterSubscriber
+    .findUnique({ where: { email: lower }, select: { unsubscribedAt: true } })
+    .catch(() => null);
+  if (sub?.unsubscribedAt) return true;
+
+  const user = await prisma.user.findUnique({ where: { email: lower }, select: { id: true } }).catch(() => null);
+  if (user) {
+    const pref = await prisma.notificationPreference
+      .findUnique({ where: { userId: user.id }, select: { emailOn: true } })
+      .catch(() => null);
+    if (pref && pref.emailOn === false) return true;
+  }
+  return false;
+}
+
+function marketingFooter(url: string): string {
+  return `<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;margin:16px auto 0;">
+    <tr><td style="padding:0 32px 24px;text-align:center;font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#9a948c;">
+      Aura Goli &middot; Dhaka, Bangladesh<br/>
+      You're receiving this because you shopped with or subscribed to Aura Goli.
+      <a href="${url}" style="color:#9a948c;text-decoration:underline;">Unsubscribe</a>
+    </td></tr>
+  </table>`;
+}
+
+// `marketing` emails honour unsubscribe state and carry RFC-8058 one-click headers
+// + a footer. Transactional emails (orders, auth) are always delivered.
+async function send(to: string, subject: string, html: string, opts?: { marketing?: boolean }) {
+  if (opts?.marketing && (await isSuppressed(to))) {
+    console.log(`[EMAIL] suppressed (opted out): ${to} | ${subject}`);
+    return;
+  }
   if (!process.env.RESEND_API_KEY) {
     console.log(`[EMAIL] No RESEND_API_KEY — skipping. To: ${to} | Subject: ${subject}`);
     return;
   }
   const { Resend } = await import("resend");
   const resend = new Resend(process.env.RESEND_API_KEY);
-  await resend.emails.send({ from: FROM, to, subject, html });
+
+  let body = html;
+  const headers: Record<string, string> = {};
+  if (opts?.marketing) {
+    const url = unsubscribeUrl(to);
+    headers["List-Unsubscribe"] = `<${url}>`;
+    headers["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+    body = html.includes("</body>") ? html.replace("</body>", `${marketingFooter(url)}</body>`) : html + marketingFooter(url);
+  }
+  await resend.emails.send({ from: FROM, to, subject, html: body, headers });
 }
 
 /* ─── Order Confirmation ──────────────────────────────────── */
@@ -459,5 +525,87 @@ export async function sendBackInStockNotification(to: string, productName: strin
         </td></tr>
       </table>
     </body></html>`,
+  );
+}
+
+/* ─── Newsletter welcome ──────────────────────────────────── */
+
+export async function sendNewsletterWelcome(to: string) {
+  const link = `${APP_URL}/shop`;
+  await send(
+    to,
+    `Welcome to the Aura — ${BRAND}`,
+    `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f2ede4;padding:40px 16px;">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#faf7f0;border-radius:16px;overflow:hidden;">
+        <tr><td style="background:#12103a;padding:24px 32px;">
+          <span style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#faf7f0;">Aura <span style="color:#c9a84c;">Goli</span></span>
+        </td></tr>
+        <tr><td style="padding:32px;">
+          <h2 style="font-family:Georgia,serif;color:#12103a;margin:0 0 12px;">You're in the circle.</h2>
+          <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Thanks for joining the Aura. You'll be first to know about limited drops, exclusive events, and the stories behind each collection &mdash; no noise, just the good stuff.</p>
+          <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Premium T-shirts, cut with intention. Have a look around.</p>
+          <a href="${link}" style="display:inline-block;background:#c9a84c;color:#0b0b14;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:14px 32px;border-radius:100px;margin-top:8px;">Explore the Collection →</a>
+        </td></tr>
+      </table>
+    </body></html>`,
+    { marketing: true },
+  );
+}
+
+/* ─── Abandoned cart recovery ─────────────────────────────── */
+
+export async function sendAbandonedCartEmail(
+  to: string,
+  customerName: string,
+  items: { name: string; quantity: number }[],
+) {
+  const link = `${APP_URL}/cart`;
+  const rows = items
+    .map(
+      (i) =>
+        `<tr><td style="padding:8px 0;font-family:Arial,sans-serif;color:#12103a;font-size:14px;">${i.name}</td>
+         <td style="padding:8px 0;font-family:Arial,sans-serif;color:#5a5358;font-size:14px;text-align:right;">×${i.quantity}</td></tr>`,
+    )
+    .join("");
+  await send(
+    to,
+    `You left something behind — ${BRAND}`,
+    `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f2ede4;padding:40px 16px;">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#faf7f0;border-radius:16px;overflow:hidden;">
+        <tr><td style="background:#12103a;padding:24px 32px;">
+          <span style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#faf7f0;">Aura <span style="color:#c9a84c;">Goli</span></span>
+        </td></tr>
+        <tr><td style="padding:32px;">
+          <h2 style="font-family:Georgia,serif;color:#12103a;margin:0 0 12px;">Still thinking it over, ${customerName}?</h2>
+          <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Your cart is waiting. We saved these pieces for you — but stock moves fast.</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;border-top:1px solid #e7e0d4;border-bottom:1px solid #e7e0d4;">${rows}</table>
+          <a href="${link}" style="display:inline-block;background:#c9a84c;color:#0b0b14;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:14px 32px;border-radius:100px;margin-top:8px;">Complete Your Order →</a>
+        </td></tr>
+      </table>
+    </body></html>`,
+    { marketing: true },
+  );
+}
+
+/* ─── Post-delivery review request ────────────────────────── */
+
+export async function sendReviewRequest(to: string, customerName: string, productName: string, productSlug: string) {
+  const link = `${APP_URL}/products/${productSlug}#reviews`;
+  await send(
+    to,
+    `How are you liking your ${productName}? — ${BRAND}`,
+    `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f2ede4;padding:40px 16px;">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#faf7f0;border-radius:16px;overflow:hidden;">
+        <tr><td style="background:#12103a;padding:24px 32px;">
+          <span style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#faf7f0;">Aura <span style="color:#c9a84c;">Goli</span></span>
+        </td></tr>
+        <tr><td style="padding:32px;">
+          <h2 style="font-family:Georgia,serif;color:#12103a;margin:0 0 12px;">How did we do, ${customerName}?</h2>
+          <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Your order has been delivered. We'd love to hear what you think of your <strong style="color:#12103a;">${productName}</strong> — your review helps other shoppers and takes less than a minute.</p>
+          <a href="${link}" style="display:inline-block;background:#c9a84c;color:#0b0b14;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:14px 32px;border-radius:100px;margin-top:16px;">Leave a Review →</a>
+        </td></tr>
+      </table>
+    </body></html>`,
+    { marketing: true },
   );
 }

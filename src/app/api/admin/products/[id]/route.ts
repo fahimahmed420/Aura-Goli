@@ -1,10 +1,19 @@
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-auth";
 import { apiError } from "@/lib/validation";
+import { sendBackInStockNotification } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
+
+// Refresh the ISR-cached storefront pages affected by a catalog change.
+function revalidateStorefront(slug?: string) {
+  revalidatePath("/");
+  revalidatePath("/shop");
+  if (slug) revalidatePath(`/products/${slug}`);
+}
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -38,6 +47,12 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) return apiError("Product not found", 404);
+
+  // Snapshot stock before the update so we can detect an out-of-stock → in-stock flip.
+  const oldVariants = await prisma.productVariant.findMany({
+    where: { productId: id }, select: { stockQuantity: true },
+  });
+  const wasOutOfStock = oldVariants.length > 0 && oldVariants.every((v) => v.stockQuantity <= 0);
 
   if (slug && slug !== existing.slug) {
     const conflict = await prisma.product.findUnique({ where: { slug: slug as string } });
@@ -87,6 +102,25 @@ export async function PUT(req: NextRequest, { params }: Params) {
     });
   });
 
+  // Notify back-in-stock subscribers when the product flips from out-of-stock to available.
+  const nowInStock = (product.variants ?? []).some((v) => v.stockQuantity > 0);
+  if (wasOutOfStock && nowInStock) {
+    try {
+      const subs = await prisma.backInStockSubscription.findMany({
+        where: { productId: id, notifiedAt: null },
+        select: { id: true, email: true, user: { select: { email: true } } },
+      });
+      for (const s of subs) {
+        const email = s.email ?? s.user?.email;
+        if (!email) continue;
+        await sendBackInStockNotification(email, product.name, product.slug);
+        await prisma.backInStockSubscription.update({ where: { id: s.id }, data: { notifiedAt: new Date() } });
+      }
+    } catch { /* notification failure must not block the update */ }
+  }
+
+  revalidateStorefront(product.slug);
+  if (existing.slug !== product.slug) revalidatePath(`/products/${existing.slug}`);
   return Response.json({ product });
 }
 
@@ -99,5 +133,6 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   if (!existing) return apiError("Product not found", 404);
 
   await prisma.product.delete({ where: { id } });
+  revalidateStorefront(existing.slug);
   return Response.json({ ok: true });
 }
