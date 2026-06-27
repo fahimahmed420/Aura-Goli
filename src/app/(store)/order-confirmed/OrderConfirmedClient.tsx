@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { trackPurchase } from "@/lib/analytics";
 
 interface OrderDetail {
   orderNumber: string;
@@ -21,12 +22,28 @@ function OrderConfirmedInner() {
 
   useEffect(() => {
     if (!orderNumber) { setLoading(false); return; }
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     const headers: Record<string, string> = {};
     if (token) headers.Authorization = `Bearer ${token}`;
     fetch(`/api/orders/by-number/${orderNumber}`, { headers })
       .then((r) => r.json())
-      .then((d) => setOrder(d.order ?? null))
+      .then((d) => {
+        setOrder(d.order ?? null);
+        // Fire the purchase conversion once per order (survives page refresh).
+        if (d.order) {
+          const key = `ag_purchase_tracked_${d.order.orderNumber}`;
+          if (!sessionStorage.getItem(key)) {
+            sessionStorage.setItem(key, "1");
+            trackPurchase({
+              orderId: d.order.orderNumber,
+              value: Number(d.order.total),
+              items: d.order.items?.map((it: { productNameSnapshot: string; quantity: number; unitPrice: number }) => ({
+                name: it.productNameSnapshot, price: it.unitPrice, quantity: it.quantity,
+              })),
+            });
+          }
+        }
+      })
       .finally(() => setLoading(false));
   }, [orderNumber]);
 

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import RecentlyViewed, { trackView } from "@/components/storefront/RecentlyViewed";
+import { trackAddToCart } from "@/lib/analytics";
 
 function isVideo(url: string) { return /\.(mp4|webm|ogg)$/i.test(url); }
 
@@ -60,7 +61,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   }, [product.id, product.slug, product.name, product.price, product.images]);
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (!token) return;
     fetch("/api/account/wishlist", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
@@ -95,7 +96,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
   function toggleWishlist(e: React.MouseEvent) {
     e.preventDefault();
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (!token) { router.push("/login"); return; }
     const prev = wishlisted;
     setWishlisted(!prev);
@@ -152,6 +153,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
     }
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("cart-updated"));
+    trackAddToCart({ id: product.id, name: product.name, price: finalPrice, quantity: qty });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2200);
     return true;
@@ -1174,7 +1176,7 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
   const [loggedIn, setLoggedIn]     = useState(false);
   const [photoUrls, setPhotoUrls]   = useState("");
 
-  useEffect(() => { setLoggedIn(!!localStorage.getItem("userToken")); }, []);
+  useEffect(() => { setLoggedIn(!!localStorage.getItem("ag_authed")); }, []);
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/products/${slug}/reviews`);
@@ -1184,7 +1186,7 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true); setFormError("");
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     const photos = photoUrls.split(",").map(u => u.trim()).filter(Boolean);
     const res = await fetch(`/api/products/${slug}/reviews`, {
       method: "POST",
@@ -1316,7 +1318,7 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
                       className="shrink-0 rounded-xl overflow-hidden block"
                       style={{ height: "80px", width: "80px", background: "#ede8e0" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={photo} alt={`Review photo ${pi + 1}`} className="w-full h-full object-cover" />
+                      <img src={photo} alt={`Review photo ${pi + 1}`} width={80} height={80} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     </a>
                   ))}
                 </div>
@@ -1338,7 +1340,7 @@ function NotifyMeButton({ productId, variantId, size }: { productId: string; var
   const [loading, setLoading] = useState(false);
 
   async function notify() {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("ag_authed");
     if (!token) { window.location.href = "/login"; return; }
     setLoading(true);
     await fetch("/api/account/waitlist", {
