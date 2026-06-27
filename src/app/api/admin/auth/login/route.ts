@@ -11,7 +11,7 @@ const GENERIC_ERROR = "Invalid credentials";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`admin-login:${ip}`, authRateLimits.login);
+  const rl = await rateLimit(`admin-login:${ip}`, authRateLimits.login);
   if (!rl.allowed) return apiError("Too many login attempts.", 429);
 
   let body: unknown;

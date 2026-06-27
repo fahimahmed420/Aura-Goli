@@ -4,7 +4,7 @@ import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`contact:${ip}`, { limit: 5, windowSecs: 60 });
+  const rl = await rateLimit(`contact:${ip}`, { limit: 5, windowSecs: 60 });
   if (!rl.allowed) return apiError("Too many requests. Please wait.", 429);
 
   const { name, email, subject, message } = await req.json();

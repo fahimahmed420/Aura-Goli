@@ -8,7 +8,7 @@ import { isValidEmail, isStrongPassword, apiError } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`register:${ip}`, authRateLimits.register);
+  const rl = await rateLimit(`register:${ip}`, authRateLimits.register);
   if (!rl.allowed) {
     return apiError("Too many registration attempts. Please wait.", 429);
   }

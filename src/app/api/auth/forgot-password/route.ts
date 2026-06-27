@@ -12,7 +12,7 @@ const SAFE_RESPONSE = Response.json({
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`forgot:${ip}`, authRateLimits.forgotPassword);
+  const rl = await rateLimit(`forgot:${ip}`, authRateLimits.forgotPassword);
   if (!rl.allowed) return apiError("Too many requests. Please wait.", 429);
 
   let body: unknown;

@@ -6,7 +6,7 @@ import { apiError } from "@/lib/validation";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ orderNumber: string }> }) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`order-lookup:${ip}`, { limit: 20, windowSecs: 60 });
+  const rl = await rateLimit(`order-lookup:${ip}`, { limit: 20, windowSecs: 60 });
   if (!rl.allowed) return apiError("Too many requests. Please wait.", 429);
 
   const { orderNumber } = await params;

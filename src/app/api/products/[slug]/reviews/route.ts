@@ -45,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
 // POST — authenticated user submits a review (must have delivered order for this product)
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
-  const rl = rateLimit(`review:${ip}`, { limit: 5, windowSecs: 300 });
+  const rl = await rateLimit(`review:${ip}`, { limit: 5, windowSecs: 300 });
   if (!rl.allowed) return apiError("Too many review submissions. Please wait.", 429);
 
   const auth = requireAuth(req);
