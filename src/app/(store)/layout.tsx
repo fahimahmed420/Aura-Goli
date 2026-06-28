@@ -5,6 +5,7 @@ import FlashSaleBanner from "@/components/storefront/FlashSaleBanner";
 import LoadingScreen from "@/components/storefront/LoadingScreen";
 import ScrollToTop from "@/components/storefront/ScrollToTop";
 import CartSync from "@/components/storefront/CartSync";
+import PageTransition from "@/components/storefront/PageTransition";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
 
@@ -17,6 +18,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <ScrollToTop />
       <CartSync />
       <LoadingScreen />
+      <PageTransition />
       <FlashSaleBanner />
       <Nav storeName={name} />
       <main className="flex-1">{children}</main>

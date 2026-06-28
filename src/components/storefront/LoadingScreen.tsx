@@ -102,6 +102,8 @@ export default function LoadingScreen() {
     setCount(100);
     setPhase("reveal");
     setSlide("up");
+    // Cue hero (and any reveal-on-enter content) to animate in as the curtain lifts.
+    window.dispatchEvent(new Event("ag-curtain-lift"));
     after(reduceRef.current ? 0 : REVEAL_MS, () => {
       setPhase("idle");
       setSlide("in");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -12,6 +12,8 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ rx: 0, ry: 0 });
   const [mounted, setMounted] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const [reduceMo, setReduceMo] = useState(false);
   const rafRef = useRef<number>(0);
   const targetRef = useRef({ rx: 0, ry: 0 });
   const currentRef = useRef({ rx: 0, ry: 0 });
@@ -77,8 +79,35 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
     };
   }, []);
 
+  // Reveal the hero copy as the reload curtain lifts (or shortly after mount on a
+  // client navigation / if the curtain never fires).
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { setReduceMo(true); setRevealed(true); return; }
+    const fire = () => setRevealed(true);
+    window.addEventListener("ag-curtain-lift", fire);
+    const t = setTimeout(fire, 750); // fallback when there's no curtain
+    return () => { window.removeEventListener("ag-curtain-lift", fire); clearTimeout(t); };
+  }, []);
+
   const shadowX = (pos.ry / 18) * 24;
   const shadowY = -(pos.rx / 14) * 16;
+
+  // ── Reveal helpers ──────────────────────────────────────────
+  const maskStyle: CSSProperties = { display: "block", overflow: "hidden" };
+  // Masked line reveal (headline) — inner slides up from behind the mask.
+  const line = (delay: number): CSSProperties => ({
+    display: "block",
+    transform: revealed ? "translateY(0)" : "translateY(110%)",
+    transition: reduceMo ? "none" : `transform 0.95s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+    willChange: "transform",
+  });
+  // Softer fade-up for supporting copy.
+  const fadeUp = (delay: number): CSSProperties => ({
+    opacity: revealed ? 1 : 0,
+    transform: revealed ? "translateY(0)" : "translateY(22px)",
+    transition: reduceMo ? "none" : `opacity 0.7s ease ${delay}s, transform 0.8s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+  });
 
   return (
     <section
@@ -217,27 +246,29 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
       <div className="relative z-10 px-5 pb-14 pt-28 md:px-14 md:pb-24 max-w-[1280px] mx-auto w-full">
         <div className="md:max-w-[50%]">
           {/* Tag */}
-          <div className="flex items-center gap-2.5 mb-7">
+          <div className="flex items-center gap-2.5 mb-7" style={fadeUp(0)}>
             <span className="block w-6 h-px shrink-0" style={{ background: "#c9a84c" }} />
             <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: "#c9a84c" }}>
               New Season · SS 2025
             </span>
           </div>
 
-          {/* Headline */}
+          {/* Headline — masked line reveal */}
           <h1 className="font-['Playfair_Display'] font-bold leading-[0.95] tracking-[-0.02em] mb-6"
             style={{ fontSize: "clamp(3rem, 12vw, 7rem)", color: "#faf7f0" }}>
-            Wear Less.<br />
-            <em style={{ color: "#c9a84c", fontStyle: "italic" }}>Mean</em> More.
+            <span style={maskStyle}><span style={line(0.08)}>Wear Less.</span></span>
+            <span style={maskStyle}>
+              <span style={line(0.18)}><em style={{ color: "#c9a84c", fontStyle: "italic" }}>Mean</em> More.</span>
+            </span>
           </h1>
 
           <p className="text-[15px] leading-relaxed mb-8 max-w-xs md:max-w-sm"
-            style={{ color: "rgba(250,247,240,0.5)" }}>
+            style={{ color: "rgba(250,247,240,0.5)", ...fadeUp(0.32) }}>
             Premium T-shirts for those who let quality speak louder than logos. Each piece cut with intention.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3" style={fadeUp(0.42)}>
             <Link href="/shop"
               className="flex items-center justify-center gap-2.5 px-8 py-4 text-[13px] font-bold uppercase tracking-[0.15em] rounded-full transition-all active:scale-95"
               style={{ background: "#c9a84c", color: "#0b0b14" }}>
@@ -253,7 +284,12 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
           </div>
 
           {/* Scroll hint */}
-          <div className="flex items-center gap-2 mt-10 opacity-40">
+          <div className="flex items-center gap-2 mt-10"
+            style={{
+              opacity: revealed ? 0.4 : 0,
+              transform: revealed ? "translateY(0)" : "translateY(22px)",
+              transition: reduceMo ? "none" : "opacity 0.7s ease 0.55s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.55s",
+            }}>
             <span className="material-symbols-outlined text-base animate-bounce" style={{ color: "#c9a84c" }}>keyboard_arrow_down</span>
             <span className="text-[10px] uppercase tracking-[0.3em]" style={{ color: "#c9a84c" }}>Scroll to explore</span>
           </div>
