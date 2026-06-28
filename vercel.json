@@ -3,6 +3,9 @@
   "framework": "nextjs",
   "regions": ["sin1"],
   "crons": [
-    { "path": "/api/cron/abandoned-carts", "schedule": "0 * * * *" }
+    {
+      "path": "/api/cron/abandoned-carts",
+      "schedule": "0 0 * * *"
+    }
   ]
 }
