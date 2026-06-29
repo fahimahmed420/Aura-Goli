@@ -36,8 +36,13 @@ interface RelatedProduct {
 export default function ProductDetailClient({ product, related }: { product: Product; related: RelatedProduct[] }) {
   const router = useRouter();
   const [activeImage, setActiveImage]     = useState(0);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedSize, setSelectedSize]   = useState<string | null>(null);
+
+  // Derive colors/sizes early so we can auto-select
+  const colors = [...new Set(product.variants.map((v) => v.color).filter(Boolean))] as string[];
+  const sizes  = [...new Set(product.variants.map((v) => v.size).filter(Boolean))]  as string[];
+
+  const [selectedColor, setSelectedColor] = useState<string | null>(colors.length === 1 ? colors[0] : null);
+  const [selectedSize, setSelectedSize]   = useState<string | null>(sizes.length === 1  ? sizes[0]  : null);
   const [qty, setQty]                     = useState(1);
   const [activeTab, setActiveTab]         = useState<"description" | "reviews">("description");
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
@@ -123,8 +128,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
     }).catch(() => setWishlisted(prev));
   }
 
-  const colors = [...new Set(product.variants.map((v) => v.color).filter(Boolean))] as string[];
-  const sizes  = [...new Set(product.variants.map((v) => v.size).filter(Boolean))] as string[];
+  function isColorOOS(color: string): boolean {
+    const variants = product.variants.filter((v) => v.color === color);
+    if (selectedSize) {
+      const match = variants.find((v) => v.size === selectedSize);
+      return match ? match.stockQuantity === 0 : true;
+    }
+    return variants.every((v) => v.stockQuantity === 0);
+  }
 
   const activeVariant = product.variants.find(
     (v) => (!selectedColor || v.color === selectedColor) && (!selectedSize || v.size === selectedSize)
@@ -389,24 +400,34 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
-                {colors.map((c) => (
-                  <button key={c}
-                    onClick={() => { setSelectedColor(c === selectedColor ? null : c); setColorError(false); }}
-                    title={c}
-                    className="w-8 h-8 rounded-full transition-all flex items-center justify-center"
-                    style={{
-                      backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
-                      border: selectedColor === c ? "2px solid #0b0b14" : "2px solid transparent",
-                      boxShadow: selectedColor === c ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14" : "0 0 0 1px rgba(11,11,20,0.15)",
-                    }}>
-                    {selectedColor === c && (
-                      <span className="material-symbols-outlined text-[11px]"
-                        style={{ color: ["white","beige","yellow","cream"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
-                        check
-                      </span>
-                    )}
-                  </button>
-                ))}
+                {colors.map((c) => {
+                  const oos = isColorOOS(c);
+                  return (
+                    <button key={c}
+                      onClick={() => { if (!oos) { setSelectedColor(c === selectedColor ? null : c); setColorError(false); } }}
+                      disabled={oos}
+                      title={oos ? `${c} — Out of stock` : c}
+                      className="w-8 h-8 rounded-full transition-all flex items-center justify-center relative"
+                      style={{
+                        backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
+                        border: selectedColor === c ? "2px solid #0b0b14" : "2px solid transparent",
+                        boxShadow: selectedColor === c ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14" : "0 0 0 1px rgba(11,11,20,0.15)",
+                        opacity: oos ? 0.35 : 1,
+                        cursor: oos ? "not-allowed" : "pointer",
+                      }}>
+                      {oos ? (
+                        <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <svg width="22" height="22" viewBox="0 0 22 22"><line x1="3" y1="19" x2="19" y2="3" stroke="rgba(11,11,20,0.5)" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                        </span>
+                      ) : selectedColor === c ? (
+                        <span className="material-symbols-outlined text-[11px]"
+                          style={{ color: ["white","beige","yellow","cream"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
+                          check
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -427,8 +448,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {sizes.map((s) => {
-                  const variantForSize = product.variants.find((v) => v.size === s && (!selectedColor || v.color === selectedColor));
-                  const oos = variantForSize ? variantForSize.stockQuantity === 0 : false;
+                  let oos: boolean;
+                  if (selectedColor) {
+                    const v = product.variants.find((v) => v.size === s && v.color === selectedColor);
+                    oos = v ? v.stockQuantity === 0 : false;
+                  } else {
+                    const vs = product.variants.filter((v) => v.size === s);
+                    oos = vs.length > 0 && vs.every((v) => v.stockQuantity === 0);
+                  }
                   return (
                     <button key={s}
                       onClick={() => { if (!oos) { setSelectedSize(s === selectedSize ? null : s); setSizeError(false); } }}
@@ -865,26 +892,36 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       : null}
                   </p>
                   <div className="flex gap-3 flex-wrap">
-                    {colors.map((c) => (
-                      <button key={c}
-                        onClick={() => { setSelectedColor(c === selectedColor ? null : c); setColorError(false); }}
-                        title={c}
-                        className="rounded-full transition-all flex items-center justify-center"
-                        style={{
-                          width: "40px", height: "40px",
-                          backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
-                          boxShadow: selectedColor === c
-                            ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14"
-                            : colorError ? "0 0 0 2px rgba(186,26,26,0.4)" : "0 0 0 1px rgba(11,11,20,0.15)",
-                        }}>
-                        {selectedColor === c && (
-                          <span className="material-symbols-outlined text-[14px]"
-                            style={{ color: ["white","beige","yellow","ivory"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
-                            check
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                    {colors.map((c) => {
+                      const oos = isColorOOS(c);
+                      return (
+                        <button key={c}
+                          onClick={() => { if (!oos) { setSelectedColor(c === selectedColor ? null : c); setColorError(false); } }}
+                          disabled={oos}
+                          title={oos ? `${c} — Out of stock` : c}
+                          className="rounded-full transition-all flex items-center justify-center relative"
+                          style={{
+                            width: "40px", height: "40px",
+                            backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
+                            boxShadow: selectedColor === c
+                              ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14"
+                              : colorError ? "0 0 0 2px rgba(186,26,26,0.4)" : "0 0 0 1px rgba(11,11,20,0.15)",
+                            opacity: oos ? 0.35 : 1,
+                            cursor: oos ? "not-allowed" : "pointer",
+                          }}>
+                          {oos ? (
+                            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <svg width="28" height="28" viewBox="0 0 28 28"><line x1="4" y1="24" x2="24" y2="4" stroke="rgba(11,11,20,0.5)" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                            </span>
+                          ) : selectedColor === c ? (
+                            <span className="material-symbols-outlined text-[14px]"
+                              style={{ color: ["white","beige","yellow","ivory"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
+                              check
+                            </span>
+                          ) : null}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -907,8 +944,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {sizes.map((s) => {
-                      const v = product.variants.find((vv) => vv.size === s && (!selectedColor || vv.color === selectedColor));
-                      const oos = v ? v.stockQuantity === 0 : false;
+                      let oos: boolean;
+                      if (selectedColor) {
+                        const v = product.variants.find((vv) => vv.size === s && vv.color === selectedColor);
+                        oos = v ? v.stockQuantity === 0 : false;
+                      } else {
+                        const vs = product.variants.filter((vv) => vv.size === s);
+                        oos = vs.length > 0 && vs.every((vv) => vv.stockQuantity === 0);
+                      }
                       return (
                         <button key={s}
                           onClick={() => { if (!oos) { setSelectedSize(s === selectedSize ? null : s); setSizeError(false); } }}

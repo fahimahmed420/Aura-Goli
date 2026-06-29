@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 import Analytics from "@/components/Analytics";
+import ChatWidget from "@/components/ChatWidget";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://auragoli.com";
 
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-[#faf7f0] text-[#1a1c1c]" style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
         <Analytics />
         {children}
+        <ChatWidget />
       </body>
     </html>
   );

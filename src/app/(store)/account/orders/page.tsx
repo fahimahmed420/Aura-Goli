@@ -34,8 +34,9 @@ export default function AccountOrdersPage() {
   useEffect(() => {
     const token = localStorage.getItem("ag_authed");
     fetch("/api/account/orders", { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => r.json())
+      .then((r) => r.ok ? r.json() : Promise.reject(r.status))
       .then((d) => setOrders(d.orders ?? []))
+      .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, []);
 

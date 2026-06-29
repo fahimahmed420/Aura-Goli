@@ -5,11 +5,84 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 
+interface Variant {
+  id: string; color: string | null; size: string | null; stockQuantity: number;
+}
 interface Product {
   id: string; name: string; slug: string; price: number; status: string;
-  stockQuantity: number; salesCount: number;
+  salesCount: number;
   category: { name: string } | null;
   images: { url: string }[];
+  variants: Variant[];
+}
+
+function StockCell({ product, expanded, onToggle }: { product: Product; expanded: boolean; onToggle: () => void }) {
+  const totalStock = product.variants.reduce((s, v) => s + v.stockQuantity, 0);
+  const hasLow = product.variants.some((v) => v.stockQuantity > 0 && v.stockQuantity <= 5);
+  const hasOOS = product.variants.some((v) => v.stockQuantity === 0);
+
+  // Group variants by color
+  const colors = [...new Set(product.variants.map((v) => v.color ?? "—"))];
+  const sizes  = [...new Set(product.variants.map((v) => v.size  ?? "—"))];
+
+  return (
+    <div>
+      <button
+        onClick={onToggle}
+        className="flex items-center gap-2 hover:opacity-70 transition-opacity text-left"
+      >
+        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${totalStock === 0 ? "bg-[#ba1a1a]" : hasLow ? "bg-amber-500" : "bg-[#5951b4]"}`} />
+        <span className={totalStock === 0 ? "text-[#ba1a1a] font-bold" : hasLow ? "text-amber-600 font-bold" : "text-[#444748]"}>
+          {totalStock === 0 ? "Out of stock" : `${totalStock} units`}
+        </span>
+        <span className="material-symbols-outlined text-[14px] text-[#747878]" style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+          expand_more
+        </span>
+      </button>
+      {hasLow && totalStock > 0 && !expanded && (
+        <p className="text-[10px] text-amber-600 mt-0.5">Low stock on some variants</p>
+      )}
+
+      {expanded && (
+        <div className="mt-2 rounded-lg border border-[#e2e2e2] overflow-hidden">
+          <table className="text-[11px] w-full border-collapse">
+            <thead>
+              <tr className="bg-[#f4f3f3]">
+                <th className="px-2 py-1.5 text-left font-semibold text-[#444748] border-b border-[#e2e2e2]">Color</th>
+                {sizes.map((s) => (
+                  <th key={s} className="px-2 py-1.5 text-center font-semibold text-[#444748] border-b border-[#e2e2e2]">{s}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#f0f0f0]">
+              {colors.map((color) => (
+                <tr key={color} className="hover:bg-[#f9f9f9]">
+                  <td className="px-2 py-1.5 font-medium text-black capitalize">{color}</td>
+                  {sizes.map((size) => {
+                    const v = product.variants.find((vv) => (vv.color ?? "—") === color && (vv.size ?? "—") === size);
+                    const qty = v?.stockQuantity ?? null;
+                    return (
+                      <td key={size} className="px-2 py-1.5 text-center">
+                        {qty === null ? (
+                          <span className="text-[#c4c7c7]">—</span>
+                        ) : qty === 0 ? (
+                          <span className="font-bold text-[#ba1a1a]">0</span>
+                        ) : qty <= 5 ? (
+                          <span className="font-bold text-amber-600">{qty}</span>
+                        ) : (
+                          <span className="text-[#444748]">{qty}</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }
 
 const STATUS_CHIP: Record<string, string> = {
@@ -30,6 +103,7 @@ function AdminProductsInner() {
   const [q, setQ] = useState(sp.get("q") ?? "");
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [expandedStock, setExpandedStock] = useState<Set<string>>(new Set());
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -161,15 +235,15 @@ function AdminProductsInner() {
                     <td className="px-6 py-4 text-sm text-[#444748]">{p.category?.name ?? "—"}</td>
                     <td className="px-6 py-4 text-sm font-semibold text-black">৳{Number(p.price).toLocaleString()}</td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${p.stockQuantity <= 5 ? "bg-[#ba1a1a]" : "bg-[#5951b4]"}`} />
-                        <span className={p.stockQuantity <= 5 ? "text-[#ba1a1a] font-bold" : "text-[#444748]"}>
-                          {p.stockQuantity <= 5 ? `${p.stockQuantity} remaining` : p.stockQuantity}
-                        </span>
-                      </div>
-                      {p.stockQuantity <= 5 && p.stockQuantity > 0 && (
-                        <p className="text-[10px] text-[#ba1a1a] mt-0.5">Refill required</p>
-                      )}
+                      <StockCell
+                        product={p}
+                        expanded={expandedStock.has(p.id)}
+                        onToggle={() => setExpandedStock((prev) => {
+                          const next = new Set(prev);
+                          next.has(p.id) ? next.delete(p.id) : next.add(p.id);
+                          return next;
+                        })}
+                      />
                     </td>
                     <td className="px-6 py-4 text-sm text-[#444748]">{p.salesCount}</td>
                     <td className="px-6 py-4">
