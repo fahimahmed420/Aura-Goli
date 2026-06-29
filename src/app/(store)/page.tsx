@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import NewsletterForm from "@/components/storefront/NewsletterForm";
 import TestimonialSlider from "@/components/storefront/TestimonialSlider";
 import Hero3D from "@/components/storefront/Hero3D";
-import ProductCard from "@/components/storefront/ProductCard";
+import ProductCard, { type Product } from "@/components/storefront/ProductCard";
 
 // ISR: regenerate the homepage at most every 5 minutes instead of querying
 // Postgres on every request. Admin product/category edits call revalidatePath("/").
