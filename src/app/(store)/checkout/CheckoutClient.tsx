@@ -30,9 +30,7 @@ interface CheckoutState {
 }
 
 const PAYMENT_METHODS = [
-  { id: "card", label: "Credit / Debit Card", icon: "credit_card", sub: "Visa, Mastercard" },
   { id: "bkash", label: "bKash", icon: "phone_android", sub: "Mobile banking" },
-  { id: "nagad", label: "Nagad", icon: "phone_android", sub: "Mobile banking" },
   { id: "cod", label: "Cash on Delivery", icon: "payments", sub: "Pay when received" },
 ];
 
@@ -43,7 +41,7 @@ export default function CheckoutClient() {
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<CheckoutState | null>(null);
   const [shipping, setShipping] = useState<ShippingForm>({ name: "", phone: "", email: "", address: "", city: "", postalCode: "" });
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethod, setPaymentMethod] = useState("bkash");
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -345,10 +343,17 @@ export default function CheckoutClient() {
                 ))}
               </div>
 
-              {paymentMethod !== "cod" && (
-                <p className="text-xs text-[#747878] bg-[#f4f3f3] px-4 py-3 rounded">
-                  <span className="font-semibold">Secure payment via SSLCommerz.</span> You will be redirected to complete payment after review.
-                </p>
+              {paymentMethod === "bkash" && (
+                <div className="bg-[#fce4ec] border border-[#f06292] rounded-lg px-4 py-3 space-y-1">
+                  <p className="text-xs font-bold text-[#c2185b]">How bKash payment works</p>
+                  <ol className="text-xs text-[#880e4f] list-decimal list-inside space-y-0.5">
+                    <li>Click "Place Order" — you'll be redirected to the bKash payment page.</li>
+                    <li>Enter your bKash account number and press "Pay Now".</li>
+                    <li>Check your phone for the OTP and enter it to confirm.</li>
+                    <li>You'll be brought back here once payment is complete.</li>
+                  </ol>
+                  <p className="text-[11px] text-[#c2185b] mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
+                </div>
               )}
 
               <div className="flex gap-3">

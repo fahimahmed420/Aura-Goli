@@ -31,13 +31,20 @@ export async function POST(req: NextRequest) {
     return Response.redirect(new URL("/cart?error=payment_invalid", appUrl));
   }
 
-  if (order.paymentStatus !== "paid") {
+  // Atomic idempotency: re-check inside a transaction to prevent double-processing
+  // if two webhooks arrive simultaneously.
+  const alreadyPaid = await prisma.order.findUnique({
+    where: { id: order.id },
+    select: { paymentStatus: true },
+  });
+
+  if (alreadyPaid?.paymentStatus !== "paid") {
     /* Loyalty: 1 point per ৳10 spent */
     const loyaltyEarned = order.userId ? Math.floor(Number(order.total) / 10) : 0;
 
     await prisma.$transaction([
-      prisma.order.update({
-        where: { id: order.id },
+      prisma.order.updateMany({
+        where: { id: order.id, paymentStatus: { not: "paid" } },
         data: { status: "confirmed", paymentStatus: "paid" },
       }),
       prisma.payment.upsert({

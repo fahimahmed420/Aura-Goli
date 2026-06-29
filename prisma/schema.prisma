@@ -174,6 +174,9 @@ model Product {
   wishlistItems   WishlistItem[]
   backInStockSubs BackInStockSubscription[]
 
+  @@index([status, categoryId])
+  @@index([status, salesCount])
+  @@index([status, createdAt])
   @@map("products")
 }
 
@@ -224,6 +227,8 @@ model Review {
   user    User    @relation(fields: [userId], references: [id])
   order   Order   @relation(fields: [orderId], references: [id])
 
+  @@index([productId, isApproved])
+  @@index([userId])
   @@map("reviews")
 }
 
@@ -354,6 +359,9 @@ model Order {
   reviews        Review[]
   returnRequests ReturnRequest[]
 
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([paymentStatus])
   @@map("orders")
 }
 
@@ -381,6 +389,7 @@ model OrderStatusHistory {
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
+  @@index([orderId])
   @@map("order_status_history")
 }
 

@@ -20,6 +20,7 @@ export interface SSLCommerzParams {
   failUrl: string;
   cancelUrl: string;
   ipnUrl: string;
+  paymentMethod?: string;  // "bkash" pre-selects mobile banking on the gateway page
 }
 
 export interface SSLCommerzResponse {
@@ -58,6 +59,8 @@ export async function initiateSSLPayment(params: SSLCommerzParams): Promise<SSLC
     ship_add1: params.shippingAddress,
     ship_city: params.shippingCity,
     ship_country: "Bangladesh",
+    // Pre-select mobile banking on the gateway so the user lands directly on bKash
+    ...(params.paymentMethod === "bkash" && { payment_option: "BKASH" }),
   });
 
   const res = await fetch(`${BASE_URL}/gwprocess/v4/api.php`, {

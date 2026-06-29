@@ -8,7 +8,7 @@ import { randomBytes } from "crypto";
 import { sendOrderConfirmation } from "@/lib/email";
 import { getCartIdentity, cartWhere } from "@/lib/cart";
 
-const VALID_PAYMENT_METHODS = ["card", "bkash", "nagad", "rocket", "cod"] as const;
+const VALID_PAYMENT_METHODS = ["bkash", "cod"] as const;
 type PaymentMethod = typeof VALID_PAYMENT_METHODS[number];
 
 function generateOrderNumber() {
@@ -234,6 +234,7 @@ export async function POST(req: NextRequest) {
       failUrl: `${appUrl}/api/payment/fail`,
       cancelUrl: `${appUrl}/cart`,
       ipnUrl: `${appUrl}/api/payment/ipn`,
+      paymentMethod,
     });
 
     if (ssl.status === "SUCCESS" && ssl.GatewayPageURL) {

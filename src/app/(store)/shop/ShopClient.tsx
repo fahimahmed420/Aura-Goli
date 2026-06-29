@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
-import { usePageContentLoading } from "@/components/storefront/pageLoading";
+import LoadingScreen from "@/components/storefront/LoadingScreen";
 
 interface Product {
   id: string; name: string; slug: string; price: number; compareAtPrice?: number;
@@ -49,9 +49,6 @@ export default function ShopClient() {
   const [minPriceLocal, setMinPriceLocal] = useState(minPrice);
   const [maxPriceLocal, setMaxPriceLocal] = useState(maxPrice);
   const priceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Hold the page-loading curtain until the product grid has finished loading.
-  usePageContentLoading(loading);
 
 
   function updateParam(key: string, value: string, multi = false) {
@@ -211,6 +208,7 @@ export default function ShopClient() {
 
   return (
     <div style={{ background: "#f5f4f1", minHeight: "100vh", fontFamily: "'Hanken Grotesk', sans-serif" }}>
+      <LoadingScreen isLoading={loading} />
 
       {/* ═══════════════════════════════════════════════════════
           MOBILE LAYOUT
@@ -599,20 +597,37 @@ function MobileProductCard({ product, wishlist, toggleWishlist }: {
   wishlist: Set<string>;
   toggleWishlist: (e: React.MouseEvent, id: string) => void;
 }) {
+  const [isHovering, setIsHovering] = useState(false);
   const hasDiscount = product.compareAtPrice && Number(product.compareAtPrice) > Number(product.price);
   const discountPct = hasDiscount
     ? Math.round((1 - Number(product.price) / Number(product.compareAtPrice!)) * 100)
     : 0;
   const wishlisted = wishlist.has(product.id);
+  const hasSecond = !!product.images?.[1];
+  const slideStyle = (isSecond: boolean): React.CSSProperties => ({
+    transform: isSecond
+      ? (isHovering ? 'translateX(0%)' : 'translateX(-100%)')
+      : (isHovering && hasSecond ? 'translateX(100%)' : 'translateX(0%)'),
+    transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    willChange: 'transform',
+  });
 
   return (
     <Link href={`/products/${product.slug}`}
       className="block active:scale-[0.97] transition-transform duration-150"
-      style={{ borderRadius: 12, overflow: "hidden", background: "white" }}>
-      <div className="relative" style={{ aspectRatio: "3/4", background: "#ede8e0" }}>
+      style={{ borderRadius: 12, overflow: "hidden", background: "white" }}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}>
+      <div className="relative overflow-hidden" style={{ aspectRatio: "3/4", background: "#ede8e0" }}>
         {product.images?.[0] ? (
-          <Image src={product.images[0].url} alt={product.name} fill className="object-cover"
-            sizes="(max-width: 768px) 50vw, 200px" />
+          <>
+            <Image src={product.images[0].url} alt={product.name} fill className="object-cover"
+              sizes="(max-width: 768px) 50vw, 200px" style={slideStyle(false)} />
+            {hasSecond && (
+              <Image src={product.images[1].url} alt={product.name} fill className="object-cover"
+                sizes="(max-width: 768px) 50vw, 200px" style={slideStyle(true)} />
+            )}
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="material-symbols-outlined text-3xl" style={{ color: "#c8c6c5" }}>checkroom</span>
@@ -659,14 +674,35 @@ function MobileProductCard({ product, wishlist, toggleWishlist }: {
 
 /* ── Desktop Product Card ────────────────────────────────── */
 function DesktopProductCard({ product }: { product: Product }) {
+  const [isHovering, setIsHovering] = useState(false);
   const hasDiscount = product.compareAtPrice && Number(product.compareAtPrice) > Number(product.price);
+  const hasSecond = !!product.images?.[1];
+  const slideStyle = (isSecond: boolean): React.CSSProperties => ({
+    transform: isSecond
+      ? (isHovering ? 'translateX(0%)' : 'translateX(-100%)')
+      : (isHovering && hasSecond ? 'translateX(100%)' : 'translateX(0%)'),
+    transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    willChange: 'transform',
+  });
+
   return (
-    <Link href={`/products/${product.slug}`} className="group block bg-white" style={{ borderRadius: 14 }}>
+    <Link href={`/products/${product.slug}`} className="group block bg-white" style={{ borderRadius: 14 }}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}>
       <div className="aspect-[3/4] relative overflow-hidden" style={{ borderRadius: "14px 14px 0 0", background: "#f4f3f3" }}>
         {product.images?.[0] ? (
-          <Image src={product.images[0].url} alt={product.name} fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(min-width: 768px) 300px, 100vw" />
+          <>
+            <Image src={product.images[0].url} alt={product.name} fill
+              className="object-cover"
+              sizes="(min-width: 768px) 300px, 100vw"
+              style={slideStyle(false)} />
+            {hasSecond && (
+              <Image src={product.images[1].url} alt={product.name} fill
+                className="object-cover"
+                sizes="(min-width: 768px) 300px, 100vw"
+                style={slideStyle(true)} />
+            )}
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="material-symbols-outlined text-5xl text-[#c4c7c7]">checkroom</span>

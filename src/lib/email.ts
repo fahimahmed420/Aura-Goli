@@ -183,7 +183,7 @@ function orderConfirmationHtml(data: OrderEmailData): string {
               <tr>
                 <td style="padding:28px 36px 22px;">
                   <span style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:#faf7f0;letter-spacing:2px;">Aura <span style="color:#c9a84c;">Goli</span></span><br>
-                  <span style="font-family:Arial,sans-serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#6a6880;">Premium T-Shirts &middot; Dhaka</span>
+                  <span style="font-family:Arial,sans-serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#6a6880;">Premium Clothing &middot; Dhaka</span>
                 </td>
                 <td align="right" style="padding:28px 36px 22px;vertical-align:middle;">
                   <span style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#c9a84c;text-transform:uppercase;letter-spacing:2px;border:1px solid #4a3f20;background-color:#1e1a2e;padding:6px 14px;border-radius:20px;">&#10003; Confirmed</span>
@@ -543,7 +543,7 @@ export async function sendNewsletterWelcome(to: string) {
         <tr><td style="padding:32px;">
           <h2 style="font-family:Georgia,serif;color:#12103a;margin:0 0 12px;">You're in the circle.</h2>
           <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Thanks for joining the Aura. You'll be first to know about limited drops, exclusive events, and the stories behind each collection &mdash; no noise, just the good stuff.</p>
-          <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Premium T-shirts, cut with intention. Have a look around.</p>
+          <p style="font-family:Arial,sans-serif;color:#5a5358;font-size:14px;line-height:1.6;">Premium clothing, crafted with intention. Have a look around.</p>
           <a href="${link}" style="display:inline-block;background:#c9a84c;color:#0b0b14;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:14px 32px;border-radius:100px;margin-top:8px;">Explore the Collection →</a>
         </td></tr>
       </table>

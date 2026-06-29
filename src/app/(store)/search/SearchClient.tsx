@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { usePageContentLoading } from "@/components/storefront/pageLoading";
 
 interface SearchProduct {
   id: string; name: string; slug: string; price: number; compareAtPrice: number | null;
@@ -24,9 +23,6 @@ export default function SearchClient() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-
-  // Hold the page-loading curtain while search results are loading.
-  usePageContentLoading(loading);
 
   const doSearch = useCallback(async (term: string) => {
     if (term.trim().length < 2) return;

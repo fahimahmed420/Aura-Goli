@@ -27,7 +27,7 @@ function slugSuggestions(name: string): string[] {
   const suggestions = new Set<string>();
   suggestions.add(base);
   if (words.length >= 2) suggestions.add(words.slice(0, 2).join("-"));
-  suggestions.add(`${base}-tee`);
+  suggestions.add(`${base}-clothing`);
   suggestions.add(`ag-${base}`);
   if (words[0]) suggestions.add(words[0]);
   return [...suggestions].filter(Boolean).slice(0, 5);
@@ -108,18 +108,31 @@ export default function ProductForm({ productId }: { productId?: string }) {
   // ── Images ──────────────────────────────────────────────────
   async function handleImageFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
-    const newImages: ProductImage[] = [];
+    const token = localStorage.getItem("adminToken");
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (!file.type.startsWith("image/")) continue;
+      setUploadingIdx(i);
       try {
-        setUploadingIdx(form.images.length + i);
-        const url = await compressImage(file);
-        newImages.push({ url, altText: file.name.replace(/\.[^.]+$/, ""), sortOrder: form.images.length + i });
-      } catch { /* skip bad files */ }
+        // Compress locally first (reduces upload size), then send to Cloudinary
+        const base64 = await compressImage(file);
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ image: base64 }),
+        });
+        if (!res.ok) throw new Error("Upload failed");
+        const { url } = await res.json() as { url: string };
+        setForm((f) => ({
+          ...f,
+          images: [...f.images, { url, altText: file.name.replace(/\.[^.]+$/, ""), sortOrder: f.images.length }],
+        }));
+      } catch {
+        setError(`Failed to upload ${file.name}. Please try again.`);
+      }
     }
     setUploadingIdx(null);
-    setForm((f) => ({ ...f, images: [...f.images, ...newImages] }));
   }
 
   function removeImage(i: number) {

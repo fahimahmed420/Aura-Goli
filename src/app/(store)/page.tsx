@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import NewsletterForm from "@/components/storefront/NewsletterForm";
 import TestimonialSlider from "@/components/storefront/TestimonialSlider";
 import Hero3D from "@/components/storefront/Hero3D";
+import ProductCard from "@/components/storefront/ProductCard";
 
 // ISR: regenerate the homepage at most every 5 minutes instead of querying
 // Postgres on every request. Admin product/category edits call revalidatePath("/").
@@ -13,7 +14,7 @@ const homeCardSelect = {
   id: true, name: true, slug: true, price: true, compareAtPrice: true,
   createdAt: true, salesCount: true,
   category: { select: { name: true, slug: true } },
-  images: { select: { url: true, altText: true }, orderBy: { sortOrder: "asc" as const }, take: 1 },
+  images: { select: { url: true, altText: true }, orderBy: { sortOrder: "asc" as const }, take: 2 },
   variants: { select: { color: true, size: true, stockQuantity: true } },
   _count: { select: { reviews: true } },
 };
@@ -275,49 +276,16 @@ export default async function HomePage() {
 
             {/* Mobile: 2-column grid */}
             <div className="grid grid-cols-2 gap-3 md:hidden">
-              {newArrivals.slice(0, 4).map((p: Product) => (
-                <Link key={p.id} href={`/products/${p.slug}`} className="group active:scale-[0.97] transition-transform">
-                  <div className="relative overflow-hidden rounded-xl mb-2.5" style={{ aspectRatio: "3/4", background: "#2d1a4a" }}>
-                    {p.images?.[0] ? (
-                      <Image src={p.images[0].url} alt={p.name} fill sizes="50vw" className="object-cover opacity-85" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-3xl" style={{ color: "rgba(201,168,76,0.3)" }}>checkroom</span>
-                      </div>
-                    )}
-                    <div className="absolute top-2.5 left-2.5">
-                      <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full"
-                        style={{ background: "#c9a84c", color: "#0b0b14" }}>New</span>
-                    </div>
-                  </div>
-                  <p className="text-[13px] font-semibold leading-snug truncate" style={{ color: "#faf7f0" }}>{p.name}</p>
-                  <p className="text-[13px] font-bold" style={{ color: "#c9a84c" }}>৳{Number(p.price).toLocaleString()}</p>
-                </Link>
+              {newArrivals.slice(0, 4).map((p) => (
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
 
             {/* Desktop: editorial split */}
             <div className="hidden md:grid grid-cols-2 gap-20 items-center mt-12">
               <div className="grid grid-cols-2 gap-3">
-                {newArrivals.slice(0, 4).map((p: Product) => (
-                  <Link key={p.id} href={`/products/${p.slug}`} className="group">
-                    <div className="relative overflow-hidden mb-3 rounded-xl" style={{ aspectRatio: "3/4", background: "#2d1a4a" }}>
-                      {p.images?.[0] ? (
-                        <Image src={p.images[0].url} alt={p.name} fill
-                          sizes="(max-width: 1280px) 25vw, 280px"
-                          className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-4xl" style={{ color: "rgba(201,168,76,0.3)" }}>checkroom</span>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-[13px] font-semibold truncate group-hover:text-[#c9a84c] transition-colors"
-                      style={{ color: "#faf7f0" }}>{p.name}</p>
-                    <p className="text-[13px]" style={{ color: "rgba(250,247,240,0.7)" }}>
-                      ৳{Number(p.price).toLocaleString()}
-                    </p>
-                  </Link>
+                {newArrivals.slice(0, 4).map((p) => (
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
               <div>
@@ -437,56 +405,3 @@ export default async function HomePage() {
   );
 }
 
-/* ── Types & ProductCard ─────────────────────────────────────────────────── */
-
-interface Product {
-  id: string; name: string; slug: string; price: number;
-  images: { url: string }[];
-  averageRating?: number;
-  _count?: { reviews: number };
-  variants?: { stockQuantity: number }[];
-}
-
-function ProductCard({ product }: { product: Product }) {
-  const stock = (product.variants ?? []).reduce((s, v) => s + v.stockQuantity, 0);
-  const lowStock = stock > 0 && stock <= 6;
-  return (
-    <Link href={`/products/${product.slug}`} className="group block active:scale-[0.97] transition-transform">
-      <div className="relative overflow-hidden mb-3 rounded-xl"
-        style={{ aspectRatio: "3/4", background: "#ede8e0" }}>
-        {lowStock && (
-          <span className="absolute top-2.5 left-2.5 z-10 text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-full"
-            style={{ background: "rgba(186,26,26,0.92)", color: "#fff" }}>
-            Only {stock} left
-          </span>
-        )}
-        {product.images?.[0] ? (
-          <Image src={product.images[0].url} alt={product.name} fill
-            sizes="(max-width: 768px) 60vw, (max-width: 1280px) 25vw, 280px"
-            className="object-cover group-hover:scale-105 transition-transform duration-500" />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #ede8e0, #d4cec5)" }}>
-            <span className="material-symbols-outlined text-5xl" style={{ color: "#b8b0a5" }}>checkroom</span>
-          </div>
-        )}
-        {/* Slide-up CTA */}
-        <div className="absolute bottom-0 inset-x-0 py-3 text-center text-[11px] font-bold uppercase tracking-[0.2em] translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-b-xl"
-          style={{ background: "#c9a84c", color: "#0b0b14" }}>
-          Quick View
-        </div>
-      </div>
-      <p className="text-[13px] font-semibold leading-snug" style={{ color: "#12103a" }}>{product.name}</p>
-      {product.averageRating && product.averageRating > 0 ? (
-        <div className="flex items-center gap-0.5 mt-0.5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} className="text-[11px]"
-              style={{ color: i < Math.round(product.averageRating!) ? "#c9a84c" : "#d4cec5" }}>★</span>
-          ))}
-          <span className="text-[10px] ml-1" style={{ color: "#8a8480" }}>({product._count?.reviews ?? 0})</span>
-        </div>
-      ) : null}
-      <p className="text-[14px] font-bold mt-0.5" style={{ color: "#3d2b7a" }}>৳{Number(product.price).toLocaleString()}</p>
-    </Link>
-  );
-}

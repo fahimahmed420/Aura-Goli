@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import RecentlyViewed, { trackView } from "@/components/storefront/RecentlyViewed";
+import LoadingScreen from "@/components/storefront/LoadingScreen";
+import { usePageReady } from "@/hooks/usePageReady";
 import { trackAddToCart } from "@/lib/analytics";
 
 function isVideo(url: string) { return /\.(mp4|webm|ogg)$/i.test(url); }
@@ -45,6 +47,9 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const [sizeError, setSizeError]         = useState(false);
   const [wishlisted, setWishlisted]       = useState(false);
   const [sizeChart, setSizeChart]         = useState<Array<{size:string;chest:string;length:string;shoulder:string}>>([]);
+  const [wishlistLoaded, setWishlistLoaded] = useState(false);
+  const [sizeChartLoaded, setSizeChartLoaded] = useState(false);
+  const isReady = usePageReady([wishlistLoaded, sizeChartLoaded]);
   const touchStartX = useRef(0);
   const colorRef = useRef<HTMLDivElement>(null);
   const sizeRef  = useRef<HTMLDivElement>(null);
@@ -62,21 +67,32 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
   useEffect(() => {
     const token = localStorage.getItem("ag_authed");
-    if (!token) return;
+    if (!token) {
+      setWishlistLoaded(true);
+      return;
+    }
     fetch("/api/account/wishlist", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
       .then((d) => {
         const wishlisted = (d.items ?? []).some((i: { product: { id: string } }) => i.product.id === product.id);
         setWishlisted(wishlisted);
+        setWishlistLoaded(true);
       })
-      .catch(() => {});
+      .catch(() => {
+        setWishlistLoaded(true);
+      });
   }, [product.id]);
 
   useEffect(() => {
     fetch("/api/size-chart")
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.rows) setSizeChart(d.rows); })
-      .catch(() => {});
+      .then(d => {
+        if (d?.rows) setSizeChart(d.rows);
+        setSizeChartLoaded(true);
+      })
+      .catch(() => {
+        setSizeChartLoaded(true);
+      });
   }, []);
 
   const [copied, setCopied] = useState(false);
@@ -218,6 +234,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
     `}</style>
 
     <div style={{ fontFamily: "'Hanken Grotesk', sans-serif", background: "#faf7f0", minHeight: "100vh", paddingTop: "4px" }}>
+      <LoadingScreen isLoading={!isReady} />
 
       {/* ═══════════════════════════════════════════════════════
           MOBILE LAYOUT

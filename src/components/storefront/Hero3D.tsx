@@ -264,7 +264,7 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
 
           <p className="text-[15px] leading-relaxed mb-8 max-w-xs md:max-w-sm"
             style={{ color: "rgba(250,247,240,0.5)", ...fadeUp(0.32) }}>
-            Premium T-shirts for those who let quality speak louder than logos. Each piece cut with intention.
+            Premium clothing for those who let quality speak louder than logos. Each piece crafted with intention.
           </p>
 
           {/* CTAs */}

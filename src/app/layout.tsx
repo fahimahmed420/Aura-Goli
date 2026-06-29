@@ -14,8 +14,14 @@ export function generateMetadata(): Metadata {
   const name = storeName || "Aura Goli";
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: `${name} — Premium T-Shirts`, template: `%s | ${name}` },
-    description: `${name} — Premium threads crafted for the modern minimalist.`,
+    title: { default: `${name} — Premium Clothing`, template: `%s | ${name}` },
+    description: `${name} — Premium clothing crafted for the modern minimalist.`,
+    icons: {
+      icon: [
+        { url: "/favicon.ico?v=2", type: "image/x-icon" },
+      ],
+      apple: "/apple-touch-icon.png?v=2"
+    },
     alternates: { canonical: "/" },
     openGraph: { type: "website", siteName: name, url: SITE_URL },
     appleWebApp: { capable: true, title: name, statusBarStyle: "black-translucent" },

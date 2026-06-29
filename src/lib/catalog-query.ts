@@ -96,7 +96,7 @@ export const productListSelect = {
   images: {
     select: { url: true, altText: true, sortOrder: true },
     orderBy: { sortOrder: "asc" as const },
-    take: 1,
+    take: 2,
   },
   variants: {
     select: { id: true, color: true, size: true, sku: true, stockQuantity: true },

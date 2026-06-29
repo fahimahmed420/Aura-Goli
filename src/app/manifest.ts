@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Aura Goli — Premium T-Shirts",
+    name: "Aura Goli — Premium Clothing",
     short_name: "Aura Goli",
-    description: "Premium minimalist T-shirts — ethically sourced, crafted with intention.",
+    description: "Premium clothing — ethically sourced, crafted with intention.",
     start_url: "/",
     scope: "/",
     display: "standalone",

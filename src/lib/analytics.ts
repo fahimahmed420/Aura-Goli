@@ -21,17 +21,6 @@ export interface AnalyticsItem {
   quantity?: number;
 }
 
-export function trackViewContent(p: { id?: string; name?: string; price?: number }) {
-  if (typeof window === "undefined") return;
-  window.gtag?.("event", "view_item", {
-    currency: CURRENCY, value: p.price,
-    items: [{ item_id: p.id, item_name: p.name, price: p.price }],
-  });
-  window.fbq?.("track", "ViewContent", {
-    content_ids: p.id ? [p.id] : [], content_name: p.name, value: p.price, currency: CURRENCY,
-  });
-}
-
 export function trackAddToCart(p: { id?: string; name?: string; price?: number; quantity?: number }) {
   if (typeof window === "undefined") return;
   const value = (p.price ?? 0) * (p.quantity ?? 1);
@@ -42,12 +31,6 @@ export function trackAddToCart(p: { id?: string; name?: string; price?: number; 
   window.fbq?.("track", "AddToCart", {
     content_ids: p.id ? [p.id] : [], content_name: p.name, value, currency: CURRENCY,
   });
-}
-
-export function trackBeginCheckout(value: number) {
-  if (typeof window === "undefined") return;
-  window.gtag?.("event", "begin_checkout", { currency: CURRENCY, value });
-  window.fbq?.("track", "InitiateCheckout", { value, currency: CURRENCY });
 }
 
 export function trackPurchase(p: { orderId: string; value: number; items?: AnalyticsItem[] }) {
