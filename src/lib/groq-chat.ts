@@ -15,11 +15,17 @@ const KEYS = [
   process.env.GROQ_API_KEY_3,
 ].filter(Boolean) as string[];
 
-if (!KEYS.length) throw new Error("No GROQ_API_KEY configured");
-
-const clients = KEYS.map((k) => new Groq({ apiKey: k }));
+let clients: Groq[] = [];
 let counter = 0;
 const exhausted = new Set<number>();
+
+function getClients(): Groq[] {
+  if (!clients.length) {
+    if (!KEYS.length) throw new Error("No GROQ_API_KEY configured");
+    clients = KEYS.map((k) => new Groq({ apiKey: k }));
+  }
+  return clients;
+}
 
 function is429(err: unknown): boolean {
   return (err as { status?: number })?.status === 429;
@@ -32,15 +38,15 @@ function isToolUseFailed(err: unknown): boolean {
 
 /** Pick the next available Groq client, cycling through keys in order. */
 function nextClient(): Groq {
-  if (exhausted.size >= clients.length) {
+  const cs = getClients();
+  if (exhausted.size >= cs.length) {
     throw Object.assign(new Error("All Groq API keys exhausted for today."), { status: 429 });
   }
-  // Find the next non-exhausted client
-  for (let i = 0; i < clients.length; i++) {
-    const idx = (counter + i) % clients.length;
+  for (let i = 0; i < cs.length; i++) {
+    const idx = (counter + i) % cs.length;
     if (!exhausted.has(idx)) {
-      counter = (idx + 1) % clients.length; // advance past this one next call
-      return clients[idx];
+      counter = (idx + 1) % cs.length;
+      return cs[idx];
     }
   }
   throw Object.assign(new Error("All Groq API keys exhausted for today."), { status: 429 });
@@ -147,7 +153,7 @@ async function createWithTools(
     } catch (err) {
       if (is429(err)) {
         // Mark this client's key exhausted and retry with the next one
-        const idx = clients.indexOf(client);
+        const idx = getClients().indexOf(client);
         exhausted.add(idx);
         console.warn(`[groq] Key ${idx + 1} exhausted, failing over (${clients.length - exhausted.size} remaining)`);
         continue;
@@ -168,7 +174,7 @@ async function createPlain(
       return await client.chat.completions.create({ model: MODEL, messages, temperature: 0.3 });
     } catch (err) {
       if (is429(err)) {
-        const idx = clients.indexOf(client);
+        const idx = getClients().indexOf(client);
         exhausted.add(idx);
         console.warn(`[groq] Key ${idx + 1} exhausted on plain call, failing over`);
         continue;
@@ -188,7 +194,7 @@ async function createStream(
       return await client.chat.completions.create({ model: MODEL, messages, stream: true, temperature: 0.3 });
     } catch (err) {
       if (is429(err)) {
-        const idx = clients.indexOf(client);
+        const idx = getClients().indexOf(client);
         exhausted.add(idx);
         console.warn(`[groq] Key ${idx + 1} exhausted on stream call, failing over`);
         continue;
