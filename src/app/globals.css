@@ -296,3 +296,11 @@ button:active:not(:disabled), a:active { opacity: 0.82; transform: scale(0.97); 
     transform: translateX(0);
   }
 }
+
+.new-arrivals .product-name {
+  color: #faf7f0;
+}
+
+.new-arrivals .product-price {
+  color: #c9a84c;
+}

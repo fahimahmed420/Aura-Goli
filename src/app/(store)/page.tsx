@@ -249,7 +249,7 @@ export default async function HomePage() {
 
       {/* ── NEW ARRIVALS ─────────────────────────────────────────────── */}
       {newArrivals.length > 0 && (
-        <section style={{ background: "#1a0d2e" }} className="py-14 md:py-28">
+        <section style={{ background: "#12103a" }} className="py-14 md:py-28 new-arrivals">
           <div className="max-w-[1280px] mx-auto px-5 md:px-14">
 
             {/* Header */}
@@ -277,7 +277,7 @@ export default async function HomePage() {
             {/* Mobile: 2-column grid */}
             <div className="grid grid-cols-2 gap-3 md:hidden">
               {newArrivals.slice(0, 4).map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p}/>
               ))}
             </div>
 

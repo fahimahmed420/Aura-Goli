@@ -82,7 +82,7 @@ export default function ProductCard({ product }: { product: Product }) {
           Quick View
         </div>
       </div>
-      <p className="text-[13px] font-semibold leading-snug" style={{ color: "#12103a" }}>
+      <p className="text-[13px] font-semibold leading-snug text-navy product-name" >
         {product.name}
       </p>
       {product.averageRating && product.averageRating > 0 ? (
@@ -101,7 +101,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
       ) : null}
-      <p className="text-[14px] font-bold mt-0.5" style={{ color: "#3d2b7a" }}>
+      <p className="text-[14px] font-bold mt-0.5 text-navy product-price" >
         ৳{Number(product.price).toLocaleString()}
       </p>
     </Link>
