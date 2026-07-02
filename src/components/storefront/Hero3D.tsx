@@ -168,7 +168,7 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
           <div style={{ position: "relative", zIndex: 1, padding: "36px 32px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
               <p style={{ color: "rgba(201,168,76,0.7)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: "16px" }}>
-                SS 2025
+                SS 2026
               </p>
               {/* T-shirt SVG illustration */}
               <svg viewBox="0 0 220 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxWidth: "200px", margin: "0 auto", display: "block" }}>
@@ -249,7 +249,7 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
           <div className="flex items-center gap-2.5 mb-7" style={fadeUp(0)}>
             <span className="block w-6 h-px shrink-0" style={{ background: "#c9a84c" }} />
             <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: "#c9a84c" }}>
-              New Season · SS 2025
+              New Season · SS 2026
             </span>
           </div>
 
