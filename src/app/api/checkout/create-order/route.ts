@@ -1,14 +1,16 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { evaluateOrder } from "@/lib/courier";
 import { apiError } from "@/lib/validation";
 import { initiateSSLPayment } from "@/lib/sslcommerz";
-import { verifyAccessToken } from "@/lib/auth";
+import { resolveTokenPayload } from "@/lib/require-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { randomBytes } from "crypto";
 import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderStatusSms } from "@/lib/sms";
 import { getCartIdentity, cartWhere } from "@/lib/cart";
 
-const VALID_PAYMENT_METHODS = ["bkash", "cod"] as const;
+const VALID_PAYMENT_METHODS = ["bkash", "nagad", "rocket", "card", "cod"] as const;
 type PaymentMethod = typeof VALID_PAYMENT_METHODS[number];
 
 function generateOrderNumber() {
@@ -25,15 +27,9 @@ export async function POST(req: NextRequest) {
   const { shippingAddress, items, promoCode, paymentMethod, guestEmail, isGift, flashSaleId } = body;
   const GIFT_FEE = 50;
 
-  // Derive userId from Bearer token — never trust client-supplied user-id headers
-  let userId: string | null = null;
-  const authHeader = req.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    try {
-      const payload = verifyAccessToken(authHeader.slice(7));
-      userId = payload.sub;
-    } catch { /* guest checkout */ }
-  }
+  // Derive userId from the verified session (Bearer header or HttpOnly cookie) —
+  // never trust client-supplied user-id headers
+  const userId: string | null = resolveTokenPayload(req)?.sub ?? null;
 
   if (!shippingAddress?.name || !shippingAddress?.address || !shippingAddress?.city || !shippingAddress?.phone) {
     return apiError("Shipping address incomplete", 400);
@@ -76,6 +72,12 @@ export async function POST(req: NextRequest) {
       where: { code: promoCode.toUpperCase(), isActive: true, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
     });
     if (coupon) {
+      if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+        return apiError("This promo code has reached its usage limit", 400);
+      }
+      if (coupon.minOrderAmount && subtotal < Number(coupon.minOrderAmount)) {
+        return apiError(`Minimum order ৳${Number(coupon.minOrderAmount).toLocaleString()} required for this promo code`, 400);
+      }
       discountAmount = coupon.type === "percent"
         ? Math.round((subtotal * Number(coupon.value)) / 100)
         : Math.min(Number(coupon.value), subtotal);
@@ -138,6 +140,7 @@ export async function POST(req: NextRequest) {
         shippingAddress: {
           name: shippingAddress.name,
           phone: shippingAddress.phone,
+          email: customerEmail,
           address: shippingAddress.address,
           city: shippingAddress.city,
           postalCode: shippingAddress.postalCode ?? "",
@@ -216,6 +219,9 @@ export async function POST(req: NextRequest) {
       },
       createdAt: new Date(),
     }).catch(console.error);
+    sendOrderStatusSms(shippingAddress.phone, orderNumber, "confirmed", { total }).catch(console.error);
+    // Courier bot: assess COD risk and auto-dispatch trusted customers.
+    after(() => evaluateOrder(order.id));
     return Response.json({ orderId: order.id, orderNumber, redirectUrl: `/order-confirmed?order=${orderNumber}` });
   }
 
@@ -245,10 +251,30 @@ export async function POST(req: NextRequest) {
       return Response.json({ orderId: order.id, orderNumber, redirectUrl: ssl.GatewayPageURL });
     }
 
-    await prisma.order.update({ where: { id: order.id }, data: { status: "cancelled", paymentStatus: "failed" } });
+    await cancelAndRestock(order.id, orderItems);
     return apiError(ssl.failedreason ?? "Payment gateway unavailable", 502);
   } catch {
-    await prisma.order.update({ where: { id: order.id }, data: { status: "cancelled", paymentStatus: "failed" } });
+    await cancelAndRestock(order.id, orderItems);
     return apiError("Payment gateway error", 502);
   }
+}
+
+// Gateway initiation failed — cancel the order and return its stock so items
+// aren't locked by an order that can never be paid.
+async function cancelAndRestock(
+  orderId: string,
+  orderItems: { variant: { id: string }; quantity: number }[],
+) {
+  await prisma.$transaction([
+    prisma.order.update({ where: { id: orderId }, data: { status: "cancelled", paymentStatus: "failed" } }),
+    prisma.orderStatusHistory.create({
+      data: { orderId, status: "cancelled", note: "Payment gateway initiation failed" },
+    }),
+    ...orderItems.map(({ variant, quantity }) =>
+      prisma.productVariant.update({
+        where: { id: variant.id },
+        data: { stockQuantity: { increment: quantity } },
+      }),
+    ),
+  ]);
 }

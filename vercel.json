@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/abandoned-carts",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/courier-sync",
+      "schedule": "30 0 * * *"
     }
   ]
 }

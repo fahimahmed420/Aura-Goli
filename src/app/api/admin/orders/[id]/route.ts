@@ -2,9 +2,13 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-auth";
 import { apiError } from "@/lib/validation";
-import { sendReviewRequest } from "@/lib/email";
+import { sendReviewRequest, sendOrderStatusUpdate } from "@/lib/email";
+import { sendOrderStatusSms } from "@/lib/sms";
 
 const VALID_STATUSES = ["pending_payment", "confirmed", "packed", "shipped", "delivered", "cancelled", "refunded"];
+
+// Statuses the customer is notified about when the admin sets them.
+const NOTIFY_STATUSES = new Set(["confirmed", "packed", "shipped", "delivered", "cancelled", "refunded"]);
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(req);
@@ -13,14 +17,32 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const body = await req.json();
   const { status } = body;
+  const courierName = typeof body.courierName === "string" ? body.courierName.trim().slice(0, 100) : undefined;
+  const trackingNumber = typeof body.trackingNumber === "string" ? body.trackingNumber.trim().slice(0, 100) : undefined;
 
   if (!status || !VALID_STATUSES.includes(status)) return apiError("Invalid status", 400);
 
-  const order = await prisma.order.findUnique({ where: { id } });
+  const order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
   if (!order) return apiError("Order not found", 404);
 
+  // Shipped orders must carry courier info — it's what the customer tracking page shows.
+  const effectiveCourier = courierName ?? order.courierName;
+  const effectiveTracking = trackingNumber ?? order.trackingNumber;
+  if (status === "shipped" && (!effectiveCourier || !effectiveTracking)) {
+    return apiError("Courier name and tracking number are required to mark an order as shipped", 400);
+  }
+
   const updated = await prisma.$transaction(async (tx) => {
-    const o = await tx.order.update({ where: { id }, data: { status } });
+    const o = await tx.order.update({
+      where: { id },
+      data: {
+        status,
+        ...(courierName !== undefined && { courierName }),
+        ...(trackingNumber !== undefined && { trackingNumber }),
+        // COD is collected at the doorstep — delivery is when it becomes revenue.
+        ...(status === "delivered" && order.paymentMethod === "cod" && order.paymentStatus !== "paid" && { paymentStatus: "paid" }),
+      },
+    });
     await tx.orderStatusHistory.create({
       data: { orderId: id, status, note: `Status updated to ${status} by admin` },
     });
@@ -33,8 +55,39 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         await tx.loyaltyTransaction.create({ data: { userId: order.userId, points: pts, type: "earn", description: `Earned from order ${order.orderNumber}`, orderId: order.id } });
       }
     }
+    /* Return stock to inventory the first time an order is cancelled/refunded */
+    const wasActive = !["cancelled", "refunded"].includes(order.status);
+    if (wasActive && ["cancelled", "refunded"].includes(status)) {
+      for (const item of order.items) {
+        if (item.variantId) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stockQuantity: { increment: item.quantity } },
+          });
+        }
+      }
+    }
     return o;
   });
+
+  // Notify the customer about the transition (never block the update on notification failure).
+  if (status !== order.status && NOTIFY_STATUSES.has(status)) {
+    try {
+      const contact = await prisma.order.findUnique({
+        where: { id },
+        select: { guestEmail: true, shippingAddress: true, user: { select: { email: true } } },
+      });
+      const addr = contact?.shippingAddress as { email?: string; phone?: string } | null;
+      const email = contact?.user?.email ?? contact?.guestEmail ?? addr?.email;
+      if (email) sendOrderStatusUpdate(email, order.orderNumber, status).catch(console.error);
+      if (addr?.phone) {
+        sendOrderStatusSms(addr.phone, order.orderNumber, status, {
+          courier: effectiveCourier,
+          trackingCode: effectiveTracking,
+        }).catch(console.error);
+      }
+    } catch { /* non-critical */ }
+  }
 
   // On first transition to "delivered", ask the customer to review their purchase.
   if (status === "delivered" && order.status !== "delivered") {

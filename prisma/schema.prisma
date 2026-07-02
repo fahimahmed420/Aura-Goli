@@ -358,6 +358,7 @@ model Order {
   payment        Payment?
   reviews        Review[]
   returnRequests ReturnRequest[]
+  courierDispatch CourierDispatch?
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
@@ -391,6 +392,30 @@ model OrderStatusHistory {
 
   @@index([orderId])
   @@map("order_status_history")
+}
+
+// ─── Courier automation ───────────────────────────────────────────────────────
+
+// One row per order: the risk-bot's verdict and (if dispatched) the courier
+// consignment created for it. Powers auto-dispatch + the admin courier panel.
+model CourierDispatch {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  riskVerdict   String   // "good" | "neutral" | "risky" | "prepaid"
+  riskDetails   Json     // { deliveredCount, cancelledCount, source, reason }
+  autoDispatch  Boolean  @default(false) // true if the bot sent it without human action
+  courier       String?  // "steadfast" | "pathao" — null while held for review
+  consignmentId String?
+  trackingCode  String?
+  courierStatus String?  // courier-side status, updated by the sync cron
+  lastError     String?  // last dispatch/sync failure, for the admin panel
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([courierStatus])
+  @@map("courier_dispatches")
 }
 
 // ─── Payments ─────────────────────────────────────────────────────────────────

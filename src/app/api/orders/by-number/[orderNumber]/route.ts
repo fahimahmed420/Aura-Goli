@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyAccessToken } from "@/lib/auth";
+import { resolveTokenPayload } from "@/lib/require-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { apiError } from "@/lib/validation";
 
@@ -11,12 +11,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orde
 
   const { orderNumber } = await params;
 
-  // Resolve identity: logged-in user OR email query param for guests
-  let userId: string | null = null;
-  const authHeader = req.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    try { userId = verifyAccessToken(authHeader.slice(7)).sub; } catch { /* guest */ }
-  }
+  // Resolve identity: logged-in user (header or HttpOnly cookie) OR email query param for guests
+  const tokenPayload = resolveTokenPayload(req);
+  const userId = tokenPayload?.sub ?? null;
+  const userEmail = tokenPayload?.email?.toLowerCase() ?? null;
   const guestEmail = req.nextUrl.searchParams.get("email")?.toLowerCase() ?? null;
 
   const order = await prisma.order.findUnique({
@@ -27,6 +25,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orde
       createdAt: true, trackingNumber: true, courierName: true,
       shippingAddress: true,
       userId: true,
+      guestEmail: true,
+      user: { select: { email: true } },
       items: { select: { productNameSnapshot: true, quantity: true, unitPrice: true } },
       statusHistory: { select: { status: true, note: true, createdAt: true }, orderBy: { createdAt: "asc" } },
     },
@@ -34,17 +34,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orde
 
   if (!order) return apiError("Order not found", 404);
 
-  // Auth check: must be the owner (logged-in) or provide the correct guest email
-  if (userId) {
-    if (order.userId && order.userId !== userId) return apiError("Order not found", 404);
-  } else {
-    // Guest: require email match against shippingAddress
+  // Auth check: must be the owner (logged-in) or provide the correct order email
+  const addr = order.shippingAddress as { email?: string } | null;
+  const orderEmail = (order.guestEmail ?? order.user?.email ?? addr?.email ?? "").toLowerCase();
+  const isOwner = userId !== null && order.userId === userId;
+  const ownsGuestOrder = !order.userId && !!userEmail && userEmail === orderEmail;
+
+  if (!isOwner && !ownsGuestOrder) {
     if (!guestEmail) return apiError("Provide your email to track this order", 403);
-    const addr = order.shippingAddress as { email?: string } | null;
-    const orderEmail = (addr?.email ?? "").toLowerCase();
     if (!orderEmail || orderEmail !== guestEmail) return apiError("Email does not match this order", 403);
   }
 
-  const { userId: _uid, ...safeOrder } = order;
+  const { userId: _uid, guestEmail: _gm, user: _usr, ...safeOrder } = order;
   return Response.json({ order: safeOrder });
 }

@@ -3,10 +3,23 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
+interface CourierDispatchInfo {
+  riskVerdict: string;
+  riskDetails: { reason?: string; deliveredCount?: number; cancelledCount?: number; source?: string } | null;
+  autoDispatch: boolean;
+  courier: string | null;
+  consignmentId: string | null;
+  trackingCode: string | null;
+  courierStatus: string | null;
+  lastError: string | null;
+}
+
 interface Order {
   id: string; orderNumber: string; status: string; paymentStatus: string;
   total: number; createdAt: string; paymentMethod: string;
   isGift: boolean; giftFee: number;
+  courierName: string | null; trackingNumber: string | null; guestEmail: string | null;
+  courierDispatch: CourierDispatchInfo | null;
   user: { name: string; email: string } | null;
   items: { productNameSnapshot: string; quantity: number; unitPrice: number; variantSnapshot: { color?: string; size?: string; sku?: string } | null }[];
   shippingAddress: { name: string; address: string; city: string; postalCode: string } | null;
@@ -43,6 +56,45 @@ export default function AdminOrdersPage() {
   const [q, setQ] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [courierName, setCourierName] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [statusError, setStatusError] = useState("");
+  const [dispatching, setDispatching] = useState(false);
+  const [dispatchError, setDispatchError] = useState("");
+
+  function openOrder(o: Order) {
+    setSelectedOrder(o);
+    setCourierName(o.courierName ?? "");
+    setTrackingNumber(o.trackingNumber ?? "");
+    setStatusError("");
+    setDispatchError("");
+  }
+
+  async function sendToCourier(orderId: string, courier: "steadfast" | "pathao") {
+    setDispatching(true);
+    setDispatchError("");
+    const token = localStorage.getItem("adminToken");
+    const res = await fetch(`/api/admin/orders/${orderId}/dispatch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ courier }),
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.dispatch) {
+      setSelectedOrder((o) => o ? {
+        ...o,
+        courierDispatch: data.dispatch,
+        courierName: courier === "pathao" ? "Pathao" : "Steadfast",
+        trackingNumber: data.dispatch.trackingCode ?? data.dispatch.consignmentId ?? o.trackingNumber,
+      } : null);
+      setCourierName(courier === "pathao" ? "Pathao" : "Steadfast");
+      setTrackingNumber(data?.dispatch?.trackingCode ?? data?.dispatch?.consignmentId ?? "");
+      fetchOrders();
+    } else {
+      setDispatchError(data?.error ?? "Dispatch failed.");
+    }
+    setDispatching(false);
+  }
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -61,16 +113,28 @@ export default function AdminOrdersPage() {
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
   async function updateOrderStatus(orderId: string, newStatus: string) {
+    setStatusError("");
+    if (newStatus === "shipped" && (!courierName.trim() || !trackingNumber.trim())) {
+      setStatusError("Enter the courier name and tracking number before marking as shipped.");
+      return;
+    }
     setUpdatingStatus(true);
     const token = localStorage.getItem("adminToken");
     const res = await fetch(`/api/admin/orders/${orderId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({
+        status: newStatus,
+        ...(courierName.trim() && { courierName: courierName.trim() }),
+        ...(trackingNumber.trim() && { trackingNumber: trackingNumber.trim() }),
+      }),
     });
     if (res.ok) {
-      setSelectedOrder((o) => o ? { ...o, status: newStatus } : null);
+      setSelectedOrder((o) => o ? { ...o, status: newStatus, courierName: courierName.trim() || o.courierName, trackingNumber: trackingNumber.trim() || o.trackingNumber } : null);
       fetchOrders();
+    } else {
+      const data = await res.json().catch(() => null);
+      setStatusError(data?.error ?? "Failed to update status.");
     }
     setUpdatingStatus(false);
   }
@@ -132,7 +196,7 @@ export default function AdminOrdersPage() {
                 ) : orders.map((o) => {
                   const initials = (o.user?.name ?? "G").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
                   return (
-                    <tr key={o.id} className="hover:bg-[#f9f9f9] transition-colors group cursor-pointer" onClick={() => setSelectedOrder(o)}>
+                    <tr key={o.id} className="hover:bg-[#f9f9f9] transition-colors group cursor-pointer" onClick={() => openOrder(o)}>
                       <td className="px-6 py-5 text-[13px] font-semibold text-black">
                         #{o.orderNumber}
                         {o.isGift && (
@@ -211,10 +275,12 @@ export default function AdminOrdersPage() {
             </div>
           </div>
           <div className="p-6 bg-[#eeeeee] rounded-2xl border border-[#e8e8e8]">
-            <span className="text-[11px] font-semibold text-[#444748] uppercase tracking-widest">Delivery Rate</span>
+            <span className="text-[11px] font-semibold text-[#444748] uppercase tracking-widest">Delivered</span>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="font-['Playfair_Display'] text-3xl font-bold text-black">99.2%</span>
-              <span className="text-black text-[13px] font-semibold">Excellent</span>
+              <span className="font-['Playfair_Display'] text-3xl font-bold text-black">
+                {orders.filter((o) => o.status === "delivered").length}
+              </span>
+              <span className="text-[#444748] text-[13px] font-medium">this page</span>
             </div>
           </div>
         </div>
@@ -232,7 +298,94 @@ export default function AdminOrdersPage() {
               </button>
             </div>
             <div className="flex-1 p-6 space-y-6">
+              {/* Courier bot verdict + dispatch */}
               <div>
+                <p className="text-[11px] font-semibold text-[#444748] uppercase tracking-widest mb-3">Courier Bot</p>
+                {selectedOrder.courierDispatch ? (
+                  <div className="space-y-3">
+                    <div className={`flex items-start gap-3 p-4 rounded-xl border-2 ${
+                      selectedOrder.courierDispatch.riskVerdict === "risky"
+                        ? "border-[#ba1a1a]/40 bg-[#ffdad6]/40"
+                        : selectedOrder.courierDispatch.riskVerdict === "neutral"
+                        ? "border-[#b06000]/30 bg-[#fff8e1]"
+                        : "border-green-600/30 bg-green-50"
+                    }`}>
+                      <span className="material-symbols-outlined text-xl mt-0.5">
+                        {selectedOrder.courierDispatch.riskVerdict === "risky" ? "warning"
+                          : selectedOrder.courierDispatch.riskVerdict === "neutral" ? "help" : "verified"}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-black capitalize">
+                          {selectedOrder.courierDispatch.riskVerdict === "prepaid" ? "Prepaid — safe to ship" : `${selectedOrder.courierDispatch.riskVerdict} customer`}
+                        </p>
+                        <p className="text-xs text-[#444748] mt-0.5">{selectedOrder.courierDispatch.riskDetails?.reason}</p>
+                      </div>
+                    </div>
+
+                    {selectedOrder.courierDispatch.consignmentId ? (
+                      <div className="p-4 rounded-xl bg-[#f4f3f3] text-sm space-y-1">
+                        <p className="font-bold text-black capitalize">
+                          {selectedOrder.courierDispatch.autoDispatch ? "Auto-dispatched" : "Dispatched"} via {selectedOrder.courierDispatch.courier}
+                        </p>
+                        <p className="text-xs text-[#444748]">Consignment: <span className="font-mono">{selectedOrder.courierDispatch.consignmentId}</span></p>
+                        {selectedOrder.courierDispatch.courierStatus && (
+                          <p className="text-xs text-[#444748]">Courier status: {selectedOrder.courierDispatch.courierStatus}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button onClick={() => sendToCourier(selectedOrder.id, "steadfast")} disabled={dispatching}
+                          className="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-black text-white hover:bg-[#5951b4] transition-colors disabled:opacity-50">
+                          {dispatching ? "Sending…" : "Send via Steadfast"}
+                        </button>
+                        <button onClick={() => sendToCourier(selectedOrder.id, "pathao")} disabled={dispatching}
+                          className="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider rounded-lg border border-black text-black hover:bg-black hover:text-white transition-colors disabled:opacity-50">
+                          {dispatching ? "Sending…" : "Send via Pathao"}
+                        </button>
+                      </div>
+                    )}
+                    {(dispatchError || selectedOrder.courierDispatch.lastError) && !selectedOrder.courierDispatch.consignmentId && (
+                      <p className="text-[12px] text-[#ba1a1a] font-medium bg-[#ffdad6] rounded-lg px-3 py-2">
+                        {dispatchError || selectedOrder.courierDispatch.lastError}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-xs text-[#747878]">Not evaluated yet (order predates the courier bot).</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => sendToCourier(selectedOrder.id, "steadfast")} disabled={dispatching}
+                        className="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-black text-white hover:bg-[#5951b4] transition-colors disabled:opacity-50">
+                        {dispatching ? "Sending…" : "Send via Steadfast"}
+                      </button>
+                      <button onClick={() => sendToCourier(selectedOrder.id, "pathao")} disabled={dispatching}
+                        className="flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider rounded-lg border border-black text-black hover:bg-black hover:text-white transition-colors disabled:opacity-50">
+                        {dispatching ? "Sending…" : "Send via Pathao"}
+                      </button>
+                    </div>
+                    {dispatchError && (
+                      <p className="text-[12px] text-[#ba1a1a] font-medium bg-[#ffdad6] rounded-lg px-3 py-2">{dispatchError}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-[#444748] uppercase tracking-widest mb-3">Courier &amp; Tracking</p>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <input
+                    value={courierName}
+                    onChange={(e) => setCourierName(e.target.value)}
+                    placeholder="Courier (e.g. Pathao, Steadfast)"
+                    className="px-3 py-2.5 border border-[#c4c7c7] rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-[#5951b4]"
+                  />
+                  <input
+                    value={trackingNumber}
+                    onChange={(e) => setTrackingNumber(e.target.value)}
+                    placeholder="Tracking number"
+                    className="px-3 py-2.5 border border-[#c4c7c7] rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-[#5951b4]"
+                  />
+                </div>
                 <p className="text-[11px] font-semibold text-[#444748] uppercase tracking-widest mb-3">Update Status</p>
                 <div className="grid grid-cols-2 gap-2">
                   {ORDER_STATUSES.map((s) => (
@@ -245,6 +398,9 @@ export default function AdminOrdersPage() {
                     </button>
                   ))}
                 </div>
+                {statusError && (
+                  <p className="mt-3 text-[12px] text-[#ba1a1a] font-medium bg-[#ffdad6] rounded-lg px-3 py-2">{statusError}</p>
+                )}
               </div>
               {selectedOrder.isGift && (
                 <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#5951b4] bg-[#f0eeff]">
@@ -258,8 +414,8 @@ export default function AdminOrdersPage() {
               <div>
                 <p className="text-[11px] font-semibold text-[#444748] uppercase tracking-widest mb-3">Customer</p>
                 <div className="bg-[#f4f3f3] rounded-lg p-4 space-y-1">
-                  <p className="text-sm font-semibold text-black">{selectedOrder.user?.name ?? "Guest"}</p>
-                  <p className="text-sm text-[#444748]">{selectedOrder.user?.email}</p>
+                  <p className="text-sm font-semibold text-black">{selectedOrder.user?.name ?? selectedOrder.shippingAddress?.name ?? "Guest"}</p>
+                  <p className="text-sm text-[#444748]">{selectedOrder.user?.email ?? selectedOrder.guestEmail ?? ""}</p>
                 </div>
               </div>
               <div>

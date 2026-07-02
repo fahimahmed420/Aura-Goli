@@ -32,6 +32,10 @@ export async function GET(req: NextRequest) {
         select: {
           id: true, orderNumber: true, status: true, paymentStatus: true,
           total: true, createdAt: true, paymentMethod: true, shippingAddress: true, isGift: true, giftFee: true,
+          courierName: true, trackingNumber: true, guestEmail: true,
+          courierDispatch: {
+            select: { riskVerdict: true, riskDetails: true, autoDispatch: true, courier: true, consignmentId: true, trackingCode: true, courierStatus: true, lastError: true },
+          },
           user: { select: { name: true, email: true } },
           items: { select: { productNameSnapshot: true, variantSnapshot: true, quantity: true, unitPrice: true } },
         },

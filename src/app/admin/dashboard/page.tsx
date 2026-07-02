@@ -128,8 +128,11 @@ export default function DashboardPage() {
                         <span className="material-symbols-outlined text-[#444748] text-lg">inventory_2</span>
                       </div>
                       <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-semibold text-black truncate">{v.product.name}</p>
-                        <p className="text-xs text-[#ba1a1a]">Only {v.stockQuantity} left in stock</p>
+                        <p className="text-sm font-semibold text-black truncate">
+                          {v.product.name}
+                          {(v.color || v.size) && <span className="text-[#747878] font-normal"> · {[v.color, v.size].filter(Boolean).join(" / ")}</span>}
+                        </p>
+                        <p className="text-xs text-[#ba1a1a]">{v.stockQuantity === 0 ? "Out of stock" : `Only ${v.stockQuantity} left in stock`}</p>
                       </div>
                     </div>
                   ))

@@ -1,6 +1,7 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateSSLPayment } from "@/lib/sslcommerz";
+import { evaluateOrder } from "@/lib/courier";
 
 // SSLCommerz Instant Payment Notification (server-to-server)
 export async function POST(req: NextRequest) {
@@ -27,6 +28,9 @@ export async function POST(req: NextRequest) {
     where: { id: order.id },
     data: { status: "confirmed", paymentStatus: "paid" },
   });
+
+  // Courier bot: prepaid orders carry no COD risk — auto-dispatch.
+  after(() => evaluateOrder(order.id));
 
   return new Response("OK");
 }

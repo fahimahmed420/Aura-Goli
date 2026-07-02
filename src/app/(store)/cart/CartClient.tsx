@@ -97,7 +97,7 @@ export default function CartClient() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-['Playfair_Display'] text-4xl font-bold text-black">Your Cart</h1>
-        <p className="text-[#747878] text-sm mt-1">{cart.reduce((s, i) => s + i.quantity, 0)} items</p>
+        <p className="text-[#747878] text-sm mt-1">{cart.reduce((s, i) => s + i.quantity, 0)} {cart.reduce((s, i) => s + i.quantity, 0) === 1 ? "item" : "items"}</p>
       </div>
 
       {/* Progress bar */}

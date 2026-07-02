@@ -19,13 +19,17 @@ function OrderConfirmedInner() {
   const orderNumber = sp.get("order");
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => { setIsLoggedIn(!!localStorage.getItem("ag_authed")); }, []);
 
   useEffect(() => {
     if (!orderNumber) { setLoading(false); return; }
-    const token = localStorage.getItem("ag_authed");
-    const headers: Record<string, string> = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
-    fetch(`/api/orders/by-number/${orderNumber}`, { headers })
+    // Guests authenticate the lookup with the email captured at checkout;
+    // logged-in users are recognized via the HttpOnly session cookie.
+    const orderEmail = sessionStorage.getItem("ag_order_email");
+    const emailParam = orderEmail ? `?email=${encodeURIComponent(orderEmail)}` : "";
+    fetch(`/api/orders/by-number/${orderNumber}${emailParam}`)
       .then((r) => r.json())
       .then((d) => {
         setOrder(d.order ?? null);
@@ -95,10 +99,10 @@ function OrderConfirmedInner() {
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Link href="/account/orders"
+        <Link href={isLoggedIn ? "/account/orders" : `/order-tracking${orderNumber ? `?order=${orderNumber}` : ""}`}
           className="inline-flex items-center justify-center gap-2 border border-black text-black px-8 py-4 font-bold text-sm uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
           <span className="material-symbols-outlined text-lg">receipt_long</span>
-          My Orders
+          {isLoggedIn ? "My Orders" : "Track Order"}
         </Link>
         <Link href="/shop"
           className="inline-flex items-center justify-center gap-2 bg-black text-white px-8 py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#5951b4] transition-colors">

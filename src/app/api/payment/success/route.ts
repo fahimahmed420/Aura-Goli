@@ -1,7 +1,9 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateSSLPayment } from "@/lib/sslcommerz";
 import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderStatusSms } from "@/lib/sms";
+import { evaluateOrder } from "@/lib/courier";
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest) {
     const addr = order.shippingAddress as {
       name: string; phone: string; address: string; city: string; postalCode?: string; country?: string;
     };
-    const customerEmail = order.user?.email ?? (addr as { email?: string }).email ?? "customer@example.com";
+    const customerEmail = order.user?.email ?? order.guestEmail ?? (addr as { email?: string }).email ?? "customer@example.com";
     const customerName  = order.user?.name ?? addr.name ?? "Customer";
 
     sendOrderConfirmation({
@@ -98,6 +100,12 @@ export async function POST(req: NextRequest) {
       },
       createdAt: order.createdAt,
     }).catch(console.error);
+    if (addr?.phone) {
+      sendOrderStatusSms(addr.phone, order.orderNumber, "confirmed", { total: Number(order.total) }).catch(console.error);
+    }
+
+    // Courier bot: prepaid orders carry no COD risk — auto-dispatch.
+    after(() => evaluateOrder(order.id));
   }
 
   return Response.redirect(new URL(`/order-confirmed?order=${tranId}`, appUrl));

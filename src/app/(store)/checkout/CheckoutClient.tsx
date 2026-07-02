@@ -31,7 +31,25 @@ interface CheckoutState {
 
 const PAYMENT_METHODS = [
   { id: "bkash", label: "bKash", icon: "phone_android", sub: "Mobile banking" },
+  { id: "nagad", label: "Nagad", icon: "phone_android", sub: "Mobile banking" },
+  { id: "rocket", label: "Rocket", icon: "phone_android", sub: "DBBL mobile banking" },
+  { id: "card", label: "Card", icon: "credit_card", sub: "Visa / Mastercard" },
   { id: "cod", label: "Cash on Delivery", icon: "payments", sub: "Pay when received" },
+];
+
+const WALLET_LABELS: Record<string, string> = { bkash: "bKash", nagad: "Nagad", rocket: "Rocket" };
+
+// All 64 districts of Bangladesh — offered as autocomplete for the City field
+const BD_DISTRICTS = [
+  "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura", "Brahmanbaria", "Chandpur",
+  "Chapainawabganj", "Chattogram", "Chuadanga", "Cox's Bazar", "Cumilla", "Dhaka", "Dinajpur",
+  "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore",
+  "Jhalokathi", "Jhenaidah", "Joypurhat", "Khagrachhari", "Khulna", "Kishoreganj", "Kurigram",
+  "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", "Magura", "Manikganj", "Meherpur",
+  "Moulvibazar", "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi",
+  "Natore", "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali",
+  "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur",
+  "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon",
 ];
 
 interface FlashSale { id: string; discountPercent: number; categorySlug: string | null; bannerText: string; }
@@ -148,6 +166,8 @@ export default function CheckoutClient() {
     // Clear cart
     localStorage.removeItem("cart");
     sessionStorage.removeItem("checkoutState");
+    // Let the confirmation/tracking pages authenticate the guest's order lookup
+    sessionStorage.setItem("ag_order_email", shipping.email);
     window.dispatchEvent(new Event("cart-updated"));
 
     // Redirect — either to SSLCommerz or order confirmed
@@ -274,8 +294,11 @@ export default function CheckoutClient() {
                     }}
                     className="field-input" placeholder="you@email.com" style={fieldError("email") ? { borderColor: "#ba1a1a" } : {}} />
                 </Field>
-                <Field label="City" required error={fieldError("city") ? "Required" : undefined}>
-                  <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" style={fieldError("city") ? { borderColor: "#ba1a1a" } : {}} />
+                <Field label="City / District" required error={fieldError("city") ? "Required" : undefined}>
+                  <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" list="bd-districts" style={fieldError("city") ? { borderColor: "#ba1a1a" } : {}} />
+                  <datalist id="bd-districts">
+                    {BD_DISTRICTS.map((d) => <option key={d} value={d} />)}
+                  </datalist>
                 </Field>
                 <div className="md:col-span-2">
                   <Field label="Address" required error={fieldError("address") ? "Required" : undefined}>
@@ -343,16 +366,27 @@ export default function CheckoutClient() {
                 ))}
               </div>
 
-              {paymentMethod === "bkash" && (
+              {WALLET_LABELS[paymentMethod] && (
                 <div className="bg-[#fce4ec] border border-[#f06292] rounded-lg px-4 py-3 space-y-1">
-                  <p className="text-xs font-bold text-[#c2185b]">How bKash payment works</p>
+                  <p className="text-xs font-bold text-[#c2185b]">How {WALLET_LABELS[paymentMethod]} payment works</p>
                   <ol className="text-xs text-[#880e4f] list-decimal list-inside space-y-0.5">
-                    <li>Click "Place Order" — you'll be redirected to the bKash payment page.</li>
-                    <li>Enter your bKash account number and press "Pay Now".</li>
+                    <li>Click "Place Order" — you'll be redirected to the {WALLET_LABELS[paymentMethod]} payment page.</li>
+                    <li>Enter your {WALLET_LABELS[paymentMethod]} account number and press "Pay Now".</li>
                     <li>Check your phone for the OTP and enter it to confirm.</li>
                     <li>You'll be brought back here once payment is complete.</li>
                   </ol>
                   <p className="text-[11px] text-[#c2185b] mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
+                </div>
+              )}
+
+              {paymentMethod === "card" && (
+                <div className="bg-[#f0eeff] border border-[#5951b4]/40 rounded-lg px-4 py-3 space-y-1">
+                  <p className="text-xs font-bold text-[#5951b4]">Card payment</p>
+                  <p className="text-xs text-[#444748]">
+                    You&apos;ll be redirected to SSLCommerz&apos;s secure payment page to enter your card details.
+                    Your card number never touches our servers.
+                  </p>
+                  <p className="text-[11px] text-[#5951b4] mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
                 </div>
               )}
 

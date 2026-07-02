@@ -20,8 +20,16 @@ export interface SSLCommerzParams {
   failUrl: string;
   cancelUrl: string;
   ipnUrl: string;
-  paymentMethod?: string;  // "bkash" pre-selects mobile banking on the gateway page
+  paymentMethod?: string;  // pre-filters the gateway page to the chosen method
 }
+
+// Maps our checkout method ids to SSLCommerz gateway filters (multi_card_name).
+// Unlisted methods (e.g. "card") show the full gateway page.
+const GATEWAY_FILTER: Record<string, string> = {
+  bkash: "bkash",
+  nagad: "nagad",
+  rocket: "dbblmobilebanking",
+};
 
 export interface SSLCommerzResponse {
   status: string;
@@ -59,8 +67,9 @@ export async function initiateSSLPayment(params: SSLCommerzParams): Promise<SSLC
     ship_add1: params.shippingAddress,
     ship_city: params.shippingCity,
     ship_country: "Bangladesh",
-    // Pre-select mobile banking on the gateway so the user lands directly on bKash
-    ...(params.paymentMethod === "bkash" && { payment_option: "BKASH" }),
+    // Pre-filter the gateway page to the method chosen at checkout
+    // (multi_card_name values per SSLCommerz v4 docs; omit to show all options)
+    ...(GATEWAY_FILTER[params.paymentMethod ?? ""] && { multi_card_name: GATEWAY_FILTER[params.paymentMethod ?? ""] }),
   });
 
   const res = await fetch(`${BASE_URL}/gwprocess/v4/api.php`, {

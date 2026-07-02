@@ -52,11 +52,12 @@ export default function OrderTrackingClient() {
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
 
-  // Auto-fetch if order number is in URL (from order-confirmed page — no email required for direct link)
+  // Auto-fetch if order number is in URL (from order-confirmed page). Guests get
+  // their checkout email from sessionStorage, set when the order was placed.
   useEffect(() => {
     const preloaded = sp.get("order");
     if (preloaded) {
-      fetchOrder(preloaded, null);
+      fetchOrder(preloaded, sessionStorage.getItem("ag_order_email"));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -66,8 +67,18 @@ export default function OrderTrackingClient() {
     setError("");
     setSearched(true);
     try {
-      const res = await fetch(`/api/orders/by-number/${encodeURIComponent(num.trim().toUpperCase())}`);
-      if (!res.ok) { setOrder(null); setError("No order found with that number. Please check and try again."); return; }
+      const emailParam = email?.trim() ? `?email=${encodeURIComponent(email.trim())}` : "";
+      const res = await fetch(`/api/orders/by-number/${encodeURIComponent(num.trim().toUpperCase())}${emailParam}`);
+      if (!res.ok) {
+        setOrder(null);
+        const data = await res.json().catch(() => null);
+        setError(
+          res.status === 403
+            ? (data?.error ?? "Please enter the email used for this order.")
+            : "No order found with that number. Please check and try again.",
+        );
+        return;
+      }
       const data = await res.json();
       setOrder(data.order);
       router.replace(`/order-tracking?order=${data.order.orderNumber}`, { scroll: false });
@@ -113,7 +124,7 @@ export default function OrderTrackingClient() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#444748] uppercase tracking-widest mb-2">Email Address <span className="font-normal text-[#747878] normal-case">(optional)</span></label>
+                <label className="block text-xs font-semibold text-[#444748] uppercase tracking-widest mb-2">Email Address <span className="font-normal text-[#747878] normal-case">(the one used at checkout)</span></label>
                 <input
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
