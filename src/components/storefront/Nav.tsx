@@ -60,7 +60,13 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    // Hysteresis (enter solid later than we exit it) so hovering right at a
+    // single threshold — e.g. "scroll down a bit then back up" — doesn't
+    // retrigger the transparent/solid toggle on every pixel of scroll.
+    const onScroll = () => {
+      setScrolled((prev) => (prev ? window.scrollY > 20 : window.scrollY > 60));
+    };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -122,18 +128,34 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
       {/* ── Top bar ───────────────────────────────────────────── */}
       <header
         data-store-nav
-        className={`fixed inset-x-0 z-50 ${isAccountPage ? "" : "transition-[background,backdrop-filter,border-color,box-shadow] duration-300"}`}
+        className="fixed inset-x-0 z-50"
         style={{
           top: "0",
-          background: isTransparent ? "transparent" : "rgba(11,11,20,0.96)",
-          backdropFilter: isTransparent ? "none" : "blur(20px)",
-          WebkitBackdropFilter: isTransparent ? "none" : "blur(20px)",
           zIndex: isAccountPage && accountDrawerOpen ? 90 : 50,
-          borderBottom: (isTransparent || isAccountPage) ? "none" : "1px solid rgba(255,255,255,0.07)",
-          boxShadow: (isTransparent || isAccountPage) ? "none" : "0 4px 24px rgba(11,11,20,0.5)",
         }}
       >
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
+        {/*
+          Backdrop layer, separated from content: `backdrop-filter` itself is
+          never animated (only its opacity is), because interpolating
+          backdrop-filter frame-by-frame over the WebGL hero canvas behind it
+          is a known browser compositing bug that can paint solid white for a
+          frame — which made the cream-colored "Aura" wordmark disappear
+          against a suddenly-white bar. Cross-fading a layer that already has
+          a constant blur applied avoids that entirely.
+        */}
+        <div
+          aria-hidden
+          className={`absolute inset-0 ${isAccountPage ? "" : "transition-opacity duration-300"}`}
+          style={{
+            opacity: isTransparent ? 0 : 1,
+            background: "rgba(11,11,20,0.96)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderBottom: isAccountPage ? "none" : "1px solid rgba(255,255,255,0.07)",
+            boxShadow: isAccountPage ? "none" : "0 4px 24px rgba(11,11,20,0.5)",
+          }}
+        />
+        <div className="relative max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
 
           {/* Logo — AG mark + wordmark lockup */}
           <Link href="/" className="flex items-center gap-2 shrink-0 mr-2 font-['Playfair_Display'] text-xl font-bold tracking-tight"
