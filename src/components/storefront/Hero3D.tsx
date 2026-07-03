@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { getCurrentSeason } from "@/lib/season";
 
 // Real WebGL silk background — loaded client-side only, never blocks first paint.
 const HeroFabricCanvas = dynamic(() => import("./HeroFabricCanvas"), { ssr: false });
 
 export default function Hero3D({ storeName }: { storeName?: string }) {
+  const season = getCurrentSeason();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ rx: 0, ry: 0 });
@@ -168,7 +170,7 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
           <div style={{ position: "relative", zIndex: 1, padding: "36px 32px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
               <p style={{ color: "rgba(201,168,76,0.7)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase", marginBottom: "16px" }}>
-                SS 2026
+                {season}
               </p>
               {/* T-shirt SVG illustration */}
               <svg viewBox="0 0 220 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", maxWidth: "200px", margin: "0 auto", display: "block" }}>
@@ -229,7 +231,7 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
             transform: `rotate(-3deg) rotateX(${pos.rx * 0.5}deg)`,
             boxShadow: "0 4px 16px rgba(201,168,76,0.35)",
           }}>
-          ✦ SS 2025
+          ✦ {season}
         </div>
         <div className="px-3 py-2 rounded-xl text-[10px] font-semibold"
           style={{
@@ -249,7 +251,7 @@ export default function Hero3D({ storeName }: { storeName?: string }) {
           <div className="flex items-center gap-2.5 mb-7" style={fadeUp(0)}>
             <span className="block w-6 h-px shrink-0" style={{ background: "#c9a84c" }} />
             <span className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: "#c9a84c" }}>
-              New Season · SS 2026
+              New Season · {season}
             </span>
           </div>
 
