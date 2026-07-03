@@ -10,8 +10,8 @@ export const viewport: Viewport = {
   themeColor: "#0b0b14",
 };
 
-export function generateMetadata(): Metadata {
-  const { storeName } = getSettings();
+export async function generateMetadata(): Promise<Metadata> {
+  const { storeName } = await getSettings();
   const name = storeName || "Aura Goli";
   return {
     metadataBase: new URL(SITE_URL),

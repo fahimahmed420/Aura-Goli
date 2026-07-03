@@ -1,7 +1,4 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import { join } from "path";
-
-const SETTINGS_PATH = join(process.cwd(), "store-settings.json");
+import { prisma } from "@/lib/prisma";
 
 export interface StoreSettings {
   storeName: string;
@@ -19,34 +16,33 @@ export interface StoreSettings {
   youtubeUrl: string;
 }
 
-const DEFAULTS: StoreSettings = {
-  storeName: "Aura Goli",
-  legalName: "Aura Goli Ltd.",
-  email: "hello@auragoli.com",
-  phone: "+880 1700 000000",
-  address: "Dhaka, Bangladesh",
-  currency: "BDT",
-  timezone: "Asia/Dhaka",
-  weightUnit: "kg",
-  maintenanceMode: false,
-  instagramUrl: "",
-  facebookUrl: "",
-  tiktokUrl: "",
-  youtubeUrl: "",
-};
+const SINGLETON_ID = "singleton";
 
-export function getSettings(): StoreSettings {
-  if (!existsSync(SETTINGS_PATH)) return { ...DEFAULTS };
-  try {
-    return { ...DEFAULTS, ...JSON.parse(readFileSync(SETTINGS_PATH, "utf-8")) };
-  } catch {
-    return { ...DEFAULTS };
-  }
+// Deliberately no in-memory caching here: on Vercel, route handlers and page
+// renders can land on different serverless instances, so a process-local
+// cache can't be relied on to invalidate consistently across them — it would
+// mean an admin's maintenance-mode toggle sometimes appears to "not save"
+// for other visitors. This is a single indexed-row read, cheap enough to
+// always hit the DB directly.
+function toPlain(row: Awaited<ReturnType<typeof prisma.storeSettings.upsert>>): StoreSettings {
+  const { storeName, legalName, email, phone, address, currency, timezone, weightUnit, maintenanceMode, instagramUrl, facebookUrl, tiktokUrl, youtubeUrl } = row;
+  return { storeName, legalName, email, phone, address, currency, timezone, weightUnit, maintenanceMode, instagramUrl, facebookUrl, tiktokUrl, youtubeUrl };
 }
 
-export function saveSettings(settings: Partial<StoreSettings>): StoreSettings {
-  const current = getSettings();
-  const updated = { ...current, ...settings };
-  writeFileSync(SETTINGS_PATH, JSON.stringify(updated, null, 2), "utf-8");
-  return updated;
+export async function getSettings(): Promise<StoreSettings> {
+  const row = await prisma.storeSettings.upsert({
+    where: { id: SINGLETON_ID },
+    update: {},
+    create: { id: SINGLETON_ID },
+  });
+  return toPlain(row);
+}
+
+export async function saveSettings(settings: Partial<StoreSettings>): Promise<StoreSettings> {
+  const row = await prisma.storeSettings.upsert({
+    where: { id: SINGLETON_ID },
+    update: settings,
+    create: { id: SINGLETON_ID, ...settings },
+  });
+  return toPlain(row);
 }

@@ -5,7 +5,7 @@ import { getSettings, saveSettings } from "@/lib/settings";
 export async function GET(req: NextRequest) {
   const auth = requireAdmin(req);
   if (auth instanceof Response) return auth;
-  return Response.json(getSettings());
+  return Response.json(await getSettings());
 }
 
 export async function PUT(req: NextRequest) {
@@ -19,6 +19,6 @@ export async function PUT(req: NextRequest) {
     if (key in body) patch[key] = body[key];
   }
 
-  const updated = saveSettings(patch as Parameters<typeof saveSettings>[0]);
+  const updated = await saveSettings(patch as Parameters<typeof saveSettings>[0]);
   return Response.json(updated);
 }

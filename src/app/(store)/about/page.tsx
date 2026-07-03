@@ -3,8 +3,8 @@ import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
 
-export function generateMetadata(): Metadata {
-  const { storeName } = getSettings();
+export async function generateMetadata(): Promise<Metadata> {
+  const { storeName } = await getSettings();
   return { title: `About Us | ${storeName || "Aura Goli"}` };
 }
 
@@ -73,7 +73,7 @@ function fmt(n: number): string {
 }
 
 export default async function AboutPage() {
-  const { storeName } = getSettings();
+  const { storeName } = await getSettings();
   const name = storeName || "Aura Goli";
   const stats = await getStats();
 

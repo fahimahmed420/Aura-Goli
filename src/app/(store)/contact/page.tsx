@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
 import ContactForm from "./ContactForm";
 
-export function generateMetadata(): Metadata {
-  const { storeName } = getSettings();
+export async function generateMetadata(): Promise<Metadata> {
+  const { storeName } = await getSettings();
   const name = storeName || "Aura Goli";
   return {
     title: `Contact Us | ${name}`,
@@ -11,8 +11,8 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function ContactPage() {
-  const { storeName, email, phone, address } = getSettings();
+export default async function ContactPage() {
+  const { storeName, email, phone, address } = await getSettings();
   const name = storeName || "Aura Goli";
 
   return (

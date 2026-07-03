@@ -394,6 +394,30 @@ model OrderStatusHistory {
   @@map("order_status_history")
 }
 
+// ─── Store settings ─────────────────────────────────────────────────────────
+// Single-row table (id is always the literal string "singleton") — replaces
+// the old store-settings.json file, which silently failed to persist on
+// Vercel's read-only production filesystem.
+model StoreSettings {
+  id              String   @id @default("singleton")
+  storeName       String   @default("Aura Goli")
+  legalName       String   @default("Aura Goli Ltd.")
+  email           String   @default("hello@auragoli.com")
+  phone           String   @default("+880 1700 000000")
+  address         String   @default("Dhaka, Bangladesh")
+  currency        String   @default("BDT")
+  timezone        String   @default("Asia/Dhaka")
+  weightUnit      String   @default("kg")
+  maintenanceMode Boolean  @default(false)
+  instagramUrl    String   @default("")
+  facebookUrl     String   @default("")
+  tiktokUrl       String   @default("")
+  youtubeUrl      String   @default("")
+  updatedAt       DateTime @updatedAt
+
+  @@map("store_settings")
+}
+
 // ─── Courier automation ───────────────────────────────────────────────────────
 
 // One row per order: the risk-bot's verdict and (if dispatched) the courier

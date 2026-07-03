@@ -2,9 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { getSettings } from "@/lib/settings";
 
-export default function Footer() {
+export default async function Footer() {
   const year = new Date().getFullYear();
-  const { storeName, email, phone, address, instagramUrl, facebookUrl, tiktokUrl, youtubeUrl } = getSettings();
+  const { storeName, email, phone, address, instagramUrl, facebookUrl, tiktokUrl, youtubeUrl } = await getSettings();
 
   const displayName = storeName || "Aura Goli";
 

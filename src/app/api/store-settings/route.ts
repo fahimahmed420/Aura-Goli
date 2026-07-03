@@ -1,7 +1,7 @@
 import { getSettings } from "@/lib/settings";
 
 export async function GET() {
-  const s = getSettings();
+  const s = await getSettings();
   // Only expose the public-safe fields + maintenance flag
   return Response.json({
     storeName: s.storeName,

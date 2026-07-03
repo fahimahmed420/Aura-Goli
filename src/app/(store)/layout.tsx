@@ -7,8 +7,8 @@ import CartSync from "@/components/storefront/CartSync";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
 
-export default function StoreLayout({ children }: { children: React.ReactNode }) {
-  const { maintenanceMode, storeName } = getSettings();
+export default async function StoreLayout({ children }: { children: React.ReactNode }) {
+  const { maintenanceMode, storeName } = await getSettings();
   const name = storeName || "Aura Goli";
 
   return (
