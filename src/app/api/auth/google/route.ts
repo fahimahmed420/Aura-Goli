@@ -1,10 +1,11 @@
 import { NextRequest } from "next/server";
+import { resolveAppUrl } from "@/lib/url";
 
 export async function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) return new Response("Google OAuth not configured", { status: 503 });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = resolveAppUrl(req);
   const redirectUri = `${appUrl}/api/auth/google/callback`;
 
   const { searchParams } = new URL(req.url);

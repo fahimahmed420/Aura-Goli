@@ -7,6 +7,7 @@ import {
   generateSecureToken,
 } from "@/lib/auth";
 import { setRefreshCookie, setAccessCookie } from "@/lib/cookies";
+import { resolveAppUrl } from "@/lib/url";
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -23,7 +24,7 @@ interface GoogleUserInfo {
 }
 
 export async function GET(req: NextRequest) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = resolveAppUrl(req);
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
