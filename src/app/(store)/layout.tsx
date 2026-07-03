@@ -6,9 +6,18 @@ import ScrollToTop from "@/components/storefront/ScrollToTop";
 import CartSync from "@/components/storefront/CartSync";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
+import { prisma } from "@/lib/prisma";
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
-  const { maintenanceMode, storeName } = await getSettings();
+  const [{ maintenanceMode, storeName }, categories] = await Promise.all([
+    getSettings(),
+    // Seed the nav's category links server-side so all 6 links (Home, Shop
+    // All, + 4 categories) are present on the very first paint, instead of
+    // "Home / Shop All" rendering alone and the rest popping in once a
+    // client-side fetch resolves — that pop-in was causing a layout shift
+    // in the nav on every load.
+    prisma.category.findMany({ select: { id: true, name: true, slug: true }, orderBy: { name: "asc" }, take: 5 }),
+  ]);
   const name = storeName || "Aura Goli";
 
   return (
@@ -16,7 +25,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <ScrollToTop />
       <CartSync />
       <FlashSaleBanner />
-      <Nav storeName={name} />
+      <Nav storeName={name} initialCategories={categories} />
       <main className="flex-1">{children}</main>
       <CompareDrawer />
       <Footer />

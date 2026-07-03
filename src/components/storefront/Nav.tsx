@@ -9,7 +9,7 @@ interface User { name: string; email: string; avatarUrl?: string | null; }
 interface Category { id: string; name: string; slug: string; }
 
 
-export default function Nav({ storeName = "Aura Goli" }: { storeName?: string }) {
+export default function Nav({ storeName = "Aura Goli", initialCategories = [] }: { storeName?: string; initialCategories?: Category[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -17,7 +17,10 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Seeded from the server so the full link set (incl. category links) is
+  // present on first paint — avoids a layout shift where "Home / Shop All"
+  // render alone and 4 more links pop in once the client fetch resolves.
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const isHome = pathname === "/";
@@ -174,7 +177,7 @@ export default function Nav({ storeName = "Aura Goli" }: { storeName?: string })
               const active = isActive(l);
               return (
                 <Link key={l.href} href={l.href}
-                  className="px-3.5 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap"
+                  className="px-3.5 py-2 rounded-full text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                   style={{
                     color: active ? "#c9a84c" : "rgba(255,255,255,0.65)",
                     background: active ? "rgba(201,168,76,0.12)" : "transparent",
