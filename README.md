@@ -356,4 +356,33 @@ Password reset    /api/auth/forgot-password → email with tokenized link → /r
 
 ---
 
+## Architecture Note (Frontend/Backend)
+
+This project uses **Next.js App Router Route Handlers** (`src/app/api/**`) as the backend REST API, colocated with the frontend in a single codebase rather than a separate Express server. This is one of the officially allowed backend choices for this assignment ("Node.js / Express.js — REST API development" *or* Next.js Route Handlers serve the same role).
+
+Because of that, the **frontend and backend share one repository and one deployment** — see the submission block below.
+
+---
+
+## Assignment Submission
+
+```
+Frontend Repo    : https://github.com/fahimahmed420/Aura-Goli
+Backend Repo     : https://github.com/fahimahmed420/Aura-Goli   (Next.js API Route Handlers in src/app/api/)
+
+Frontend Live    : https://aura-goli.vercel.app
+Backend Live     : https://aura-goli.vercel.app/api             (e.g. /api/products, /api/categories)
+
+Demo Video       : <ADD_YOUR_GOOGLE_DRIVE_LINK_HERE>
+
+Admin Email      : admin@threadco.com
+Admin Password   : AuraGoli2026#Grade
+Admin Login URL  : https://aura-goli.vercel.app/admin/login
+```
+
+> Admin credentials above are rotated specifically for grading. To reset them at any time:
+> `npx ts-node --compiler-options {"module":"CommonJS"} prisma/reset-admin-password.ts <email> "<new-password>"`
+
+---
+
 *Built with Next.js · Deployed on Vercel · Database by Neon · Made in Dhaka 🇧🇩*
