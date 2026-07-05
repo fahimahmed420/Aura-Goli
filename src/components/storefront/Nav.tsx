@@ -138,22 +138,20 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
         }}
       >
         {/*
-          Backdrop layer, separated from content: `backdrop-filter` itself is
-          never animated (only its opacity is), because interpolating
-          backdrop-filter frame-by-frame over the WebGL hero canvas behind it
-          is a known browser compositing bug that can paint solid white for a
-          frame — which made the cream-colored "Aura" wordmark disappear
-          against a suddenly-white bar. Cross-fading a layer that already has
-          a constant blur applied avoids that entirely.
+          Backdrop layer, separated from content, and deliberately WITHOUT
+          backdrop-filter: blurring the backdrop over the WebGL hero canvas
+          hits a Chromium compositing bug where the sampled backdrop resolves
+          to solid white — and the filter keeps painting even at opacity 0 —
+          which turned the bar cream and made the cream nav text invisible
+          after scrolling down then back up. At 96% opaque the frosted-glass
+          blur was imperceptible anyway, so a plain background loses nothing.
         */}
         <div
           aria-hidden
           className={`absolute inset-0 ${isAccountPage ? "" : "transition-opacity duration-300"}`}
           style={{
             opacity: isTransparent ? 0 : 1,
-            background: "rgba(11,11,20,0.96)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
+            background: "rgba(11,11,20,0.97)",
             borderBottom: isAccountPage ? "none" : "1px solid rgba(255,255,255,0.07)",
             boxShadow: isAccountPage ? "none" : "0 4px 24px rgba(11,11,20,0.5)",
           }}
@@ -361,12 +359,11 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
         {/* Extra top padding creates room for bubble to overflow upward */}
         <div className="px-4 pb-3" style={{ paddingTop: "30px" }}>
           {/* The pill bar */}
+          {/* No backdrop-filter here either — same WebGL-canvas compositing bug as the top bar */}
           <div className="relative flex items-center justify-around rounded-[32px]"
             style={{
               height: "60px",
-              background: "rgba(11,11,20,0.92)",
-              backdropFilter: "blur(24px)",
-              WebkitBackdropFilter: "blur(24px)",
+              background: "rgba(11,11,20,0.95)",
               border: "1px solid rgba(255,255,255,0.08)",
               boxShadow: "0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
               overflow: "visible",
