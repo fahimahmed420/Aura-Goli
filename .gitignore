@@ -46,8 +46,11 @@ next-env.d.ts
 store-settings.json
 size-chart.json
 
-# Claude Code local config
+# AI agent tooling / instructions — local only, not part of the shipped app
 .claude/
-
-.gitignore
 .agents
+AGENTS.md
+CLAUDE.md
+
+# stray dev-server log capture
+dev.log
