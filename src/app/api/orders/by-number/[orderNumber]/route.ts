@@ -45,6 +45,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orde
     if (!orderEmail || orderEmail !== guestEmail) return apiError("Email does not match this order", 403);
   }
 
+  // Strip internal/PII fields before returning — this lookup is reachable by
+  // guests, so userId, guestEmail and the joined user must never leak.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { userId: _uid, guestEmail: _gm, user: _usr, ...safeOrder } = order;
   return Response.json({ order: safeOrder });
 }

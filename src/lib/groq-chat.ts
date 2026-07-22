@@ -164,26 +164,6 @@ async function createWithTools(
   }
 }
 
-/** Plain (non-tool) call with key rotation. */
-async function createPlain(
-  messages: Groq.Chat.Completions.ChatCompletionMessageParam[]
-) {
-  while (true) {
-    const client = nextClient();
-    try {
-      return await client.chat.completions.create({ model: MODEL, messages, temperature: 0.3 });
-    } catch (err) {
-      if (is429(err)) {
-        const idx = getClients().indexOf(client);
-        exhausted.add(idx);
-        console.warn(`[groq] Key ${idx + 1} exhausted on plain call, failing over`);
-        continue;
-      }
-      throw err;
-    }
-  }
-}
-
 /** Streaming call with key rotation. */
 async function createStream(
   messages: Groq.Chat.Completions.ChatCompletionMessageParam[]

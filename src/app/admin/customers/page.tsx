@@ -16,7 +16,6 @@ export default function AdminCustomersPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
-  const [toggling, setToggling] = useState<string | null>(null);
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -32,18 +31,8 @@ export default function AdminCustomersPage() {
 
   useEffect(() => { fetchCustomers(); }, [fetchCustomers]);
 
-  async function toggleBlock(customerId: string, currentlyBlocked: boolean) {
-    setToggling(customerId);
-    const token = localStorage.getItem("adminToken");
-    await fetch(`/api/admin/customers/${customerId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ isBlocked: !currentlyBlocked }),
-    });
-    fetchCustomers();
-    setToggling(null);
-  }
-
+  // Block/unblock lives on the customer detail page (/admin/customers/[id]) —
+  // this list only links through to it.
   const totalPages = Math.ceil(total / 20);
   const totalSpend = customers.reduce((s, c) => s + c.orders.reduce((a, o) => a + Number(o.total), 0), 0);
   const activeCount = customers.filter((c) => !c.isBlocked).length;

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 
 interface Variant {
@@ -19,7 +19,6 @@ interface Product {
 function StockCell({ product, expanded, onToggle }: { product: Product; expanded: boolean; onToggle: () => void }) {
   const totalStock = product.variants.reduce((s, v) => s + v.stockQuantity, 0);
   const hasLow = product.variants.some((v) => v.stockQuantity > 0 && v.stockQuantity <= 5);
-  const hasOOS = product.variants.some((v) => v.stockQuantity === 0);
 
   // Group variants by color
   const colors = [...new Set(product.variants.map((v) => v.color ?? "—"))];
@@ -92,7 +91,6 @@ const STATUS_CHIP: Record<string, string> = {
 };
 
 function AdminProductsInner() {
-  const router = useRouter();
   const sp = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
@@ -240,7 +238,7 @@ function AdminProductsInner() {
                         expanded={expandedStock.has(p.id)}
                         onToggle={() => setExpandedStock((prev) => {
                           const next = new Set(prev);
-                          next.has(p.id) ? next.delete(p.id) : next.add(p.id);
+                          if (next.has(p.id)) next.delete(p.id); else next.add(p.id);
                           return next;
                         })}
                       />

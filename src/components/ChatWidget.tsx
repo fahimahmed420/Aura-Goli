@@ -116,10 +116,13 @@ export default function ChatWidget() {
             continue;
           }
           if (payload.startsWith("[ERROR]")) {
-            reply = "Sorry, something went wrong. Please try again.";
+            // Local const rather than reassigning `reply`: we bail out
+            // immediately, and mutating a value already captured by the
+            // setMessages closure is exactly what the compiler flags.
+            const errorText = "Sorry, something went wrong. Please try again.";
             setMessages((m) => {
               const copy = [...m];
-              copy[copy.length - 1] = { role: "bot", text: reply };
+              copy[copy.length - 1] = { role: "bot", text: errorText };
               return copy;
             });
             return;
@@ -127,9 +130,13 @@ export default function ChatWidget() {
           try {
             const token: string = JSON.parse(payload);
             reply += token;
+            // Snapshot before handing it to the updater: React may invoke the
+            // updater later (and twice under StrictMode), by which point the
+            // mutable `reply` would have advanced past this chunk.
+            const textSoFar = reply;
             setMessages((m) => {
               const copy = [...m];
-              copy[copy.length - 1] = { role: "bot", text: reply };
+              copy[copy.length - 1] = { role: "bot", text: textSoFar };
               return copy;
             });
           } catch {

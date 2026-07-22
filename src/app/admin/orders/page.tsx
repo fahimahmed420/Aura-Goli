@@ -62,6 +62,23 @@ export default function AdminOrdersPage() {
   const [dispatching, setDispatching] = useState(false);
   const [dispatchError, setDispatchError] = useState("");
 
+  // Declared before the handlers that call it — a memoized callback is a
+  // `const`, so referencing it from an earlier function relies on call-time
+  // ordering and blocks the React compiler from preserving the memo.
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    const token = localStorage.getItem("adminToken");
+    const params = new URLSearchParams({ page: String(page), pageSize: "20" });
+    if (q) params.set("q", q);
+    if (statusFilter) params.set("status", statusFilter);
+    const res = await fetch(`/api/admin/orders?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) { setLoading(false); return; }
+    const data = await res.json();
+    setOrders(data.orders ?? []);
+    setTotal(data.pagination?.total ?? 0);
+    setLoading(false);
+  }, [page, q, statusFilter]);
+
   function openOrder(o: Order) {
     setSelectedOrder(o);
     setCourierName(o.courierName ?? "");
@@ -95,20 +112,6 @@ export default function AdminOrdersPage() {
     }
     setDispatching(false);
   }
-
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    const token = localStorage.getItem("adminToken");
-    const params = new URLSearchParams({ page: String(page), pageSize: "20" });
-    if (q) params.set("q", q);
-    if (statusFilter) params.set("status", statusFilter);
-    const res = await fetch(`/api/admin/orders?${params}`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) { setLoading(false); return; }
-    const data = await res.json();
-    setOrders(data.orders ?? []);
-    setTotal(data.pagination?.total ?? 0);
-    setLoading(false);
-  }, [page, q, statusFilter]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 

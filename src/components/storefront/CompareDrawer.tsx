@@ -26,11 +26,6 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
     try { setItems(JSON.parse(localStorage.getItem(COMPARE_KEY) ?? "[]")); } catch { /* ignore */ }
   }, []);
 
-  const sync = useCallback((next: CompareProduct[]) => {
-    setItems(next);
-    localStorage.setItem(COMPARE_KEY, JSON.stringify(next));
-  }, []);
-
   const add = useCallback((p: CompareProduct) => {
     setItems(prev => {
       if (prev.find(x => x.id === p.id) || prev.length >= 3) return prev;

@@ -3,8 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
 import {
   signAccessToken,
-  signRefreshToken,
-  signRememberMeRefreshToken,
   refreshTokenExpiry,
   generateSecureToken,
 } from "@/lib/auth";
@@ -49,12 +47,12 @@ export async function POST(req: NextRequest) {
 
   const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
 
+  // The refresh token persisted in the DB and set as a cookie is the opaque
+  // random value — no signed JWT is issued for refresh, so there is nothing
+  // else to mint here. "remember me" only extends the expiry window.
   const remember = rememberMe === true;
   const expiresAt = refreshTokenExpiry(remember);
   const rawRefreshToken = generateSecureToken();
-  const signedRefreshToken = remember
-    ? signRememberMeRefreshToken({ sub: user.id })
-    : signRefreshToken({ sub: user.id });
 
   await prisma.refreshToken.create({
     data: {

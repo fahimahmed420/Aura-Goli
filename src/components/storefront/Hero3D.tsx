@@ -8,7 +8,7 @@ import { getCurrentSeason } from "@/lib/season";
 // Real WebGL silk background — loaded client-side only, never blocks first paint.
 const HeroFabricCanvas = dynamic(() => import("./HeroFabricCanvas"), { ssr: false });
 
-export default function Hero3D({ storeName }: { storeName?: string }) {
+export default function Hero3D() {
   const season = getCurrentSeason();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);

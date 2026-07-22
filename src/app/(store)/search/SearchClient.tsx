@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+
 import ProductCard, { type ProductCardData } from "@/components/ui/ProductCard";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";

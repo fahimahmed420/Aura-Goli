@@ -320,25 +320,28 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               {/* Wishlist + Share — same style as desktop */}
               <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
                 <button onClick={toggleWishlist}
+                  aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-pressed={wishlisted}
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
                   style={{
                     background: wishlisted ? "rgba(186,26,26,0.1)" : "rgba(255,255,255,0.9)",
                     backdropFilter: "blur(8px)",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                   }}>
-                  <span className="material-symbols-outlined text-[18px]"
+                  <span aria-hidden="true" className="material-symbols-outlined text-[18px]"
                     style={{ color: wishlisted ? "var(--danger)" : "var(--fg-muted)", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
                     favorite
                   </span>
                 </button>
                 <button onClick={shareProduct}
+                  aria-label="Share this product"
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
                   style={{
                     background: "rgba(255,255,255,0.9)",
                     backdropFilter: "blur(8px)",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                   }}>
-                  <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--fg-muted)" }}>ios_share</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-[18px]" style={{ color: "var(--fg-muted)" }}>ios_share</span>
                 </button>
               </div>
             </div>
@@ -790,19 +793,22 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
                     <button
                       onClick={toggleWishlist}
+                      aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                      aria-pressed={wishlisted}
                       className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
                       style={{
                         background: wishlisted ? "rgba(186,26,26,0.1)" : "rgba(255,255,255,0.9)",
                         backdropFilter: "blur(8px)",
                         boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                       }}>
-                      <span className="material-symbols-outlined text-[20px]"
+                      <span aria-hidden="true" className="material-symbols-outlined text-[20px]"
                         style={{ color: wishlisted ? "var(--danger)" : "var(--fg-muted)", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
                         favorite
                       </span>
                     </button>
                     <button
                       onClick={shareProduct}
+                      aria-label="Share this product"
                       className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
                       style={{
                         background: "rgba(255,255,255,0.9)",

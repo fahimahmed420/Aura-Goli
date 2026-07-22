@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
-  const [currentOrders, previousOrders, totalCustomers, categoryStats] = await Promise.all([
+  const [currentOrders, previousOrders, totalCustomers] = await Promise.all([
     prisma.order.findMany({
       where: { createdAt: { gte: thirtyDaysAgo }, status: { not: "cancelled" } },
       select: { total: true, createdAt: true, userId: true },
@@ -20,12 +20,6 @@ export async function GET(req: NextRequest) {
       select: { total: true },
     }),
     prisma.user.count({ where: { role: "customer" } }),
-    prisma.orderItem.groupBy({
-      by: ["productNameSnapshot"],
-      _sum: { quantity: true },
-      orderBy: { _sum: { quantity: "desc" } },
-      take: 4,
-    }),
   ]);
 
   const currentRevenue = currentOrders.reduce((s, o) => s + Number(o.total), 0);

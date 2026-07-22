@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -49,8 +49,11 @@ export default function ShopClient() {
   const q              = sp.get("q") ?? "";
   const sort           = sp.get("sort") ?? "newest";
   const categorySlug   = sp.get("category") ?? "";
-  const selectedColors = sp.getAll("color");
-  const selectedSizes  = sp.getAll("size");
+  // getAll() returns a fresh array every render, so memoize against the
+  // (navigation-stable) search params object — otherwise these can't be used
+  // as effect/callback dependencies without re-fetching on every render.
+  const selectedColors = useMemo(() => sp.getAll("color"), [sp]);
+  const selectedSizes  = useMemo(() => sp.getAll("size"), [sp]);
   const minPrice       = sp.get("minPrice") ?? "";
   const maxPrice       = sp.get("maxPrice") ?? "";
 
@@ -105,13 +108,22 @@ export default function ShopClient() {
     const token = localStorage.getItem("ag_authed");
     if (!token) { window.location.href = "/login"; return; }
     const wasWishlisted = wishlist.has(productId);
-    setWishlist((prev) => { const next = new Set(prev); wasWishlisted ? next.delete(productId) : next.add(productId); return next; });
+    // Optimistic toggle, rolled back if the request fails.
+    setWishlist((prev) => {
+      const next = new Set(prev);
+      if (wasWishlisted) next.delete(productId); else next.add(productId);
+      return next;
+    });
     fetch("/api/account/wishlist", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ productId }),
     }).catch(() => {
-      setWishlist((prev) => { const next = new Set(prev); wasWishlisted ? next.add(productId) : next.delete(productId); return next; });
+      setWishlist((prev) => {
+        const next = new Set(prev);
+        if (wasWishlisted) next.add(productId); else next.delete(productId);
+        return next;
+      });
     });
   }
 
@@ -144,16 +156,20 @@ export default function ShopClient() {
     else { setAllProducts(fetched); setProducts(fetched); }
     setProducts(fetched);
     setLoading(false);
-  }, [page, q, sort, categorySlug, minPrice, maxPrice, selectedColors.join(), selectedSizes.join()]);
+  }, [page, q, sort, categorySlug, minPrice, maxPrice, selectedColors, selectedSizes]);
 
-  useEffect(() => { fetchProducts(page > 1); }, [fetchProducts]);
+  useEffect(() => { fetchProducts(page > 1); }, [fetchProducts, page]);
 
   const totalPages        = Math.ceil(total / 12);
   const hasActiveFilters  = !!(categorySlug || selectedColors.length || selectedSizes.length || minPrice || maxPrice);
   const activeFilterCount = (categorySlug ? 1 : 0) + selectedColors.length + selectedSizes.length + (minPrice || maxPrice ? 1 : 0);
 
-  /* ── Desktop Sidebar ── */
-  const Sidebar = () => (
+  /* ── Desktop Sidebar ──
+     Built as a JSX value, not a component defined during render: a nested
+     component gets a fresh identity every render, so React unmounts and
+     remounts the whole subtree — which drops focus out of the price inputs
+     on every keystroke. */
+  const sidebar = (
     <aside className="space-y-8">
       <div>
         <p className="dd-eyebrow text-fg-subtle mb-4">Category</p>
@@ -520,7 +536,7 @@ export default function ShopClient() {
           <p className="text-sm mt-1 text-fg-subtle">{total} products</p>
         </div>
         <div className="flex gap-10">
-          <div className="w-52 flex-shrink-0"><Sidebar /></div>
+          <div className="w-52 flex-shrink-0">{sidebar}</div>
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-fg-subtle">{total} products</p>
@@ -619,9 +635,11 @@ function MobileProductCard({ product, wishlist, toggleWishlist }: {
           </span>
         )}
         <button
+          aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          aria-pressed={wishlisted}
           className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center transition-transform active:scale-90 bg-canvas/85 backdrop-blur"
           onClick={(e) => toggleWishlist(e, product.id)}>
-          <span className="material-symbols-outlined text-[14px]"
+          <span aria-hidden="true" className="material-symbols-outlined text-[14px]"
             style={{ color: wishlisted ? "var(--danger)" : "var(--fg)", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
             favorite
           </span>

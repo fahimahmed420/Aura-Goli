@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   signAccessToken,
-  signRefreshToken,
   refreshTokenExpiry,
   generateSecureToken,
 } from "@/lib/auth";

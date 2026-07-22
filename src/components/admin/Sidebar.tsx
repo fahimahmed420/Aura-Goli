@@ -35,7 +35,10 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
     return pathname === href || pathname.startsWith(href + "/");
   }
 
-  const SidebarContent = () => (
+  /* JSX value, not a component defined during render — a nested component
+     gets a fresh identity each render and forces React to remount the whole
+     nav subtree (losing scroll position and any focus inside it). */
+  const sidebarContent = (
     <>
       {/* Brand */}
       <div className="px-6 py-7 border-b border-white/8">
@@ -135,7 +138,7 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
           borderRight: "1px solid rgba(247,244,236,0.06)",
           boxShadow: "4px 0 24px rgba(11,11,20,0.3)",
         }}>
-        <SidebarContent />
+        {sidebarContent}
       </aside>
 
       {/* Mobile: top header with drawer trigger */}
@@ -172,7 +175,7 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
               </button>
             </div>
             <div className="flex flex-col flex-1 overflow-hidden">
-              <SidebarContent />
+              {sidebarContent}
             </div>
           </div>
         </div>

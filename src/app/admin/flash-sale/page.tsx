@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
 interface FlashSale { id: string; name: string; bannerText: string; discountPercent: number; categorySlug: string | null; endsAt: string; isActive: boolean; createdAt: string; }
@@ -20,7 +20,7 @@ export default function AdminFlashSalePage() {
   const token = () => typeof window !== "undefined" ? localStorage.getItem("adminToken") : "";
   const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
-  async function fetch_() {
+  const fetch_ = useCallback(async () => {
     setLoading(true);
     try {
       const r = await fetch("/api/admin/flash-sale", { headers: headers() });
@@ -28,11 +28,14 @@ export default function AdminFlashSalePage() {
       setSales(d.sales ?? []);
     } catch { /* db not ready */ }
     setLoading(false);
-  }
+    // headers() only reads localStorage, so it needs no dependency tracking.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     fetch_();
     fetch("/api/categories").then(r => r.json()).then(d => setCategories(d.categories ?? [])).catch(() => {});
-  }, []);
+  }, [fetch_]);
 
   async function create() {
     setSaving(true); setError("");
@@ -78,7 +81,7 @@ export default function AdminFlashSalePage() {
           <div className="flex items-center gap-3 p-4 rounded-xl mb-5" style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)" }}>
             <span className="material-symbols-outlined text-xl" style={{ color: "var(--accent)" }}>bolt</span>
             <div>
-              <p className="text-sm font-bold text-fg">"{active.name}" is live right now</p>
+              <p className="text-sm font-bold text-fg">&ldquo;{active.name}&rdquo; is live right now</p>
               <p className="text-xs text-[color:var(--fg-subtle)]">
                 {active.discountPercent}% off {active.categorySlug ? `"${active.categorySlug}" products` : "all products"} · Ends {new Date(active.endsAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
               </p>
@@ -181,7 +184,7 @@ export default function AdminFlashSalePage() {
                     <option key={c.id} value={c.slug}>{c.name}</option>
                   ))}
                 </select>
-                <p className="text-xs text-[color:var(--fg-subtle)] mt-1.5">Leave as "All Categories" to apply discount sitewide.</p>
+                <p className="text-xs text-[color:var(--fg-subtle)] mt-1.5">Leave as &ldquo;All Categories&rdquo; to apply discount sitewide.</p>
               </div>
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">Ends At</label>

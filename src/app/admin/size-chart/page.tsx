@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 
 interface SizeChartRow { size: string; chest: string; length: string; shoulder: string; }
@@ -16,7 +16,7 @@ export default function AdminSizeChartPage() {
   const token = () => typeof window !== "undefined" ? localStorage.getItem("adminToken") ?? "" : "";
   const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const r = await fetch("/api/admin/size-chart", { headers: headers() });
@@ -26,9 +26,11 @@ export default function AdminSizeChartPage() {
       setRows([]);
     }
     setLoading(false);
-  }
+    // headers() only reads localStorage, so it needs no dependency tracking.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   async function save() {
     setSaving(true);

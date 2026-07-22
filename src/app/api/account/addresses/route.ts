@@ -20,7 +20,9 @@ export async function POST(req: NextRequest) {
   if (auth instanceof Response) return auth;
 
   const body = await req.json();
-  const { fullName, phone, line1, line2, district, thana, city, postalCode, label, isDefault } = body;
+  // NB: no `label` — the Address model has no such column, so accepting one
+  // would silently discard it.
+  const { fullName, phone, line1, line2, district, thana, city, postalCode, isDefault } = body;
 
   if (!fullName?.trim() || !line1?.trim() || !city?.trim())
     return apiError("Full name, address line, and city are required", 400);

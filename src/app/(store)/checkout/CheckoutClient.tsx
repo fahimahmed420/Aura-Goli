@@ -68,6 +68,32 @@ export default function CheckoutClient() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [flashSale, setFlashSale] = useState<FlashSale | null>(null);
 
+  const [shippingTouched, setShippingTouched] = useState(false);
+
+  // Declared above the effect that calls it — reading a binding before its
+  // declaration works for hoisted functions but trips the React compiler and
+  // is a footgun if this is ever refactored into a const arrow.
+  function applyAddress(a: SavedAddress) {
+    setShipping((s) => ({
+      ...s,
+      name: a.fullName,
+      phone: a.phone,
+      address: [a.line1, a.line2, a.thana, a.district].filter(Boolean).join(", "),
+      city: a.city,
+      postalCode: a.postalCode,
+    }));
+  }
+
+  function setField(field: keyof ShippingForm, value: string) {
+    setSelectedAddressId(null); // user is manually editing — deselect saved address
+    setShipping((s) => ({ ...s, [field]: value }));
+  }
+
+  function selectAddress(a: SavedAddress) {
+    setSelectedAddressId(a.id);
+    applyAddress(a);
+  }
+
   useEffect(() => {
     const raw = sessionStorage.getItem("checkoutState");
     if (!raw) { router.replace("/cart"); return; }
@@ -102,29 +128,6 @@ export default function CheckoutClient() {
     }
   }, [router]);
 
-  function setField(field: keyof ShippingForm, value: string) {
-    setSelectedAddressId(null); // user is manually editing — deselect saved address
-    setShipping((s) => ({ ...s, [field]: value }));
-  }
-
-  function applyAddress(a: SavedAddress) {
-    setShipping((s) => ({
-      ...s,
-      name: a.fullName,
-      phone: a.phone,
-      address: [a.line1, a.line2, a.thana, a.district].filter(Boolean).join(", "),
-      city: a.city,
-      postalCode: a.postalCode,
-    }));
-  }
-
-  function selectAddress(a: SavedAddress) {
-    setSelectedAddressId(a.id);
-    applyAddress(a);
-  }
-
-  const [shippingTouched, setShippingTouched] = useState(false);
-
   function validateShipping() {
     return !!(shipping.name && shipping.phone && shipping.address && shipping.city && shipping.email);
   }
@@ -133,6 +136,15 @@ export default function CheckoutClient() {
     if (!shippingTouched) return false;
     return !shipping[field];
   }
+
+  // Computed above placeOrder, which closes over it. `state` is still
+  // possibly-null here (the early return happens further down), so guard.
+  const flashDiscount = flashSale && state
+    ? Math.round(state.cart.reduce((sum, item) => {
+        const matches = !flashSale.categorySlug || item.categorySlug === flashSale.categorySlug;
+        return matches ? sum + item.price * item.quantity * (flashSale.discountPercent / 100) : sum;
+      }, 0))
+    : 0;
 
   async function placeOrder() {
     if (!state) return;
@@ -181,14 +193,6 @@ export default function CheckoutClient() {
   }
 
   if (!state) return null;
-
-  // Flash sale: compute discount on eligible items
-  const flashDiscount = flashSale
-    ? Math.round(state.cart.reduce((sum, item) => {
-        const matches = !flashSale.categorySlug || item.categorySlug === flashSale.categorySlug;
-        return matches ? sum + item.price * item.quantity * (flashSale.discountPercent / 100) : sum;
-      }, 0))
-    : 0;
 
   const subtotal = state.cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingFee = subtotal >= 2000 ? 0 : 100;

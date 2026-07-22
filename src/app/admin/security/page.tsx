@@ -17,17 +17,13 @@ export default function AdminSecurityPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
-    // Fetch customers filtered to admin role via the customers endpoint
-    fetch("/api/admin/customers?pageSize=50", { headers: { Authorization: `Bearer ${token}` } })
+    // There is no admin-listing endpoint yet, so show the signed-in admin.
+    fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
-      .then((d) => {
-        // The customers endpoint returns all users; show the current admin at least
-        fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
-          .then((r) => r.json())
-          .then((me) => {
-            if (me?.user) setAdmins([{ id: me.user.id, name: me.user.name, email: me.user.email, createdAt: new Date().toISOString() }]);
-          });
+      .then((me) => {
+        if (me?.user) setAdmins([{ id: me.user.id, name: me.user.name, email: me.user.email, createdAt: new Date().toISOString() }]);
       })
+      .catch(() => setAdmins([]))
       .finally(() => setLoading(false));
   }, []);
 
