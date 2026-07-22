@@ -23,12 +23,12 @@ interface DashboardData {
 }
 
 const STATUS_PILL: Record<string, string> = {
-  pending_payment: "bg-[#ffdad6] text-[#ba1a1a]",
-  confirmed: "bg-[#e4dfff] text-[#41379b]",
-  packed: "bg-[#e4dfff] text-[#41379b]",
-  shipped: "bg-[#9f97ff]/20 text-[#33288d]",
-  delivered: "bg-[#e5e2e1] text-[#474746]",
-  cancelled: "bg-[#ffdad6] text-[#ba1a1a]",
+  pending_payment: "bg-[color:var(--danger-tint)] text-[color:var(--danger)]",
+  confirmed: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
+  packed: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
+  shipped: "bg-[color:var(--accent)]/20 text-[color:var(--accent)]",
+  delivered: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
+  cancelled: "bg-[color:var(--danger-tint)] text-[color:var(--danger)]",
 };
 
 export default function DashboardPage() {
@@ -49,29 +49,29 @@ export default function DashboardPage() {
     <AdminShell title="Overview">
       {loading || !data?.kpis ? (
         <div className="flex items-center justify-center h-64">
-          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-line-strong border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="space-y-8">
           {/* KPI Cards */}
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             <KpiCard
-              icon="payments" iconBg="bg-[#9f97ff]/20" iconColor="text-[#5951b4]"
+              icon="payments" iconBg="bg-[color:var(--accent)]/20" iconColor="text-[color:var(--accent)]"
               label="Revenue" value={`৳${data.kpis.todayRevenue.toLocaleString()}`}
               trend={data.kpis.todayRevenueDelta} trendLabel="from last week"
             />
             <KpiCard
-              icon="local_mall" iconBg="bg-[#e8e8e8]" iconColor="text-black"
+              icon="local_mall" iconBg="bg-[color:var(--line)]" iconColor="text-fg"
               label="Orders" value={data.kpis.totalOrders.toLocaleString()}
               trend={data.kpis.ordersDelta} trendLabel="from last week"
             />
             <KpiCard
-              icon="person" iconBg="bg-[#e8e8e8]" iconColor="text-black"
+              icon="person" iconBg="bg-[color:var(--line)]" iconColor="text-fg"
               label="Customers" value={data.kpis.newCustomers.toLocaleString()}
               trend={0} trendLabel="Stable activity" noTrend
             />
             <KpiCard
-              icon="pending_actions" iconBg="bg-[#ffdad6]/20" iconColor="text-[#ba1a1a]"
+              icon="pending_actions" iconBg="bg-[color:var(--danger-tint)]/20" iconColor="text-[color:var(--danger)]"
               label="Pending" value={data.kpis.pendingOrders.toLocaleString()}
               trend={0} trendLabel="Immediate action required" urgent
             />
@@ -80,15 +80,15 @@ export default function DashboardPage() {
           {/* Chart + Low Stock */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Revenue Bar Chart */}
-            <div className="lg:col-span-2 bg-white p-5 md:p-8 rounded-2xl border border-[#e8e8e8]">
+            <div className="lg:col-span-2 bg-surface p-5 md:p-8 rounded-2xl border border-[color:var(--line)]">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h4 className="font-['Hanken_Grotesk'] font-semibold text-[20px] text-black">Revenue Trend</h4>
-                  <p className="text-[#444748] text-sm mt-1">Last 7 days performance</p>
+                  <h4 className="font-semibold text-[20px] text-fg">Revenue Trend</h4>
+                  <p className="text-[color:var(--fg-muted)] text-sm mt-1">Last 7 days performance</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-[#5951b4]" />
-                  <span className="text-[#444748] text-xs">Gross Sales</span>
+                  <span className="w-3 h-3 rounded-full bg-[color:var(--accent)]" />
+                  <span className="text-[color:var(--fg-muted)] text-xs">Gross Sales</span>
                 </div>
               </div>
               <div className="h-56 flex items-end justify-between gap-3">
@@ -99,11 +99,11 @@ export default function DashboardPage() {
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
                       <div
-                        className={`w-full rounded-t-lg transition-all cursor-pointer hover:opacity-80 ${isHighest ? "bg-[#5951b4]" : "bg-[#eeeeee] border border-[#c4c7c7]"}`}
+                        className={`w-full rounded-t-lg transition-all cursor-pointer hover:opacity-80 ${isHighest ? "bg-[color:var(--accent)]" : "bg-[color:var(--surface-raised)] border border-[color:var(--fg-subtle)]"}`}
                         style={{ height: `${pct}%` }}
                         title={`৳${d.revenue.toLocaleString()}`}
                       />
-                      <span className={`text-[11px] ${isHighest ? "font-bold text-black" : "text-[#444748]"}`}>{label}</span>
+                      <span className={`text-[11px] ${isHighest ? "font-bold text-fg" : "text-[color:var(--fg-muted)]"}`}>{label}</span>
                     </div>
                   );
                 })}
@@ -111,48 +111,48 @@ export default function DashboardPage() {
             </div>
 
             {/* Low Stock */}
-            <div className="bg-white p-5 md:p-8 rounded-2xl border border-[#e8e8e8] flex flex-col">
+            <div className="bg-surface p-5 md:p-8 rounded-2xl border border-[color:var(--line)] flex flex-col">
               <div className="flex items-center justify-between mb-6">
-                <h4 className="font-['Hanken_Grotesk'] font-semibold text-[20px] text-black">Low Stock</h4>
-                <span className="bg-[#ba1a1a] text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                <h4 className="font-semibold text-[20px] text-fg">Low Stock</h4>
+                <span className="bg-[color:var(--danger)] text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
                   Action Needed
                 </span>
               </div>
               <div className="space-y-3 flex-1 overflow-y-auto">
                 {(data.lowStockVariants ?? []).length === 0 ? (
-                  <p className="text-[#747878] text-sm text-center py-8">All stocked up!</p>
+                  <p className="text-[color:var(--fg-subtle)] text-sm text-center py-8">All stocked up!</p>
                 ) : (
                   (data.lowStockVariants ?? []).map((v) => (
-                    <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border border-[#c4c7c7] hover:bg-[#f4f3f3] transition-colors cursor-pointer">
-                      <div className="w-10 h-10 rounded bg-[#eeeeee] flex-shrink-0 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-[#444748] text-lg">inventory_2</span>
+                    <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border border-[color:var(--fg-subtle)] hover:bg-[color:var(--surface)] transition-colors cursor-pointer">
+                      <div className="w-10 h-10 rounded bg-[color:var(--surface-raised)] flex-shrink-0 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-[color:var(--fg-muted)] text-lg">inventory_2</span>
                       </div>
                       <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-semibold text-black truncate">
+                        <p className="text-sm font-semibold text-fg truncate">
                           {v.product.name}
-                          {(v.color || v.size) && <span className="text-[#747878] font-normal"> · {[v.color, v.size].filter(Boolean).join(" / ")}</span>}
+                          {(v.color || v.size) && <span className="text-[color:var(--fg-subtle)] font-normal"> · {[v.color, v.size].filter(Boolean).join(" / ")}</span>}
                         </p>
-                        <p className="text-xs text-[#ba1a1a]">{v.stockQuantity === 0 ? "Out of stock" : `Only ${v.stockQuantity} left in stock`}</p>
+                        <p className="text-xs text-[color:var(--danger)]">{v.stockQuantity === 0 ? "Out of stock" : `Only ${v.stockQuantity} left in stock`}</p>
                       </div>
                     </div>
                   ))
                 )}
               </div>
-              <Link href="/admin/products" className="mt-6 w-full py-3 border border-black text-black text-sm font-semibold rounded-lg hover:bg-black hover:text-white transition-all text-center block">
+              <Link href="/admin/products" className="mt-6 w-full py-3 border border-line-strong text-fg text-sm font-semibold rounded-lg hover:bg-accent-hover transition-all text-center block">
                 Manage Inventory
               </Link>
             </div>
           </section>
 
           {/* Recent Orders Table */}
-          <section className="bg-white rounded-xl border border-[#c4c7c7] overflow-hidden">
-            <div className="p-8 border-b border-[#c4c7c7] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <section className="bg-surface rounded-xl border border-[color:var(--fg-subtle)] overflow-hidden">
+            <div className="p-8 border-b border-[color:var(--fg-subtle)] flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h4 className="font-['Hanken_Grotesk'] font-semibold text-[20px] text-black">Recent Orders</h4>
-                <p className="text-[#444748] text-sm mt-1">Showing latest activity</p>
+                <h4 className="font-semibold text-[20px] text-fg">Recent Orders</h4>
+                <p className="text-[color:var(--fg-muted)] text-sm mt-1">Showing latest activity</p>
               </div>
               <div className="flex gap-2">
-                <Link href="/admin/orders" className="px-4 py-2 bg-black text-white rounded-lg text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity">
+                <Link href="/admin/orders" className="px-4 py-2 bg-accent text-accent-fg rounded-lg text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity">
                   View All
                 </Link>
               </div>
@@ -160,37 +160,37 @@ export default function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-[#f4f3f3] border-b border-[#c4c7c7]">
+                  <tr className="bg-[color:var(--surface)] border-b border-[color:var(--fg-subtle)]">
                     {["Order ID", "Customer", "Date", "Total", "Status", "Actions"].map((h) => (
-                      <th key={h} className="px-8 py-4 text-[11px] font-semibold text-[#444748] uppercase tracking-wider">{h}</th>
+                      <th key={h} className="px-8 py-4 text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e2e2e2]">
+                <tbody className="divide-y divide-[color:var(--line-strong)]">
                   {(data.recentOrders ?? []).map((o) => {
                     const initials = (o.user?.name ?? "G").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
                     return (
-                      <tr key={o.id} className="hover:bg-[#f4f3f3] transition-colors group">
-                        <td className="px-8 py-5 text-sm font-semibold text-black">#{o.orderNumber}</td>
+                      <tr key={o.id} className="hover:bg-[color:var(--surface)] transition-colors group">
+                        <td className="px-8 py-5 text-sm font-semibold text-fg">#{o.orderNumber}</td>
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#e4dfff] text-[#5951b4] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-[color:var(--accent-tint)] text-[color:var(--accent)] flex items-center justify-center text-xs font-bold flex-shrink-0">
                               {initials}
                             </div>
-                            <span className="text-sm text-[#1a1c1c]">{o.user?.name ?? "Guest"}</span>
+                            <span className="text-sm text-[color:var(--fg)]">{o.user?.name ?? "Guest"}</span>
                           </div>
                         </td>
-                        <td className="px-8 py-5 text-sm text-[#444748]">
+                        <td className="px-8 py-5 text-sm text-[color:var(--fg-muted)]">
                           {new Date(o.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </td>
-                        <td className="px-8 py-5 text-sm font-bold text-black">৳{Number(o.total).toLocaleString()}</td>
+                        <td className="px-8 py-5 text-sm font-bold text-fg">৳{Number(o.total).toLocaleString()}</td>
                         <td className="px-8 py-5">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${STATUS_PILL[o.status] ?? "bg-[#eeeeee] text-[#444748]"}`}>
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${STATUS_PILL[o.status] ?? "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]"}`}>
                             {o.status.replace(/_/g, " ")}
                           </span>
                         </td>
                         <td className="px-8 py-5">
-                          <Link href={`/admin/orders`} className="text-[#444748] hover:text-black">
+                          <Link href={`/admin/orders`} className="text-[color:var(--fg-muted)] hover:text-fg">
                             <span className="material-symbols-outlined text-xl">more_horiz</span>
                           </Link>
                         </td>
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                   })}
                   {(data.recentOrders ?? []).length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-8 py-16 text-center text-[#747878] text-sm">No orders yet.</td>
+                      <td colSpan={6} className="px-8 py-16 text-center text-[color:var(--fg-subtle)] text-sm">No orders yet.</td>
                     </tr>
                   )}
                 </tbody>
@@ -223,16 +223,16 @@ function KpiCard({
   const up = trend >= 0;
   return (
     <div
-      className="card-3d bg-white p-5 md:p-6 rounded-2xl flex flex-col justify-between"
+      className="card-3d bg-surface p-5 md:p-6 rounded-2xl flex flex-col justify-between"
       style={{
-        border: "1px solid #e8e8e8",
+        border: "1px solid var(--line)",
         boxShadow: "0 2px 12px rgba(11,11,20,0.06), 0 1px 3px rgba(11,11,20,0.04)",
       }}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[11px] font-bold text-[#747878] uppercase tracking-[0.18em]">{label}</p>
-          <h3 className="font-['Playfair_Display'] text-[28px] md:text-[32px] font-semibold text-black mt-1 leading-tight">{value}</h3>
+          <p className="text-[11px] font-bold text-[color:var(--fg-subtle)] uppercase tracking-[0.18em]">{label}</p>
+          <h3 className="text-[28px] md:text-[32px] font-semibold text-fg mt-1 leading-tight">{value}</h3>
         </div>
         <div className={`${iconBg} p-3 rounded-xl`}>
           <span className={`material-symbols-outlined ${iconColor} text-2xl`}
@@ -241,7 +241,7 @@ function KpiCard({
           </span>
         </div>
       </div>
-      <div className={`mt-4 flex items-center gap-1 text-xs font-semibold ${urgent ? "text-[#ba1a1a]" : noTrend ? "text-[#444748]" : up ? "text-[#41379b]" : "text-[#ba1a1a]"}`}>
+      <div className={`mt-4 flex items-center gap-1 text-xs font-semibold ${urgent ? "text-[color:var(--danger)]" : noTrend ? "text-[color:var(--fg-muted)]" : up ? "text-[color:var(--accent)]" : "text-[color:var(--danger)]"}`}>
         {!noTrend && !urgent && (
           <span className="material-symbols-outlined text-base">{up ? "trending_up" : "trending_down"}</span>
         )}

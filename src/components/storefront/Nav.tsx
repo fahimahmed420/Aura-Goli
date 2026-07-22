@@ -151,20 +151,18 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
           className={`absolute inset-0 ${isAccountPage ? "" : "transition-opacity duration-300"}`}
           style={{
             opacity: isTransparent ? 0 : 1,
-            background: "rgba(11,11,20,0.97)",
-            borderBottom: isAccountPage ? "none" : "1px solid rgba(255,255,255,0.07)",
-            boxShadow: isAccountPage ? "none" : "0 4px 24px rgba(11,11,20,0.5)",
+            background: "var(--canvas)",
+            borderBottom: isAccountPage ? "none" : "1px solid var(--line)",
           }}
         />
         <div className="relative max-w-[1400px] mx-auto px-4 md:px-8 h-16 flex items-center gap-4">
 
           {/* Logo — AG mark + wordmark lockup */}
-          <Link href="/" className="flex items-center gap-2 shrink-0 mr-2 font-['Playfair_Display'] text-xl font-bold tracking-tight"
-            style={{ color: "#faf7f0" }}>
+          <Link href="/" className="dd-display flex items-center gap-2 shrink-0 mr-2 text-xl text-fg">
             <Image src="/logo-mark.png" alt={storeName} width={26} height={28} priority className="h-7 w-auto" />
             <span>
               {storeName.includes(" ") ? (
-                <>{storeName.split(" ")[0]}<span style={{ color: "#c9a84c" }}> {storeName.split(" ").slice(1).join(" ")}</span></>
+                <>{storeName.split(" ")[0]}<span className="text-accent"> {storeName.split(" ").slice(1).join(" ")}</span></>
               ) : storeName}
             </span>
           </Link>
@@ -175,12 +173,9 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
               const active = isActive(l);
               return (
                 <Link key={l.href} href={l.href}
-                  className="px-3.5 py-2 rounded-full text-sm font-medium transition-colors duration-200 whitespace-nowrap"
-                  style={{
-                    color: active ? "#c9a84c" : "rgba(255,255,255,0.65)",
-                    background: active ? "rgba(201,168,76,0.12)" : "transparent",
-                    fontWeight: active ? 700 : 500,
-                  }}>
+                  className={`px-3.5 py-2 rounded-[var(--radius-pill)] text-sm transition-colors duration-200 whitespace-nowrap ${
+                    active ? "text-accent font-semibold bg-accent-tint" : "text-fg-muted font-medium hover:text-fg"
+                  }`}>
                   {l.label}
                 </Link>
               );
@@ -191,19 +186,16 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
           <div className="flex items-center gap-1 ml-auto">
             {/* Search — desktop only */}
             <button onClick={() => setSearchOpen(true)}
-              className="hidden md:flex w-10 h-10 items-center justify-center rounded-full transition-all"
-              style={{ color: "rgba(255,255,255,0.7)" }} aria-label="Search">
+              className="hidden md:flex w-10 h-10 items-center justify-center rounded-full text-fg-muted hover:text-fg transition-colors" aria-label="Search">
               <span className="material-symbols-outlined text-xl">search</span>
             </button>
 
             {/* Cart — desktop only */}
             <Link href="/cart"
-              className="hidden md:flex relative w-10 h-10 items-center justify-center rounded-full transition-all"
-              style={{ color: "rgba(255,255,255,0.7)" }} aria-label="Cart">
+              className="hidden md:flex relative w-10 h-10 items-center justify-center rounded-full text-fg-muted hover:text-fg transition-colors" aria-label="Cart">
               <span className="material-symbols-outlined text-xl">shopping_bag</span>
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-bold px-1"
-                  style={{ background: "#c9a84c", color: "#0b0b14" }}>
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[9px] font-bold px-1 bg-accent text-accent-fg">
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
@@ -214,11 +206,10 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
               <>
                 {user && (
                   <>
-                    <span className="md:hidden text-sm font-medium max-w-[80px] truncate" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    <span className="md:hidden text-sm font-medium max-w-[80px] truncate text-fg-muted">
                       {user.name.split(" ")[0]}
                     </span>
-                    <div className="md:hidden w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0"
-                      style={{ background: "rgba(201,168,76,0.18)", color: "#c9a84c", border: "1.5px solid rgba(201,168,76,0.3)" }}>
+                    <div className="md:hidden w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0 bg-accent-tint text-accent border border-accent/30">
                       {user.avatarUrl
                         ? <img src={user.avatarUrl} alt="" width={36} height={36} decoding="async" className="w-full h-full object-cover" />
                         : user.name.charAt(0).toUpperCase()}
@@ -226,8 +217,7 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
                   </>
                 )}
                 <button
-                  className="md:hidden w-10 h-10 flex items-center justify-center rounded-full transition-all"
-                  style={{ color: "rgba(255,255,255,0.7)" }}
+                  className="md:hidden w-10 h-10 flex items-center justify-center rounded-full text-fg-muted"
                   aria-label="Account menu"
                   onClick={() => {
                     if (accountDrawerOpen) {
@@ -262,11 +252,9 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
             <div className="hidden md:block relative group">
               {/* Trigger */}
               <Link href="/account/profile"
-                className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden transition-all"
-                style={{
-                  background: user ? "rgba(201,168,76,0.18)" : "transparent",
-                  color: user ? "#c9a84c" : "rgba(255,255,255,0.7)",
-                }}>
+                className={`w-10 h-10 flex items-center justify-center rounded-full overflow-hidden transition-all ${
+                  user ? "bg-accent-tint text-accent" : "text-fg-muted"
+                }`}>
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt={user.name} width={40} height={40} decoding="async" className="w-full h-full object-cover" />
                 ) : user ? (
@@ -279,13 +267,12 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
               {/* Dropdown — pt-2 creates an invisible bridge over the gap */}
               <div className="absolute right-0 top-10 pt-2 w-52 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200"
                 style={{ zIndex: 60 }}>
-                <div className="rounded-2xl overflow-hidden"
-                  style={{ background: "#12103a", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 20px 50px rgba(11,11,20,0.7)" }}>
+                <div className="rounded-[var(--radius-card)] overflow-hidden bg-surface border border-line">
                   {user ? (
                     <>
-                      <div className="px-4 py-3 border-b border-white/8">
-                        <p className="text-xs font-semibold text-white truncate">{user.name}</p>
-                        <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{user.email}</p>
+                      <div className="px-4 py-3 border-b border-line">
+                        <p className="text-xs font-semibold text-fg truncate">{user.name}</p>
+                        <p className="text-[11px] truncate text-fg-subtle">{user.email}</p>
                       </div>
                       <div className="py-1">
                         {[
@@ -294,16 +281,16 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
                           { href: "/account/addresses", label: "Addresses", icon: "location_on" },
                         ].map((item) => (
                           <Link key={item.href} href={item.href}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-white/6"
-                            style={{ color: "rgba(255,255,255,0.65)" }}>
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-fg-muted hover:bg-surface-raised hover:text-fg transition-colors">
                             <span className="material-symbols-outlined text-base">{item.icon}</span>
                             {item.label}
                           </Link>
                         ))}
                       </div>
-                      <div className="py-1 border-t border-white/8">
+                      <div className="py-1 border-t border-line">
                         <button onClick={logout}
-                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-white/6 transition-colors">
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-surface-raised transition-colors"
+                          style={{ color: "var(--danger)" }}>
                           <span className="material-symbols-outlined text-base">logout</span>
                           Sign Out
                         </button>
@@ -312,13 +299,11 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
                   ) : (
                     <div className="p-3 space-y-2">
                       <Link href={`/login?next=${encodeURIComponent(pathname)}`}
-                        className="flex items-center justify-center w-full py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
-                        style={{ background: "#c9a84c", color: "#0b0b14" }}>
+                        className="flex items-center justify-center w-full py-2.5 rounded-[var(--radius-pill)] text-sm font-semibold uppercase tracking-wider transition-colors bg-accent text-accent-fg hover:bg-accent-hover">
                         Sign In
                       </Link>
                       <Link href={`/login?next=${encodeURIComponent(pathname)}&mode=register`}
-                        className="flex items-center justify-center w-full py-2.5 rounded-xl text-sm font-semibold transition-all"
-                        style={{ color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                        className="flex items-center justify-center w-full py-2.5 rounded-[var(--radius-pill)] text-sm font-medium text-fg-muted border border-line hover:text-fg transition-colors">
                         Register
                       </Link>
                     </div>
@@ -337,15 +322,14 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
           role="dialog" aria-modal="true" aria-label="Search products"
           onKeyDown={(e) => { if (e.key === "Escape") setSearchOpen(false); }}
           onClick={() => setSearchOpen(false)}>
-          <div className="absolute inset-0" style={{ background: "rgba(11,11,20,0.85)", backdropFilter: "blur(10px)" }} />
+          <div className="absolute inset-0" style={{ background: "var(--overlay)" }} />
           <form onSubmit={handleSearch} className="relative w-full max-w-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 rounded-2xl px-5 py-4"
-              style={{ background: "#12103a", border: "1.5px solid rgba(201,168,76,0.4)", boxShadow: "0 24px 60px rgba(11,11,20,0.8)" }}>
-              <span className="material-symbols-outlined text-2xl" style={{ color: "#c9a84c" }}>search</span>
+            <div className="flex items-center gap-3 rounded-[var(--radius-card)] px-5 py-4 bg-surface border border-line-strong">
+              <span className="material-symbols-outlined text-2xl text-accent">search</span>
               <input ref={searchRef} value={searchQ} onChange={(e) => setSearchQ(e.target.value)}
                 placeholder="Search for threads, styles, colors…"
-                className="flex-1 bg-transparent border-none outline-none text-lg text-white placeholder:text-white/30" />
-              <button type="button" onClick={() => setSearchOpen(false)} style={{ color: "rgba(255,255,255,0.4)" }}>
+                className="flex-1 bg-transparent border-none outline-none text-lg text-fg placeholder:text-fg-subtle" />
+              <button type="button" onClick={() => setSearchOpen(false)} className="text-fg-subtle">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
@@ -360,14 +344,8 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
         <div className="px-4 pb-3" style={{ paddingTop: "30px" }}>
           {/* The pill bar */}
           {/* No backdrop-filter here either — same WebGL-canvas compositing bug as the top bar */}
-          <div className="relative flex items-center justify-around rounded-[32px]"
-            style={{
-              height: "60px",
-              background: "rgba(11,11,20,0.95)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
-              overflow: "visible",
-            }}>
+          <div className="relative flex items-center justify-around rounded-[32px] bg-surface border border-line"
+            style={{ height: "60px", overflow: "visible" }}>
             {([
               { type: "link", href: "/", label: "Home", icon: "home" },
               { type: "link", href: "/shop", label: "Shop", icon: "storefront" },
@@ -382,45 +360,38 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
                 <>
                   {active ? (
                     <>
-                      <span className="absolute flex items-center justify-center rounded-full"
-                        style={{
-                          width: "54px", height: "54px", bottom: "32px", left: "50%",
-                          transform: "translateX(-50%)",
-                          background: "linear-gradient(145deg, #d4b05a 0%, #c9a84c 50%, #b8942e 100%)",
-                          boxShadow: "0 4px 20px rgba(201,168,76,0.45), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.25)",
-                        }}>
+                      <span className="absolute flex items-center justify-center rounded-full bg-accent"
+                        style={{ width: "54px", height: "54px", bottom: "32px", left: "50%", transform: "translateX(-50%)" }}>
                         {"badge" in item && item.badge !== undefined && item.badge > 0 && (
                           <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full text-[9px] font-bold px-[3px]"
-                            style={{ background: "#ba1a1a", color: "white", boxShadow: "0 0 0 2px #0b0b14" }}>
+                            style={{ background: "var(--danger)", color: "white", boxShadow: "0 0 0 2px var(--canvas)" }}>
                             {item.badge > 9 ? "9+" : item.badge}
                           </span>
                         )}
-                        <span className="material-symbols-outlined"
-                          style={{ fontSize: "24px", color: "#0b0b14", fontVariationSettings: "'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24" }}>
+                        <span className="material-symbols-outlined text-accent-fg"
+                          style={{ fontSize: "24px", fontVariationSettings: "'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24" }}>
                           {item.icon}
                         </span>
                       </span>
-                      <span className="absolute bottom-[7px] text-[9px] font-bold tracking-wider uppercase"
-                        style={{ color: "#c9a84c", letterSpacing: "0.07em" }}>
+                      <span className="absolute bottom-[7px] text-[9px] font-bold tracking-wider uppercase text-accent">
                         {item.label}
                       </span>
                     </>
                   ) : (
                     <>
                       <span className="relative">
-                        <span className="material-symbols-outlined"
-                          style={{ fontSize: "22px", color: "rgba(255,255,255,0.55)", fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
+                        <span className="material-symbols-outlined text-fg-muted"
+                          style={{ fontSize: "22px", fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
                           {item.icon}
                         </span>
                         {"badge" in item && item.badge !== undefined && item.badge > 0 && (
                           <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] flex items-center justify-center rounded-full text-[9px] font-bold px-[2px]"
-                            style={{ background: "#ba1a1a", color: "white", boxShadow: "0 0 0 1.5px #0b0b14" }}>
+                            style={{ background: "var(--danger)", color: "white", boxShadow: "0 0 0 1.5px var(--canvas)" }}>
                             {item.badge > 9 ? "9+" : item.badge}
                           </span>
                         )}
                       </span>
-                      <span className="text-[9px] font-medium mt-0.5"
-                        style={{ color: "rgba(255,255,255,0.62)", letterSpacing: "0.04em" }}>
+                      <span className="text-[9px] font-medium mt-0.5 text-fg-subtle">
                         {item.label}
                       </span>
                     </>

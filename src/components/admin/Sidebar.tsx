@@ -39,12 +39,11 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
     <>
       {/* Brand */}
       <div className="px-6 py-7 border-b border-white/8">
-        <h1 className="font-['Playfair_Display'] text-xl font-bold tracking-tight"
-          style={{ color: "#faf7f0" }}>
-          Aura<span style={{ color: "#c9a84c" }}> Goli</span>
+        <h1 className="dd-display text-xl text-fg">
+          Aura<span className="text-accent"> Goli</span>
         </h1>
         <p className="text-[10px] mt-1 uppercase tracking-[0.3em]"
-          style={{ color: "rgba(255,255,255,0.3)" }}>Admin Console</p>
+          style={{ color: "rgba(247,244,236,0.3)" }}>Admin Console</p>
       </div>
 
       {/* Nav */}
@@ -59,24 +58,24 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
               className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13.5px] font-semibold"
               style={{
                 background: active ? "rgba(201,168,76,0.12)" : "transparent",
-                color: active ? "#c9a84c" : "rgba(255,255,255,0.5)",
-                borderLeft: active ? "3px solid #c9a84c" : "3px solid transparent",
+                color: active ? "var(--accent)" : "rgba(247,244,236,0.5)",
+                borderLeft: active ? "3px solid var(--accent)" : "3px solid transparent",
               }}
             >
               <span className="material-symbols-outlined text-xl"
-                style={{ color: active ? "#c9a84c" : "rgba(255,255,255,0.35)" }}>
+                style={{ color: active ? "var(--accent)" : "rgba(247,244,236,0.35)" }}>
                 {item.icon}
               </span>
               <span>{item.label}</span>
               {active && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: "#c9a84c" }} />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
               )}
             </Link>
           );
         })}
 
         <div className="px-4 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.28em]"
-          style={{ color: "rgba(255,255,255,0.25)" }}>
+          style={{ color: "rgba(247,244,236,0.25)" }}>
           Configuration
         </div>
 
@@ -90,12 +89,12 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
               className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13.5px] font-semibold"
               style={{
                 background: active ? "rgba(201,168,76,0.12)" : "transparent",
-                color: active ? "#c9a84c" : "rgba(255,255,255,0.5)",
-                borderLeft: active ? "3px solid #c9a84c" : "3px solid transparent",
+                color: active ? "var(--accent)" : "rgba(247,244,236,0.5)",
+                borderLeft: active ? "3px solid var(--accent)" : "3px solid transparent",
               }}
             >
               <span className="material-symbols-outlined text-xl"
-                style={{ color: active ? "#c9a84c" : "rgba(255,255,255,0.35)" }}>
+                style={{ color: active ? "var(--accent)" : "rgba(247,244,236,0.35)" }}>
                 {item.icon}
               </span>
               <span>{item.label}</span>
@@ -107,18 +106,18 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
       {/* User footer */}
       <div className="p-4 mt-auto border-t border-white/8">
         <div className="flex items-center gap-3 p-3 rounded-xl"
-          style={{ background: "rgba(255,255,255,0.04)" }}>
+          style={{ background: "rgba(247,244,236,0.04)" }}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-            style={{ background: "rgba(201,168,76,0.15)", color: "#c9a84c", border: "1.5px solid rgba(201,168,76,0.25)" }}>
+            style={{ background: "rgba(201,168,76,0.15)", color: "var(--accent)", border: "1.5px solid rgba(201,168,76,0.25)" }}>
             {adminName?.[0]?.toUpperCase() ?? "A"}
           </div>
           <div className="flex-1 overflow-hidden min-w-0">
             <p className="text-white text-sm font-semibold truncate leading-tight">{adminName ?? "Admin"}</p>
-            <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.35)" }}>Admin Manager</p>
+            <p className="text-[11px] truncate" style={{ color: "rgba(247,244,236,0.35)" }}>Admin Manager</p>
           </div>
           <button onClick={handleLogout}
             className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            style={{ color: "rgba(247,244,236,0.35)" }}
             title="Logout">
             <span className="material-symbols-outlined text-xl">logout</span>
           </button>
@@ -132,8 +131,8 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
       {/* Desktop sidebar */}
       <aside className="w-60 hidden md:flex flex-col sticky top-0 h-screen z-50 flex-shrink-0"
         style={{
-          background: "#0b0b14",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--canvas)",
+          borderRight: "1px solid rgba(247,244,236,0.06)",
           boxShadow: "4px 0 24px rgba(11,11,20,0.3)",
         }}>
         <SidebarContent />
@@ -141,14 +140,14 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
 
       {/* Mobile: top header with drawer trigger */}
       <div className="md:hidden fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 h-14"
-        style={{ background: "#0b0b14", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-        <h1 className="font-['Playfair_Display'] text-lg font-bold" style={{ color: "#faf7f0" }}>
-          Aura<span style={{ color: "#c9a84c" }}> Goli</span>
+        style={{ background: "var(--canvas)", borderBottom: "1px solid rgba(247,244,236,0.08)" }}>
+        <h1 className="dd-display text-lg text-fg">
+          Aura<span className="text-accent"> Goli</span>
         </h1>
         <button
           onClick={() => setMobileOpen(true)}
           className="w-9 h-9 flex items-center justify-center rounded-xl"
-          style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.7)" }}>
+          style={{ background: "rgba(247,244,236,0.06)", color: "rgba(247,244,236,0.7)" }}>
           <span className="material-symbols-outlined">menu</span>
         </button>
       </div>
@@ -159,16 +158,16 @@ export default function Sidebar({ adminName }: { adminName?: string }) {
           <div className="absolute inset-0" style={{ background: "rgba(11,11,20,0.7)", backdropFilter: "blur(4px)" }} />
           <div
             className="absolute top-0 left-0 bottom-0 w-72 flex flex-col"
-            style={{ background: "#0b0b14", borderRight: "1px solid rgba(255,255,255,0.08)" }}
+            style={{ background: "var(--canvas)", borderRight: "1px solid rgba(247,244,236,0.08)" }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-5 border-b border-white/8">
-              <h1 className="font-['Playfair_Display'] text-lg font-bold" style={{ color: "#faf7f0" }}>
-                Aura<span style={{ color: "#c9a84c" }}> Goli</span>
+              <h1 className="dd-display text-lg text-fg">
+                Aura<span className="text-accent"> Goli</span>
               </h1>
               <button onClick={() => setMobileOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg"
-                style={{ color: "rgba(255,255,255,0.5)" }}>
+                style={{ color: "rgba(247,244,236,0.5)" }}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>

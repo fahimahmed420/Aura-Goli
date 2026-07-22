@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { apiError } from "@/lib/validation";
 import { rateLimit } from "@/lib/rate-limit";
+import { EMAIL } from "@/lib/brand";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
@@ -25,17 +26,17 @@ export async function POST(req: NextRequest) {
     replyTo: email,
     subject: `[Contact] ${subject} — ${name}`,
     html: `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:#f9f9f9;">
-        <div style="background:#12103a;padding:20px 28px;border-radius:10px 10px 0 0;">
-          <span style="font-family:Georgia,serif;font-size:20px;color:#faf7f0;">Aura <span style="color:#c9a84c;">Goli</span> — Contact Message</span>
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;background:${EMAIL.bodyBg};">
+        <div style="background:${EMAIL.headerBg};padding:20px 28px;border-radius:10px 10px 0 0;">
+          <span style="font-family:Georgia,serif;font-size:20px;color:${EMAIL.ivory};">Aura <span style="color:${EMAIL.accent};">Goli</span> — Contact Message</span>
         </div>
-        <div style="background:#fff;padding:28px;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 10px 10px;">
-          <table style="width:100%;font-size:14px;color:#444;">
+        <div style="background:${EMAIL.cardBg};padding:28px;border:1px solid ${EMAIL.line};border-top:none;border-radius:0 0 10px 10px;">
+          <table style="width:100%;font-size:14px;color:${EMAIL.text};">
             <tr><td style="padding:6px 0;font-weight:700;width:100px;">From</td><td>${name} &lt;${email}&gt;</td></tr>
             <tr><td style="padding:6px 0;font-weight:700;">Subject</td><td>${subject}</td></tr>
           </table>
-          <hr style="border:none;border-top:1px solid #e8e8e8;margin:16px 0;" />
-          <p style="font-size:14px;color:#333;line-height:1.7;white-space:pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+          <hr style="border:none;border-top:1px solid ${EMAIL.line};margin:16px 0;" />
+          <p style="font-size:14px;color:${EMAIL.textMuted};line-height:1.7;white-space:pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
         </div>
       </div>`,
   });

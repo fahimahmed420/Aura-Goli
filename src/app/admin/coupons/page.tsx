@@ -128,10 +128,10 @@ export default function AdminCouponsPage() {
   const isExhausted = (c: Coupon) => c.usageLimit != null && c.usageCount >= c.usageLimit;
 
   function statusLabel(c: Coupon) {
-    if (!c.isActive) return { label: "Inactive", cls: "bg-[#f4f3f3] text-[#747878]" };
-    if (isExpired(c)) return { label: "Expired", cls: "bg-[#ffdad6] text-[#ba1a1a]" };
-    if (isExhausted(c)) return { label: "Exhausted", cls: "bg-[#ffdad6] text-[#ba1a1a]" };
-    return { label: "Active", cls: "bg-[#d4f0d9] text-[#1a7f37]" };
+    if (!c.isActive) return { label: "Inactive", cls: "bg-[color:var(--surface)] text-[color:var(--fg-subtle)]" };
+    if (isExpired(c)) return { label: "Expired", cls: "bg-[color:var(--danger-tint)] text-[color:var(--danger)]" };
+    if (isExhausted(c)) return { label: "Exhausted", cls: "bg-[color:var(--danger-tint)] text-[color:var(--danger)]" };
+    return { label: "Active", cls: "bg-[color:var(--success-tint)] text-[color:var(--success)]" };
   }
 
   return (
@@ -141,12 +141,12 @@ export default function AdminCouponsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div>
-            <h1 className="font-['Playfair_Display'] text-2xl font-bold text-black">Coupons</h1>
-            <p className="text-sm text-[#747878] mt-0.5">{coupons.length} coupon{coupons.length !== 1 ? "s" : ""} total</p>
+            <h1 className="text-2xl font-bold text-fg">Coupons</h1>
+            <p className="text-sm text-[color:var(--fg-subtle)] mt-0.5">{coupons.length} coupon{coupons.length !== 1 ? "s" : ""} total</p>
           </div>
           <button onClick={openCreate}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-95"
-            style={{ background: "#12103a", color: "#faf7f0" }}>
+            style={{ background: "var(--surface)", color: "var(--fg)" }}>
             <span className="material-symbols-outlined text-[18px]">add</span>
             New Coupon
           </button>
@@ -154,30 +154,30 @@ export default function AdminCouponsPage() {
 
         {/* Search */}
         <div className="relative mb-5">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[#747878]">search</span>
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[color:var(--fg-subtle)]">search</span>
           <input
             value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by code…"
-            className="w-full pl-9 pr-4 py-2.5 border border-[#e8e8e8] rounded-xl text-sm outline-none focus:border-black bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-[color:var(--line)] rounded-xl text-sm outline-none focus:border-line-strong bg-surface"
           />
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+        <div className="bg-surface rounded-2xl border border-[color:var(--line)] overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center py-16 text-[#747878] text-sm">Loading…</div>
+            <div className="flex items-center justify-center py-16 text-[color:var(--fg-subtle)] text-sm">Loading…</div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <span className="material-symbols-outlined text-5xl text-[#e8e8e8]">sell</span>
-              <p className="text-[#747878] text-sm">{search ? "No coupons match your search" : "No coupons yet. Create your first one."}</p>
+              <span className="material-symbols-outlined text-5xl text-[color:var(--line)]">sell</span>
+              <p className="text-[color:var(--fg-subtle)] text-sm">{search ? "No coupons match your search" : "No coupons yet. Create your first one."}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #f0f0f0" }}>
+                  <tr style={{ borderBottom: "1px solid var(--line)" }}>
                     {["Code", "Type", "Value", "Min Order", "Usage", "Expires", "Status", ""].map((h) => (
-                      <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-[#747878]">{h}</th>
+                      <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-subtle)]">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -185,32 +185,32 @@ export default function AdminCouponsPage() {
                   {filtered.map((c) => {
                     const { label, cls } = statusLabel(c);
                     return (
-                      <tr key={c.id} className="border-t border-[#f4f3f3] hover:bg-[#fafafa] transition-colors">
+                      <tr key={c.id} className="border-t border-[color:var(--surface)] hover:bg-[color:var(--canvas)] transition-colors">
                         <td className="px-5 py-4">
                           <span className="font-mono font-bold text-[13px] tracking-wider px-2.5 py-1 rounded-lg"
-                            style={{ background: "#f4f3f3", color: "#12103a" }}>
+                            style={{ background: "var(--surface)", color: "var(--surface)" }}>
                             {c.code}
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-[#444748] capitalize">{c.type}</td>
-                        <td className="px-5 py-4 font-semibold text-black">
+                        <td className="px-5 py-4 text-[color:var(--fg-muted)] capitalize">{c.type}</td>
+                        <td className="px-5 py-4 font-semibold text-fg">
                           {c.type === "percent" ? `${Number(c.value)}%` : `৳${Number(c.value).toLocaleString()}`}
                         </td>
-                        <td className="px-5 py-4 text-[#444748]">
-                          {c.minOrderAmount ? `৳${Number(c.minOrderAmount).toLocaleString()}` : <span className="text-[#c4c7c7]">—</span>}
+                        <td className="px-5 py-4 text-[color:var(--fg-muted)]">
+                          {c.minOrderAmount ? `৳${Number(c.minOrderAmount).toLocaleString()}` : <span className="text-[color:var(--fg-subtle)]">—</span>}
                         </td>
                         <td className="px-5 py-4">
-                          <span className="text-[#444748]">{c.usageCount}</span>
+                          <span className="text-[color:var(--fg-muted)]">{c.usageCount}</span>
                           {c.usageLimit != null && (
-                            <span className="text-[#c4c7c7]"> / {c.usageLimit}</span>
+                            <span className="text-[color:var(--fg-subtle)]"> / {c.usageLimit}</span>
                           )}
                         </td>
-                        <td className="px-5 py-4 text-[#444748]">
+                        <td className="px-5 py-4 text-[color:var(--fg-muted)]">
                           {c.expiresAt
-                            ? <span style={{ color: isExpired(c) ? "#ba1a1a" : "#444748" }}>
+                            ? <span style={{ color: isExpired(c) ? "var(--danger)" : "var(--fg-muted)" }}>
                                 {new Date(c.expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                               </span>
-                            : <span className="text-[#c4c7c7]">Never</span>}
+                            : <span className="text-[color:var(--fg-subtle)]">Never</span>}
                         </td>
                         <td className="px-5 py-4">
                           <button onClick={() => toggleActive(c)}
@@ -221,15 +221,15 @@ export default function AdminCouponsPage() {
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-1">
                             <button onClick={() => openEdit(c)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#f4f3f3] transition-colors"
+                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[color:var(--surface)] transition-colors"
                               title="Edit">
-                              <span className="material-symbols-outlined text-[18px] text-[#444748]">edit</span>
+                              <span className="material-symbols-outlined text-[18px] text-[color:var(--fg-muted)]">edit</span>
                             </button>
                             <button onClick={() => deleteCoupon(c.id)}
                               disabled={deletingId === c.id}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#ffdad6] transition-colors"
+                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[color:var(--danger-tint)] transition-colors"
                               title="Delete">
-                              <span className="material-symbols-outlined text-[18px] text-[#ba1a1a]">delete</span>
+                              <span className="material-symbols-outlined text-[18px] text-[color:var(--danger)]">delete</span>
                             </button>
                           </div>
                         </td>
@@ -247,13 +247,13 @@ export default function AdminCouponsPage() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowForm(false)} />
-          <aside className="relative w-full max-w-md bg-white h-full overflow-y-auto shadow-2xl flex flex-col">
+          <aside className="relative w-full max-w-md bg-surface h-full overflow-y-auto shadow-2xl flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#e8e8e8]">
-              <h2 className="font-['Playfair_Display'] text-xl font-bold text-black">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[color:var(--line)]">
+              <h2 className="text-xl font-bold text-fg">
                 {editing ? "Edit Coupon" : "New Coupon"}
               </h2>
-              <button onClick={() => setShowForm(false)} className="text-[#747878] hover:text-black">
+              <button onClick={() => setShowForm(false)} className="text-[color:var(--fg-subtle)] hover:text-fg">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
@@ -261,7 +261,7 @@ export default function AdminCouponsPage() {
             <div className="flex-1 p-6 space-y-5">
               {/* Code */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">
                   Coupon Code
                 </label>
                 <div className="flex gap-2">
@@ -269,10 +269,10 @@ export default function AdminCouponsPage() {
                     value={form.code}
                     onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
                     placeholder="e.g. SAVE20"
-                    className="flex-1 border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm font-mono font-bold tracking-wider outline-none focus:border-black"
+                    className="flex-1 border border-[color:var(--line)] rounded-xl px-4 py-2.5 text-sm font-mono font-bold tracking-wider outline-none focus:border-line-strong"
                   />
                   <button onClick={generateCode}
-                    className="px-3 py-2.5 rounded-xl border border-[#e8e8e8] text-[#444748] hover:bg-[#f4f3f3] transition-colors text-xs font-semibold whitespace-nowrap">
+                    className="px-3 py-2.5 rounded-xl border border-[color:var(--line)] text-[color:var(--fg-muted)] hover:bg-[color:var(--surface)] transition-colors text-xs font-semibold whitespace-nowrap">
                     Generate
                   </button>
                 </div>
@@ -281,17 +281,17 @@ export default function AdminCouponsPage() {
               {/* Type + Value */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">Type</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">Type</label>
                   <select
                     value={form.type}
                     onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as "percent" | "flat" }))}
-                    className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black bg-white">
+                    className="w-full border border-[color:var(--line)] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-line-strong bg-surface">
                     <option value="flat">Flat (৳)</option>
                     <option value="percent">Percent (%)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">
                     Value {form.type === "percent" ? "(%)" : "(৳)"}
                   </label>
                   <input
@@ -299,74 +299,74 @@ export default function AdminCouponsPage() {
                     value={form.value}
                     onChange={(e) => setForm((f) => ({ ...f, value: e.target.value }))}
                     placeholder={form.type === "percent" ? "e.g. 15" : "e.g. 100"}
-                    className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black"
+                    className="w-full border border-[color:var(--line)] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-line-strong"
                   />
                 </div>
               </div>
 
               {/* Min order */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">
-                  Minimum Order Amount (৳) <span className="font-normal normal-case text-[#c4c7c7]">optional</span>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">
+                  Minimum Order Amount (৳) <span className="font-normal normal-case text-[color:var(--fg-subtle)]">optional</span>
                 </label>
                 <input
                   type="number" min="0"
                   value={form.minOrderAmount}
                   onChange={(e) => setForm((f) => ({ ...f, minOrderAmount: e.target.value }))}
                   placeholder="e.g. 500"
-                  className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black"
+                  className="w-full border border-[color:var(--line)] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-line-strong"
                 />
               </div>
 
               {/* Usage limit */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">
-                  Usage Limit <span className="font-normal normal-case text-[#c4c7c7]">optional — blank = unlimited</span>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">
+                  Usage Limit <span className="font-normal normal-case text-[color:var(--fg-subtle)]">optional — blank = unlimited</span>
                 </label>
                 <input
                   type="number" min="1"
                   value={form.usageLimit}
                   onChange={(e) => setForm((f) => ({ ...f, usageLimit: e.target.value }))}
                   placeholder="e.g. 100"
-                  className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black"
+                  className="w-full border border-[color:var(--line)] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-line-strong"
                 />
               </div>
 
               {/* Expiry */}
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#444748] mb-1.5">
-                  Expiry Date <span className="font-normal normal-case text-[#c4c7c7]">optional — blank = never expires</span>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[color:var(--fg-muted)] mb-1.5">
+                  Expiry Date <span className="font-normal normal-case text-[color:var(--fg-subtle)]">optional — blank = never expires</span>
                 </label>
                 <input
                   type="date"
                   value={form.expiresAt}
                   onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
-                  className="w-full border border-[#e8e8e8] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black"
+                  className="w-full border border-[color:var(--line)] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-line-strong"
                 />
               </div>
 
               {/* Active toggle */}
-              <div className="flex items-center justify-between p-4 rounded-xl border border-[#e8e8e8]">
+              <div className="flex items-center justify-between p-4 rounded-xl border border-[color:var(--line)]">
                 <div>
-                  <p className="text-sm font-semibold text-black">Active</p>
-                  <p className="text-xs text-[#747878] mt-0.5">Customers can use this coupon</p>
+                  <p className="text-sm font-semibold text-fg">Active</p>
+                  <p className="text-xs text-[color:var(--fg-subtle)] mt-0.5">Customers can use this coupon</p>
                 </div>
                 <button
                   onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
                   className="w-12 h-6 rounded-full transition-all relative flex-shrink-0"
-                  style={{ background: form.isActive ? "#12103a" : "#e8e8e8" }}>
-                  <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all"
+                  style={{ background: form.isActive ? "var(--surface)" : "var(--line)" }}>
+                  <span className="absolute top-0.5 h-5 w-5 rounded-full bg-surface transition-all"
                     style={{ left: form.isActive ? "26px" : "2px", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
                 </button>
               </div>
 
               {/* Preview */}
               {form.code && form.value && (
-                <div className="p-4 rounded-xl border border-dashed border-[#c9a84c] bg-[#fdf9f0]">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#c9a84c] mb-2">Preview</p>
-                  <p className="text-sm text-[#444748]">
-                    Code <span className="font-mono font-bold text-black">{form.code}</span> gives{" "}
-                    <span className="font-bold text-black">
+                <div className="p-4 rounded-xl border border-dashed border-[color:var(--accent)] bg-[color:var(--surface-raised)]">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--accent)] mb-2">Preview</p>
+                  <p className="text-sm text-[color:var(--fg-muted)]">
+                    Code <span className="font-mono font-bold text-fg">{form.code}</span> gives{" "}
+                    <span className="font-bold text-fg">
                       {form.type === "percent" ? `${form.value}% off` : `৳${Number(form.value).toLocaleString()} off`}
                     </span>
                     {form.minOrderAmount && ` on orders above ৳${Number(form.minOrderAmount).toLocaleString()}`}
@@ -377,19 +377,19 @@ export default function AdminCouponsPage() {
               )}
 
               {error && (
-                <p className="text-sm font-semibold text-[#ba1a1a] bg-[#ffdad6] px-4 py-2.5 rounded-xl">{error}</p>
+                <p className="text-sm font-semibold text-[color:var(--danger)] bg-[color:var(--danger-tint)] px-4 py-2.5 rounded-xl">{error}</p>
               )}
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-[#e8e8e8] flex gap-3">
+            <div className="p-6 border-t border-[color:var(--line)] flex gap-3">
               <button onClick={() => setShowForm(false)}
-                className="flex-1 py-3 rounded-xl border border-[#e8e8e8] text-sm font-semibold text-[#444748] hover:bg-[#f4f3f3] transition-colors">
+                className="flex-1 py-3 rounded-xl border border-[color:var(--line)] text-sm font-semibold text-[color:var(--fg-muted)] hover:bg-[color:var(--surface)] transition-colors">
                 Cancel
               </button>
               <button onClick={save} disabled={saving || !form.code || !form.value}
                 className="flex-1 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
-                style={{ background: "#12103a", color: "#faf7f0" }}>
+                style={{ background: "var(--surface)", color: "var(--fg)" }}>
                 {saving ? "Saving…" : editing ? "Save Changes" : "Create Coupon"}
               </button>
             </div>

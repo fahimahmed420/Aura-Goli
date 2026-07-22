@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { CartItem } from "../cart/CartClient";
+import Spinner from "@/components/ui/Spinner";
+import { ArrowRight } from "@/components/ui/Button";
 
 type Step = 1 | 2 | 3;
 
@@ -202,18 +204,16 @@ export default function CheckoutClient() {
   ];
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 md:px-12 py-6 min-h-screen">
+    <div className="max-w-[1280px] mx-auto px-4 md:px-12 py-6 min-h-screen bg-canvas">
       {/* Step indicator */}
       <div className="flex items-center justify-center mb-10">
         {steps.map((s, i) => (
           <div key={s.n} className="flex items-center gap-4">
-            <div className="flex flex-col items-center gap-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                step >= s.n ? "bg-black text-white" : "bg-[#e2e2e2] text-[#747878]"
-              }`}>{s.n}</div>
-              <span className={`text-xs font-semibold uppercase tracking-widest ${step === s.n ? "text-black" : "text-[#747878]"}`}>{s.label}</span>
-            </div>
-            {i < steps.length - 1 && <div className={`w-16 h-0.5 mb-5 ${step > s.n ? "bg-black" : "bg-[#e2e2e2]"}`} />}
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
+              step >= s.n ? "bg-accent text-accent-fg" : "bg-surface-raised text-fg-subtle"
+            }`}>{s.n}</div>
+            <span className={`hidden sm:inline text-xs font-medium uppercase tracking-widest ${step === s.n ? "text-fg" : "text-fg-subtle"}`}>{s.label}</span>
+            {i < steps.length - 1 && <div className={`w-10 sm:w-16 h-0.5 ${step > s.n ? "bg-accent" : "bg-line-strong"}`} />}
           </div>
         ))}
       </div>
@@ -224,13 +224,13 @@ export default function CheckoutClient() {
 
           {/* Step 1: Shipping */}
           {step === 1 && (
-            <div className="bg-white border border-[#c4c7c7] rounded-lg p-6 space-y-5">
-              <h2 className="font-['Playfair_Display'] text-2xl font-bold text-black">Shipping Details</h2>
+            <div className="bg-surface border border-line p-6 space-y-5" style={{ borderRadius: "var(--radius-card)" }}>
+              <h2 className="dd-display text-2xl text-fg">Shipping Details</h2>
 
               {/* Saved addresses */}
               {savedAddresses.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#444748]">Saved Addresses</p>
+                  <p className="dd-eyebrow text-fg-subtle">Saved Addresses</p>
                   <div className="grid gap-2">
                     {savedAddresses.map((a) => {
                       const selected = selectedAddressId === a.id;
@@ -239,29 +239,25 @@ export default function CheckoutClient() {
                           key={a.id}
                           type="button"
                           onClick={() => selectAddress(a)}
-                          className="text-left w-full flex items-start gap-3 p-3.5 rounded-lg border-2 transition-all"
-                          style={{
-                            borderColor: selected ? "#12103a" : "#e8e8e8",
-                            background: selected ? "#f4f3f3" : "#fff",
-                          }}
+                          className={`text-left w-full flex items-start gap-3 p-3.5 rounded-lg border-2 transition-all ${
+                            selected ? "border-accent bg-accent-tint" : "border-line"
+                          }`}
                         >
                           {/* Radio indicator */}
-                          <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
-                            style={{ borderColor: selected ? "#12103a" : "#c4c7c7" }}>
-                            {selected && <div className="w-2 h-2 rounded-full" style={{ background: "#12103a" }} />}
+                          <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selected ? "border-accent" : "border-line-strong"}`}>
+                            {selected && <div className="w-2 h-2 rounded-full bg-accent" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-bold text-black">{a.fullName}</p>
+                              <p className="text-sm font-medium text-fg">{a.fullName}</p>
                               {a.isDefault && (
-                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                                  style={{ background: "rgba(18,16,58,0.08)", color: "#12103a" }}>Default</span>
+                                <span className="text-[9px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent-tint text-accent">Default</span>
                               )}
                             </div>
-                            <p className="text-xs text-[#747878] mt-0.5 truncate">
+                            <p className="text-xs text-fg-subtle mt-0.5 truncate">
                               {[a.line1, a.line2, a.thana, a.district, a.city].filter(Boolean).join(", ")}
                             </p>
-                            <p className="text-xs text-[#747878]">{a.phone}</p>
+                            <p className="text-xs text-fg-subtle">{a.phone}</p>
                           </div>
                         </button>
                       );
@@ -269,19 +265,19 @@ export default function CheckoutClient() {
                   </div>
 
                   <div className="flex items-center gap-3 py-1">
-                    <div className="flex-1 h-px bg-[#e8e8e8]" />
-                    <span className="text-[11px] font-semibold text-[#c4c7c7] uppercase tracking-wider">or enter a different address</span>
-                    <div className="flex-1 h-px bg-[#e8e8e8]" />
+                    <div className="flex-1 h-px bg-line" />
+                    <span className="text-[11px] font-medium text-fg-subtle uppercase tracking-wider">or enter a different address</span>
+                    <div className="flex-1 h-px bg-line" />
                   </div>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Full Name" required error={fieldError("name") ? "Required" : undefined}>
-                  <input value={shipping.name} onChange={(e) => setField("name", e.target.value)} className="field-input" placeholder="Your Name" style={fieldError("name") ? { borderColor: "#ba1a1a" } : {}} />
+                  <input value={shipping.name} onChange={(e) => setField("name", e.target.value)} className="field-input" placeholder="Your Name" style={fieldError("name") ? { borderColor: "var(--danger)" } : undefined} />
                 </Field>
                 <Field label="Phone" required error={fieldError("phone") ? "Required" : undefined}>
-                  <input type="tel" value={shipping.phone} onChange={(e) => setField("phone", e.target.value)} className="field-input" placeholder="01XXXXXXXXX" style={fieldError("phone") ? { borderColor: "#ba1a1a" } : {}} />
+                  <input type="tel" value={shipping.phone} onChange={(e) => setField("phone", e.target.value)} className="field-input" placeholder="01XXXXXXXXX" style={fieldError("phone") ? { borderColor: "var(--danger)" } : undefined} />
                 </Field>
                 <Field label="Email" required error={fieldError("email") ? "Required" : undefined}>
                   <input type="email" value={shipping.email} onChange={(e) => setField("email", e.target.value)}
@@ -292,17 +288,17 @@ export default function CheckoutClient() {
                         fetch("/api/cart/email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: v }) }).catch(() => {});
                       }
                     }}
-                    className="field-input" placeholder="you@email.com" style={fieldError("email") ? { borderColor: "#ba1a1a" } : {}} />
+                    className="field-input" placeholder="you@email.com" style={fieldError("email") ? { borderColor: "var(--danger)" } : undefined} />
                 </Field>
                 <Field label="City / District" required error={fieldError("city") ? "Required" : undefined}>
-                  <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" list="bd-districts" style={fieldError("city") ? { borderColor: "#ba1a1a" } : {}} />
+                  <input value={shipping.city} onChange={(e) => setField("city", e.target.value)} className="field-input" placeholder="Dhaka" list="bd-districts" style={fieldError("city") ? { borderColor: "var(--danger)" } : undefined} />
                   <datalist id="bd-districts">
                     {BD_DISTRICTS.map((d) => <option key={d} value={d} />)}
                   </datalist>
                 </Field>
                 <div className="md:col-span-2">
                   <Field label="Address" required error={fieldError("address") ? "Required" : undefined}>
-                    <input value={shipping.address} onChange={(e) => setField("address", e.target.value)} className="field-input" placeholder="House, Road, Area" style={fieldError("address") ? { borderColor: "#ba1a1a" } : {}} />
+                    <input value={shipping.address} onChange={(e) => setField("address", e.target.value)} className="field-input" placeholder="House, Road, Area" style={fieldError("address") ? { borderColor: "var(--danger)" } : undefined} />
                   </Field>
                 </div>
                 <Field label="Postal Code">
@@ -312,11 +308,11 @@ export default function CheckoutClient() {
 
               {/* Gift selection is made in the cart; if chosen, show a read-only note here. */}
               {isGift && (
-                <div className="flex items-center gap-3 p-4 rounded-lg border" style={{ background: "#faf7f0", borderColor: "#c9a84c" }}>
-                  <span className="material-symbols-outlined text-2xl flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1", color: "#c9a84c" }}>card_giftcard</span>
+                <div className="flex items-center gap-3 p-4 rounded-lg border border-accent/40 bg-accent-tint">
+                  <span className="material-symbols-outlined text-2xl flex-shrink-0 text-accent" style={{ fontVariationSettings: "'FILL' 1" }}>card_giftcard</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#0b0b14]">Gift packaging added <span className="font-semibold" style={{ color: "#c9a84c" }}>+৳{giftFee}</span></p>
-                    <p className="text-xs text-[#747878] mt-0.5">Premium box &amp; ribbon wrap. Manage this in your <Link href="/cart" className="underline">cart</Link>.</p>
+                    <p className="text-sm font-medium text-fg">Gift packaging added <span className="font-medium text-accent">+৳{giftFee}</span></p>
+                    <p className="text-xs text-fg-subtle mt-0.5">Premium box &amp; ribbon wrap. Manage this in your <Link href="/cart" className="underline">cart</Link>.</p>
                   </div>
                 </div>
               )}
@@ -326,24 +322,25 @@ export default function CheckoutClient() {
                   setShippingTouched(true);
                   if (validateShipping()) setStep(2);
                 }}
-                className="w-full bg-black text-white py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#5951b4] transition-colors flex items-center justify-center gap-2"
+                className="w-full py-4 font-medium text-sm uppercase tracking-widest transition-colors flex items-center justify-center gap-2 bg-accent text-accent-fg hover:bg-accent-hover"
+                style={{ borderRadius: "var(--radius-pill)" }}
               >
-                Continue to Payment <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                Continue to Payment <ArrowRight />
               </button>
             </div>
           )}
 
           {/* Step 2: Payment */}
           {step === 2 && (
-            <div className="bg-white border border-[#c4c7c7] rounded-lg p-6 space-y-5">
-              <h2 className="font-['Playfair_Display'] text-2xl font-bold text-black">Payment Method</h2>
+            <div className="bg-surface border border-line p-6 space-y-5" style={{ borderRadius: "var(--radius-card)" }}>
+              <h2 className="dd-display text-2xl text-fg">Payment Method</h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {PAYMENT_METHODS.map((pm) => (
                   <label
                     key={pm.id}
                     className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                      paymentMethod === pm.id ? "border-black bg-[#f4f3f3]" : "border-[#c4c7c7] hover:border-[#747878]"
+                      paymentMethod === pm.id ? "border-accent bg-accent-tint" : "border-line hover:border-line-strong"
                     }`}
                   >
                     <input
@@ -354,51 +351,52 @@ export default function CheckoutClient() {
                       onChange={() => setPaymentMethod(pm.id)}
                       className="sr-only"
                     />
-                    <span className="material-symbols-outlined text-2xl text-[#5951b4]">{pm.icon}</span>
+                    <span className="material-symbols-outlined text-2xl text-fg-subtle">{pm.icon}</span>
                     <div>
-                      <p className="font-semibold text-sm text-black">{pm.label}</p>
-                      <p className="text-xs text-[#747878]">{pm.sub}</p>
+                      <p className="font-medium text-sm text-fg">{pm.label}</p>
+                      <p className="text-xs text-fg-subtle">{pm.sub}</p>
                     </div>
                     {paymentMethod === pm.id && (
-                      <span className="material-symbols-outlined text-black ml-auto">check_circle</span>
+                      <span className="material-symbols-outlined text-accent ml-auto">check_circle</span>
                     )}
                   </label>
                 ))}
               </div>
 
               {WALLET_LABELS[paymentMethod] && (
-                <div className="bg-[#fce4ec] border border-[#f06292] rounded-lg px-4 py-3 space-y-1">
-                  <p className="text-xs font-bold text-[#c2185b]">How {WALLET_LABELS[paymentMethod]} payment works</p>
-                  <ol className="text-xs text-[#880e4f] list-decimal list-inside space-y-0.5">
-                    <li>Click "Place Order" — you'll be redirected to the {WALLET_LABELS[paymentMethod]} payment page.</li>
-                    <li>Enter your {WALLET_LABELS[paymentMethod]} account number and press "Pay Now".</li>
+                <div className="rounded-lg px-4 py-3 space-y-1 bg-accent-tint border border-accent/30">
+                  <p className="text-xs font-medium text-accent">How {WALLET_LABELS[paymentMethod]} payment works</p>
+                  <ol className="text-xs text-fg-muted list-decimal list-inside space-y-0.5">
+                    <li>Click &quot;Place Order&quot; — you&apos;ll be redirected to the {WALLET_LABELS[paymentMethod]} payment page.</li>
+                    <li>Enter your {WALLET_LABELS[paymentMethod]} account number and press &quot;Pay Now&quot;.</li>
                     <li>Check your phone for the OTP and enter it to confirm.</li>
-                    <li>You'll be brought back here once payment is complete.</li>
+                    <li>You&apos;ll be brought back here once payment is complete.</li>
                   </ol>
-                  <p className="text-[11px] text-[#c2185b] mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
+                  <p className="text-[11px] text-fg-subtle mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
                 </div>
               )}
 
               {paymentMethod === "card" && (
-                <div className="bg-[#f0eeff] border border-[#5951b4]/40 rounded-lg px-4 py-3 space-y-1">
-                  <p className="text-xs font-bold text-[#5951b4]">Card payment</p>
-                  <p className="text-xs text-[#444748]">
+                <div className="rounded-lg px-4 py-3 space-y-1 bg-accent-tint border border-accent/30">
+                  <p className="text-xs font-medium text-accent">Card payment</p>
+                  <p className="text-xs text-fg-muted">
                     You&apos;ll be redirected to SSLCommerz&apos;s secure payment page to enter your card details.
                     Your card number never touches our servers.
                   </p>
-                  <p className="text-[11px] text-[#5951b4] mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
+                  <p className="text-[11px] text-fg-subtle mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
                 </div>
               )}
 
               <div className="flex gap-3">
-                <button onClick={() => setStep(1)} className="flex-1 border border-[#c4c7c7] py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#f4f3f3] transition-colors flex items-center justify-center gap-2">
+                <button onClick={() => setStep(1)} className="flex-1 border border-line-strong py-4 font-medium text-sm uppercase tracking-widest text-fg hover:bg-surface-raised transition-colors flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-lg">arrow_back</span> Back
                 </button>
                 <button
                   onClick={() => setStep(3)}
-                  className="flex-[2] bg-black text-white py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#5951b4] transition-colors flex items-center justify-center gap-2"
+                  className="flex-[2] py-4 font-medium text-sm uppercase tracking-widest transition-colors flex items-center justify-center gap-2 bg-accent text-accent-fg hover:bg-accent-hover"
+                  style={{ borderRadius: "var(--radius-pill)" }}
                 >
-                  Review Order <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  Review Order <ArrowRight />
                 </button>
               </div>
             </div>
@@ -406,38 +404,38 @@ export default function CheckoutClient() {
 
           {/* Step 3: Review & Place Order */}
           {step === 3 && (
-            <div className="bg-white border border-[#c4c7c7] rounded-lg p-6 space-y-6">
-              <h2 className="font-['Playfair_Display'] text-2xl font-bold text-black">Review Your Order</h2>
+            <div className="bg-surface border border-line p-6 space-y-6" style={{ borderRadius: "var(--radius-card)" }}>
+              <h2 className="dd-display text-2xl text-fg">Review Your Order</h2>
 
               {/* Shipping summary */}
-              <div className="bg-[#f4f3f3] rounded-lg p-4">
+              <div className="bg-surface-raised rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#444748]">Shipping To</p>
-                  <button onClick={() => setStep(1)} className="text-xs text-[#5951b4] hover:underline font-semibold">Change</button>
+                  <p className="dd-eyebrow text-fg-subtle">Shipping To</p>
+                  <button onClick={() => setStep(1)} className="text-xs text-accent hover:underline font-medium">Change</button>
                 </div>
-                <p className="text-sm font-semibold text-black">{shipping.name}</p>
-                <p className="text-sm text-[#444748]">{shipping.address}, {shipping.city} {shipping.postalCode}</p>
-                <p className="text-sm text-[#444748]">{shipping.phone}</p>
+                <p className="text-sm font-medium text-fg">{shipping.name}</p>
+                <p className="text-sm text-fg-muted">{shipping.address}, {shipping.city} {shipping.postalCode}</p>
+                <p className="text-sm text-fg-muted">{shipping.phone}</p>
               </div>
 
               {/* Payment summary */}
-              <div className="bg-[#f4f3f3] rounded-lg p-4">
+              <div className="bg-surface-raised rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[#444748]">Payment</p>
-                  <button onClick={() => setStep(2)} className="text-xs text-[#5951b4] hover:underline font-semibold">Change</button>
+                  <p className="dd-eyebrow text-fg-subtle">Payment</p>
+                  <button onClick={() => setStep(2)} className="text-xs text-accent hover:underline font-medium">Change</button>
                 </div>
-                <p className="text-sm font-semibold text-black capitalize">
+                <p className="text-sm font-medium text-fg capitalize">
                   {PAYMENT_METHODS.find((p) => p.id === paymentMethod)?.label}
                 </p>
               </div>
 
               {/* Gift packaging notice */}
               {isGift && (
-                <div className="flex items-center gap-3 p-4 rounded-lg border-2 border-[#5951b4] bg-[#f0eeff]">
-                  <span className="material-symbols-outlined text-[#5951b4] text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>card_giftcard</span>
+                <div className="flex items-center gap-3 p-4 rounded-lg border-2 border-accent bg-accent-tint">
+                  <span className="material-symbols-outlined text-accent text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>card_giftcard</span>
                   <div>
-                    <p className="text-sm font-bold text-[#5951b4]">Gift Packaging Included</p>
-                    <p className="text-xs text-[#444748]">Premium box &amp; ribbon wrap · +৳{giftFee}</p>
+                    <p className="text-sm font-medium text-accent">Gift Packaging Included</p>
+                    <p className="text-xs text-fg-muted">Premium box &amp; ribbon wrap · +৳{giftFee}</p>
                   </div>
                 </div>
               )}
@@ -446,37 +444,38 @@ export default function CheckoutClient() {
               <div className="space-y-3">
                 {state.cart.map((item) => (
                   <div key={item.variantId} className="flex gap-3 items-center">
-                    <div className="w-12 h-16 bg-[#e2e2e2] relative overflow-hidden rounded flex-shrink-0">
+                    <div className="w-12 h-16 bg-surface-raised relative overflow-hidden rounded flex-shrink-0">
                       {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-black truncate">{item.name}</p>
-                      <p className="text-xs text-[#747878]">
+                      <p className="text-sm font-medium text-fg truncate">{item.name}</p>
+                      <p className="text-xs text-fg-subtle">
                         {[item.color, item.size].filter(Boolean).join(" / ")} · Qty {item.quantity}
                       </p>
                     </div>
-                    <p className="text-sm font-bold text-black flex-shrink-0">৳{(item.price * item.quantity).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-fg flex-shrink-0">৳{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
 
               {error && (
-                <div className="bg-[#ffdad6] border border-[#ba1a1a]/20 px-4 py-3 text-sm text-[#93000a] flex items-center gap-2">
+                <div className="px-4 py-3 text-sm flex items-center gap-2 rounded-lg" style={{ background: "var(--danger-tint)", border: "1px solid var(--danger)", color: "var(--danger)" }}>
                   <span className="material-symbols-outlined text-base">error</span>{error}
                 </div>
               )}
 
               <div className="flex gap-3">
-                <button onClick={() => setStep(2)} className="flex-1 border border-[#c4c7c7] py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#f4f3f3] transition-colors flex items-center justify-center gap-2">
+                <button onClick={() => setStep(2)} className="flex-1 border border-line-strong py-4 font-medium text-sm uppercase tracking-widest text-fg hover:bg-surface-raised transition-colors flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-lg">arrow_back</span> Back
                 </button>
                 <button
                   onClick={placeOrder}
                   disabled={placing}
-                  className="flex-[2] bg-black text-white py-4 font-bold text-sm uppercase tracking-widest hover:bg-[#5951b4] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-[2] py-4 font-medium text-sm uppercase tracking-widest transition-colors disabled:opacity-50 flex items-center justify-center gap-2 bg-accent text-accent-fg hover:bg-accent-hover"
+                  style={{ borderRadius: "var(--radius-pill)" }}
                 >
                   {placing ? (
-                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing…</>
+                    <><Spinner size={16} /> Processing…</>
                   ) : (
                     <>Place Order — ৳{total.toLocaleString()} <span className="material-symbols-outlined text-lg">lock</span></>
                   )}
@@ -488,32 +487,32 @@ export default function CheckoutClient() {
 
         {/* Right — order summary */}
         <div className="lg:col-span-2">
-          <div className="bg-white border border-[#c4c7c7] rounded-lg p-6 sticky top-24 space-y-4">
-            <h3 className="font-['Playfair_Display'] text-xl font-bold text-black">Order Summary</h3>
+          <div className="bg-surface border border-line p-6 sticky top-24 space-y-4" style={{ borderRadius: "var(--radius-card)" }}>
+            <h3 className="dd-display text-xl text-fg">Order Summary</h3>
 
             <div className="space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
               {state.cart.map((item) => (
                 <div key={item.variantId} className="flex gap-3 items-center">
-                  <div className="w-10 h-12 bg-[#e2e2e2] relative overflow-hidden rounded flex-shrink-0">
+                  <div className="w-10 h-12 bg-surface-raised relative overflow-hidden rounded flex-shrink-0">
                     {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-black truncate">{item.name}</p>
-                    <p className="text-xs text-[#747878]">×{item.quantity}</p>
+                    <p className="text-xs font-medium text-fg truncate">{item.name}</p>
+                    <p className="text-xs text-fg-subtle">×{item.quantity}</p>
                   </div>
-                  <p className="text-xs font-bold text-black">৳{(item.price * item.quantity).toLocaleString()}</p>
+                  <p className="text-xs font-medium text-fg">৳{(item.price * item.quantity).toLocaleString()}</p>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-2 text-sm border-t border-[#c4c7c7] pt-4">
-              <div className="flex justify-between text-[#444748]"><span>Subtotal</span><span>৳{subtotal.toLocaleString()}</span></div>
-              <div className="flex justify-between text-[#444748]">
+            <div className="space-y-2 text-sm border-t border-line pt-4">
+              <div className="flex justify-between text-fg-muted"><span>Subtotal</span><span>৳{subtotal.toLocaleString()}</span></div>
+              <div className="flex justify-between text-fg-muted">
                 <span>Shipping</span>
-                <span>{shippingFee === 0 ? <span className="text-green-600 font-semibold">Free</span> : `৳${shippingFee}`}</span>
+                <span>{shippingFee === 0 ? <span className="font-medium" style={{ color: "var(--success)" }}>Free</span> : `৳${shippingFee}`}</span>
               </div>
               {giftFee > 0 && (
-                <div className="flex justify-between text-[#5951b4]">
+                <div className="flex justify-between text-accent">
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>card_giftcard</span>
                     Gift packaging
@@ -522,12 +521,12 @@ export default function CheckoutClient() {
                 </div>
               )}
               {state.discount > 0 && (
-                <div className="flex justify-between text-green-600 font-semibold">
+                <div className="flex justify-between font-medium" style={{ color: "var(--success)" }}>
                   <span>Promo discount</span><span>-৳{state.discount.toLocaleString()}</span>
                 </div>
               )}
               {flashDiscount > 0 && (
-                <div className="flex justify-between font-semibold" style={{ color: "#c9a84c" }}>
+                <div className="flex justify-between font-medium text-accent">
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm">bolt</span>
                     Flash Sale ({flashSale!.discountPercent}% off{flashSale!.categorySlug ? ` · ${flashSale!.categorySlug}` : ""})
@@ -537,7 +536,7 @@ export default function CheckoutClient() {
               )}
             </div>
 
-            <div className="flex justify-between font-bold text-black text-lg border-t border-[#c4c7c7] pt-4">
+            <div className="flex justify-between font-medium text-fg text-lg border-t border-line pt-4">
               <span>Total</span><span>৳{total.toLocaleString()}</span>
             </div>
           </div>
@@ -550,11 +549,11 @@ export default function CheckoutClient() {
 function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-bold uppercase tracking-widest text-[#1a1c1c]">
-        {label}{required && <span className="text-[#ba1a1a] ml-0.5">*</span>}
+      <label className="block text-xs font-medium uppercase tracking-widest text-fg-muted">
+        {label}{required && <span className="ml-0.5" style={{ color: "var(--danger)" }}>*</span>}
       </label>
       {children}
-      {error && <p className="text-[11px] text-[#ba1a1a] font-medium">{error}</p>}
+      {error && <p className="text-[11px] font-medium" style={{ color: "var(--danger)" }}>{error}</p>}
     </div>
   );
 }

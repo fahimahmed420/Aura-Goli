@@ -1,0 +1,170 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Aura Goli — semantic design tokens
+
+   Live sitewide via data-theme="noir" on <html> (src/app/layout.tsx). See
+   NOIR_DESIGN_SYSTEM.md at the repo root for the full reference (rollout
+   status, migration mapping, known exceptions).
+
+   Components reference roles (`accent`, `fg-muted`), never brand names
+   (`gold`, `navy`) — that indirection is what makes a palette swap one file
+   instead of ~1,900 edits.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── A · Refined Noir + Gold ─────────────────────────────────────────────── */
+[data-theme="noir"] {
+  /* Tells the browser to render native controls (select dropdowns, date
+     pickers, scrollbars) with dark OS chrome instead of defaulting to a
+     white popup with unreadable text — this is not automatic just because
+     the page background is dark. */
+  color-scheme: dark;
+
+  --canvas:          #0b0b14;
+  --surface:         #14131f;
+  --surface-raised:  #1d1b2b;
+
+  --fg:              #f7f4ec;
+  --fg-muted:        #a5a1b0;
+  --fg-subtle:       #6e6a7d;
+
+  --accent:          #c9a84c;
+  --accent-hover:    #dcbb5e;
+  --accent-fg:       #0b0b14;
+  --accent-tint:     rgba(201, 168, 76, 0.10);
+
+  --line:            rgba(247, 244, 236, 0.09);
+  --line-strong:     rgba(247, 244, 236, 0.18);
+
+  --font-display:    var(--font-instrument-serif), Georgia, serif;
+  --font-ui:         var(--font-inter-tight), system-ui, sans-serif;
+
+  /* Display type on a dark ground needs a touch less weight to avoid blooming. */
+  --display-weight:  400;
+  --display-tracking: -0.02em;
+  --radius-card:     4px;
+  --radius-pill:     999px;
+
+  /* Functional-surface tokens (forms, modals, selection) */
+  --field-bg:           rgba(247, 244, 236, 0.04);
+  --field-border:       rgba(247, 244, 236, 0.14);
+  --field-border-focus: var(--accent);
+  --overlay:            rgba(4, 4, 10, 0.72);
+  --selection-bg:       var(--accent);
+  --selection-fg:       var(--accent-fg);
+}
+
+/* ── Status ramp ─────────────────────────────────────────────────────────────
+   Order states, stock warnings and form errors must not change meaning if the
+   brand palette ever changes, so they sit outside the theme block. */
+[data-theme] {
+  --success:      #1a7f37;
+  --success-tint: #e6f4ea;
+  --warning:      #b4690e;
+  --warning-tint: #fdf0e3;
+  --danger:       #ba1a1a;
+  --danger-tint:  #fdecea;
+}
+
+/* ── Tailwind v4 bridge ──────────────────────────────────────────────────────
+   `inline` makes utilities emit `var(--canvas)` rather than snapshotting a
+   value, so `bg-canvas` resolves against whichever [data-theme] is in scope. */
+@theme inline {
+  --color-canvas:         var(--canvas);
+  --color-surface:        var(--surface);
+  --color-surface-raised: var(--surface-raised);
+
+  --color-fg:             var(--fg);
+  --color-fg-muted:       var(--fg-muted);
+  --color-fg-subtle:      var(--fg-subtle);
+
+  --color-accent:         var(--accent);
+  --color-accent-hover:   var(--accent-hover);
+  --color-accent-fg:      var(--accent-fg);
+  --color-accent-tint:    var(--accent-tint);
+
+  --color-line:           var(--line);
+  --color-line-strong:    var(--line-strong);
+
+  --color-success:        var(--success);
+  --color-success-tint:   var(--success-tint);
+  --color-warning:        var(--warning);
+  --color-warning-tint:   var(--warning-tint);
+  --color-danger:         var(--danger);
+  --color-danger-tint:    var(--danger-tint);
+
+  --color-field-bg:       var(--field-bg);
+  --color-field-border:   var(--field-border);
+  --color-overlay:        var(--overlay);
+
+  --font-display:         var(--font-display);
+  --font-ui:              var(--font-ui);
+}
+
+/* ── Global type + motion primitives ─────────────────────────────────────────
+   The `dd-` classes are the site-wide motion/typography vocabulary (masked
+   reveals, underline draw-ins, slow image zoom). One vocabulary, used
+   everywhere — do not add page-local variants. */
+.dd-display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 0.95;
+}
+
+/* Uppercase micro-label. The one place both themes agree — it is structural,
+   not decorative, and carries the "boutique" rhythm at any palette. */
+.dd-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Underline that draws in from the left on hover — used on text links so they
+   don't need a color change to signal interactivity (which would burn accent). */
+.dd-link {
+  position: relative;
+}
+.dd-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dd-link:hover::after { transform: scaleX(1); }
+
+/* Image reveal — product photography scales back to rest on hover-out slowly,
+   which reads as "considered" rather than "snappy". */
+.dd-media img {
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dd-card:hover .dd-media img { transform: scale(1.045); }
+
+@keyframes dd-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dd-rise {
+  animation: dd-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes dd-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.dd-marquee {
+  display: flex;
+  width: max-content;
+  animation: dd-marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dd-rise { animation: none; }
+  .dd-marquee { animation-duration: 200s; }
+  .dd-media img { transition: none; }
+}

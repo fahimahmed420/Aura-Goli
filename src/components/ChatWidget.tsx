@@ -27,8 +27,7 @@ function linkify(text: string, role: "user" | "bot") {
         href={part}
         target="_blank"
         rel="noopener noreferrer"
-        className="underline break-all"
-        style={{ color: role === "user" ? "#c9a96e" : "#7c6f5b" }}
+        className={`underline break-all ${role === "user" ? "text-accent-fg" : "text-accent"}`}
       >
         {part}
       </a>
@@ -190,23 +189,23 @@ export default function ChatWidget() {
       {/* Chat panel */}
       {open && (
         <div
-          className="w-72 sm:w-80 flex flex-col rounded-2xl shadow-2xl overflow-hidden border border-[#e8e0d0]"
-          style={{ height: "440px", background: "#faf7f0" }}
+          className="w-72 sm:w-80 flex flex-col shadow-2xl overflow-hidden bg-surface border border-line-strong"
+          style={{ height: "440px", borderRadius: "var(--radius-card)" }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ background: "#1a1c1c" }}>
+          <div className="flex items-center justify-between px-4 py-3 shrink-0 bg-canvas border-b border-line">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#c9a96e] flex items-center justify-center text-white text-sm font-bold shrink-0">
+              <div className="w-8 h-8 rounded-full bg-accent-tint text-accent flex items-center justify-center text-sm font-bold shrink-0 border border-accent/30">
                 A
               </div>
               <div>
-                <p className="text-white text-sm font-semibold leading-none">Aura Bot</p>
-                <p className="text-[#9ca3af] text-xs mt-0.5">Aura Goli Support</p>
+                <p className="text-fg text-sm font-semibold leading-none">Aura Bot</p>
+                <p className="text-fg-subtle text-xs mt-0.5">Aura Goli Support</p>
               </div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="text-[#9ca3af] hover:text-white transition-colors"
+              className="text-fg-subtle hover:text-fg transition-colors"
               aria-label="Close chat"
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -220,18 +219,17 @@ export default function ChatWidget() {
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className="max-w-[82%] rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap"
-                  style={
+                  className={`max-w-[82%] rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
                     m.role === "user"
-                      ? { background: "#1a1c1c", color: "#faf7f0", borderBottomRightRadius: "4px" }
-                      : { background: "#f0ebe0", color: "#1a1c1c", borderBottomLeftRadius: "4px" }
-                  }
+                      ? "bg-accent text-accent-fg rounded-br-[4px]"
+                      : "bg-surface-raised text-fg rounded-bl-[4px]"
+                  }`}
                 >
                   {m.role === "bot" && m.text === "" && loading ? (
                     <span className="inline-flex gap-1 py-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#9ca3af] animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#9ca3af] animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#9ca3af] animate-bounce" style={{ animationDelay: "300ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-fg-subtle animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-fg-subtle animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-1.5 h-1.5 rounded-full bg-fg-subtle animate-bounce" style={{ animationDelay: "300ms" }} />
                     </span>
                   ) : (
                     linkify(m.text, m.role)
@@ -248,7 +246,7 @@ export default function ChatWidget() {
                     <button
                       key={chip.label}
                       onClick={() => { setOpen(false); router.push(chip.href!); }}
-                      className="text-xs px-3 py-1.5 rounded-full border border-[#c9a96e] text-[#7c6f5b] hover:bg-[#c9a96e] hover:text-white transition-colors"
+                      className="text-xs px-3 py-1.5 rounded-full border border-line-strong text-fg-muted hover:bg-accent-tint hover:text-accent transition-colors"
                     >
                       {chip.label}
                     </button>
@@ -256,7 +254,7 @@ export default function ChatWidget() {
                     <button
                       key={chip.label}
                       onClick={() => send(chip.label)}
-                      className="text-xs px-3 py-1.5 rounded-full border border-[#c9a96e] text-[#7c6f5b] hover:bg-[#c9a96e] hover:text-white transition-colors"
+                      className="text-xs px-3 py-1.5 rounded-full border border-line-strong text-fg-muted hover:bg-accent-tint hover:text-accent transition-colors"
                     >
                       {chip.label}
                     </button>
@@ -269,11 +267,11 @@ export default function ChatWidget() {
           </div>
 
           {/* Input */}
-          <div className="px-3 py-2.5 border-t border-[#e8e0d0] flex gap-2 shrink-0">
+          <div className="px-3 py-2.5 border-t border-line flex gap-2 shrink-0">
             <textarea
               ref={inputRef}
               rows={1}
-              className="flex-1 rounded-xl border border-[#e8e0d0] bg-white px-3 py-2 text-sm outline-none focus:border-[#c9a96e] transition-colors placeholder:text-[#b0a898] resize-none overflow-hidden leading-5"
+              className="flex-1 rounded-xl border border-[var(--field-border)] bg-[var(--field-bg)] text-fg px-3 py-2 text-sm outline-none focus:border-[var(--field-border-focus)] transition-colors placeholder:text-fg-subtle resize-none overflow-hidden leading-5"
               placeholder="Type a message… (Shift+Enter for new line)"
               value={input}
               onChange={handleInput}
@@ -284,34 +282,32 @@ export default function ChatWidget() {
             <button
               onClick={() => send()}
               disabled={!input.trim() || loading}
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-opacity disabled:opacity-40 shrink-0"
-              style={{ background: "#1a1c1c" }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center transition-opacity disabled:opacity-40 shrink-0 bg-accent"
               aria-label="Send"
             >
-              <svg width="16" height="16" fill="none" stroke="#faf7f0" strokeWidth="2" viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="none" stroke="var(--accent-fg)" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M22 2 11 13M22 2 15 22 11 13 2 9l20-7z" />
               </svg>
             </button>
           </div>
 
           {/* Footer */}
-          <p className="text-center text-[10px] text-[#b0a898] pb-2 shrink-0">Powered by Aura Goli AI</p>
+          <p className="text-center text-[10px] text-fg-subtle pb-2 shrink-0">Powered by Aura Goli AI</p>
         </div>
       )}
 
       {/* Bubble toggle */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
-        style={{ background: "#1a1c1c" }}
+        className="w-10 h-10 sm:w-11 sm:h-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95 bg-accent"
         aria-label="Open chat"
       >
         {open ? (
-          <svg width="18" height="18" fill="none" stroke="#faf7f0" strokeWidth="2" viewBox="0 0 24 24">
+          <svg width="18" height="18" fill="none" stroke="var(--accent-fg)" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M18 6 6 18M6 6l12 12" />
           </svg>
         ) : (
-          <svg width="18" height="18" fill="none" stroke="#faf7f0" strokeWidth="2" viewBox="0 0 24 24">
+          <svg width="18" height="18" fill="none" stroke="var(--accent-fg)" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         )}

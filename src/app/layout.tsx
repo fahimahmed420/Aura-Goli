@@ -1,8 +1,32 @@
 import type { Metadata, Viewport } from "next";
+import { Instrument_Serif, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 import Analytics from "@/components/Analytics";
 import ChatWidget from "@/components/ChatWidget";
+
+/*
+  Sitewide type. next/font self-hosts + subsets at build time and emits
+  size-adjust fallback metrics, so swapping in a fallback face never shifts
+  layout — the same zero-CLS property the old hand-managed fonts.css achieved,
+  without shipping 8 extra woff2 binaries.
+
+  --font-display / --font-ui are consumed by design-tokens.css, never named
+  directly by components.
+*/
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument-serif",
+  display: "swap",
+});
+
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-inter-tight",
+  display: "swap",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://auragoli.com";
 
@@ -39,12 +63,15 @@ const orgJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html
+      lang="en"
+      className={`h-full antialiased ${instrumentSerif.variable} ${interTight.variable}`}
+      data-theme="noir"
+    >
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-        {/* Playfair Display + Hanken Grotesk are now self-hosted (see globals.css /
-            fonts.css) — no render-blocking text-font request. Only the Material
-            Symbols icon font is still loaded from Google. */}
+        {/* Only the Material Symbols icon font still loads from Google — display
+            and UI type are self-hosted via next/font above. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -52,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#faf7f0] text-[#1a1c1c]" style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
+      <body className="min-h-full flex flex-col bg-canvas text-fg" style={{ fontFamily: "var(--font-ui)" }}>
         <Analytics />
         {children}
         <ChatWidget />

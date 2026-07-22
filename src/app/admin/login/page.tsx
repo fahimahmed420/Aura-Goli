@@ -40,53 +40,53 @@ function AdminLoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f9f9f9] flex">
+    <div className="min-h-screen bg-[color:var(--canvas)] flex">
       {/* Left — brand panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-[#1c1b1b] p-16">
-        <h1 className="font-['Playfair_Display'] text-4xl font-bold text-white tracking-tighter">Aura Goli</h1>
+      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-[color:var(--surface)] p-16">
+        <h1 className="dd-display text-4xl text-fg tracking-tighter">Aura Goli</h1>
         <div>
-          <p className="font-['Playfair_Display'] text-5xl font-bold text-white leading-tight mb-4">
+          <p className="dd-display text-5xl leading-tight mb-4 text-fg">
             The power of your store, in one place.
           </p>
-          <p className="text-[#858383] text-lg">Manage products, orders, and customers with precision.</p>
+          <p className="text-[color:var(--fg-muted)] text-lg">Manage products, orders, and customers with precision.</p>
         </div>
-        <p className="text-[#858383] text-sm">Admin Console · Restricted Access</p>
+        <p className="text-[color:var(--fg-muted)] text-sm">Admin Console · Restricted Access</p>
       </div>
 
       {/* Right — login form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="mb-10">
-            <h2 className="font-['Playfair_Display'] text-3xl font-bold text-black mb-2">Admin Sign In</h2>
-            <p className="text-[#444748]">Enter your credentials to access the admin console.</p>
+            <h2 className="dd-display text-3xl text-fg mb-2">Admin Sign In</h2>
+            <p className="text-[color:var(--fg-muted)]">Enter your credentials to access the admin console.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-[#1a1c1c] mb-2 uppercase tracking-widest">Email</label>
+              <label className="block text-sm font-semibold text-[color:var(--fg)] mb-2 uppercase tracking-widest">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full border border-[#c4c7c7] bg-white px-4 py-3 text-sm outline-none focus:border-black transition-colors"
+                className="field-input"
                 placeholder="admin@auragoli.com"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#1a1c1c] mb-2 uppercase tracking-widest">Password</label>
+              <label className="block text-sm font-semibold text-[color:var(--fg)] mb-2 uppercase tracking-widest">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full border border-[#c4c7c7] bg-white px-4 py-3 text-sm outline-none focus:border-black transition-colors"
+                className="field-input"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <div className="bg-[#ffdad6] border border-[#ba1a1a]/20 px-4 py-3 text-sm text-[#93000a] flex items-center gap-2">
+              <div className="bg-[color:var(--danger-tint)] border border-[color:var(--danger)]/20 px-4 py-3 text-sm text-[color:var(--danger)] flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">error</span>
                 {error}
               </div>
@@ -95,21 +95,21 @@ function AdminLoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-4 font-semibold uppercase tracking-widest text-sm hover:bg-black/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-accent text-accent-fg py-4 font-medium uppercase tracking-widest text-sm hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in…" : "Sign In"}
             </button>
           </form>
 
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-[#e8e8e8]" />
-            <span className="text-xs text-[#747878] uppercase tracking-widest">or</span>
-            <div className="flex-1 h-px bg-[#e8e8e8]" />
+            <div className="flex-1 h-px bg-[color:var(--line)]" />
+            <span className="text-xs text-[color:var(--fg-subtle)] uppercase tracking-widest">or</span>
+            <div className="flex-1 h-px bg-[color:var(--line)]" />
           </div>
 
           <a
             href="/api/auth/google?admin=1"
-            className="w-full flex items-center justify-center gap-3 border border-[#c4c7c7] bg-white py-3.5 text-sm font-semibold text-[#1a1c1c] hover:bg-[#f4f3f3] transition-colors"
+            className="w-full flex items-center justify-center gap-3 border border-line-strong py-3.5 text-sm font-medium text-fg hover:bg-surface transition-colors"
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -121,7 +121,7 @@ function AdminLoginForm() {
           </a>
 
           {error && error.includes("not_admin") && (
-            <p className="mt-3 text-sm text-center text-[#93000a]">That Google account does not have admin access.</p>
+            <p className="mt-3 text-sm text-center text-[color:var(--danger)]">That Google account does not have admin access.</p>
           )}
         </div>
       </div>
@@ -131,7 +131,7 @@ function AdminLoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#f9f9f9]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[color:var(--canvas)]" />}>
       <AdminLoginForm />
     </Suspense>
   );

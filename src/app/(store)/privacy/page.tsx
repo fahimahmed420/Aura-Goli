@@ -6,17 +6,17 @@ const LAST_UPDATED = "1 June 2025";
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#f9f9f9]">
-      <div className="bg-black text-white px-4 md:px-12 py-16">
+    <div className="min-h-screen bg-canvas">
+      <div className="bg-surface border-b border-line px-4 md:px-12 py-16">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-semibold text-[#9f97ff] uppercase tracking-widest mb-3">Legal</p>
-          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold mb-2">Privacy Policy</h1>
-          <p className="text-white/50 text-sm">Last updated: {LAST_UPDATED}</p>
+          <p className="dd-eyebrow text-fg-subtle uppercase tracking-widest mb-3">Legal</p>
+          <h1 className="dd-display text-4xl md:text-5xl text-fg mb-2">Privacy Policy</h1>
+          <p className="text-fg-subtle text-sm">Last updated: {LAST_UPDATED}</p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 md:px-12 py-16 prose prose-sm max-w-none">
-        <div className="space-y-10 text-[#444748]">
+        <div className="space-y-10 text-fg-muted">
           {[
             {
               title: "1. Information We Collect",
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
             },
           ].map((s) => (
             <section key={s.title}>
-              <h2 className="font-['Playfair_Display'] text-xl font-bold text-black mb-3">{s.title}</h2>
+              <h2 className="dd-display text-xl text-fg mb-3">{s.title}</h2>
               <p className="leading-relaxed">{s.body}</p>
             </section>
           ))}

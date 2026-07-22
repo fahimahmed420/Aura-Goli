@@ -31,49 +31,47 @@ export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
   if (products.length === 0) return null;
 
   return (
-   <section className="py-10 md:py-14 bg-[#faf7f0]">
-  <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-12">
-    <h2 className="font-['Playfair_Display'] text-2xl md:text-3xl font-bold text-[#12103a] mb-6">
-      Recently Viewed
-    </h2>
+    <section className="py-10 md:py-16 bg-canvas">
+      <div className="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-12">
+        <p className="dd-eyebrow text-fg-subtle mb-4">Recently viewed</p>
 
-    {/* Mobile Slider / Desktop Grid */}
-    <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-hide pb-2">
-      {products.map((p) => (
-        <Link
-          key={p.id}
-          href={`/products/${p.slug}`}
-          className="group flex-shrink-0 w-[160px] md:w-auto snap-start"
-        >
-          <div className="aspect-square rounded-2xl overflow-hidden bg-[#f4f3f3] mb-3">
-            {p.imageUrl ? (
-              <Image
-                src={p.imageUrl}
-                alt={p.name}
-                width={300}
-                height={300}
-                className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="material-symbols-outlined text-3xl text-[#c4c7c7]">
-                  checkroom
-                </span>
+        {/* Mobile Slider / Desktop Grid */}
+        <div className="flex md:grid md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-none pb-2">
+          {products.map((p) => (
+            <Link
+              key={p.id}
+              href={`/products/${p.slug}`}
+              className="dd-card group flex-shrink-0 w-[160px] md:w-auto snap-start"
+            >
+              <div className="dd-media aspect-square overflow-hidden bg-surface-raised mb-3" style={{ borderRadius: "var(--radius-card)" }}>
+                {p.imageUrl ? (
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name}
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-3xl text-fg-subtle">
+                      checkroom
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <h3 className="text-sm font-medium text-black line-clamp-2 group-hover:text-[#c9a84c] transition-colors">
-            {p.name}
-          </h3>
+              <h3 className="text-sm font-medium text-fg line-clamp-2 group-hover:text-accent transition-colors">
+                {p.name}
+              </h3>
 
-          <p className="mt-1 text-sm font-semibold text-[#c9a84c]">
-            ৳{Number(p.price).toLocaleString()}
-          </p>
-        </Link>
-      ))}
-    </div>
-  </div>
-</section>
+              <p className="mt-1 text-sm font-medium text-fg-muted">
+                ৳{Number(p.price).toLocaleString()}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

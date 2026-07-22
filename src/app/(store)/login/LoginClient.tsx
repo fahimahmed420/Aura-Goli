@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Spinner from "@/components/ui/Spinner";
 
 export default function LoginClient() {
   const router = useRouter();
@@ -73,75 +74,62 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row" style={{ background: "#0b0b14" }}>
+    <div className="min-h-screen flex flex-col md:flex-row bg-canvas">
 
       {/* ── Left brand panel (desktop only) ──────────────────── */}
-      <div className="hidden md:flex md:w-[45%] relative overflow-hidden flex-col items-center justify-center"
-        style={{ background: "linear-gradient(145deg, #1a0d2e 0%, #12103a 50%, #0b0b14 100%)" }}>
+      <div className="hidden md:flex md:w-[45%] relative overflow-hidden flex-col items-center justify-center bg-surface">
         <div className="absolute w-96 h-96 rounded-full -top-20 -left-20 pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(201,168,76,0.3) 0%, transparent 70%)" }} />
-        <div className="absolute w-64 h-64 rounded-full bottom-24 -right-12 pointer-events-none"
-          style={{ background: "radial-gradient(circle, rgba(159,151,255,0.2) 0%, transparent 70%)" }} />
+          style={{ background: "radial-gradient(circle, var(--accent-tint) 0%, transparent 70%)" }} />
 
         <div className="relative z-10 max-w-xs text-center px-8">
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] mb-6"
-            style={{ color: "rgba(201,168,76,0.6)" }}>Welcome to</p>
-          <h1 className="font-['Playfair_Display'] text-5xl font-bold leading-none mb-4"
-            style={{ color: "#faf7f0" }}>
-            Aura<br /><span style={{ color: "#c9a84c" }}>Goli</span>
+          <p className="dd-eyebrow text-fg-subtle mb-6">Welcome to</p>
+          <h1 className="dd-display text-5xl leading-none mb-4 text-fg">
+            Aura<br /><span className="text-accent">Goli</span>
           </h1>
-          <p className="text-sm leading-relaxed mt-6" style={{ color: "rgba(250,247,240,0.45)" }}>
+          <p className="text-sm leading-relaxed mt-6 text-fg-muted">
             Premium threads, crafted with care. Join a community that wears with intention.
           </p>
 
-          <div className="mt-12 text-left rounded-2xl p-5"
-            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <p className="font-['Playfair_Display'] text-sm italic leading-relaxed"
-              style={{ color: "rgba(250,247,240,0.7)" }}>
+          <div className="mt-12 text-left rounded-2xl p-5 bg-surface-raised border border-line">
+            <p className="dd-display text-sm leading-relaxed text-fg-muted" style={{ fontStyle: "italic" }}>
               &ldquo;The quality speaks for itself. Aura Goli changed how I dress.&rdquo;
             </p>
             <div className="flex items-center gap-2 mt-3">
-              <div className="w-6 h-px" style={{ background: "#c9a84c" }} />
-              <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#c9a84c" }}>James L.</span>
+              <div className="w-6 h-px bg-accent" />
+              <span className="text-[11px] font-medium uppercase tracking-wider text-accent">James L.</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Right form panel ──────────────────────────────────── */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-screen md:min-h-0 px-5 py-10 relative"
-        style={{ background: "#f9f9f9" }}>
+      <div className="flex-1 flex flex-col items-center justify-center min-h-screen md:min-h-0 px-5 py-10 relative bg-canvas">
 
         <Link href="/"
-          className="md:hidden absolute top-5 left-5 flex items-center gap-1.5 text-sm text-[#444748]">
+          className="md:hidden absolute top-5 left-5 flex items-center gap-1.5 text-sm text-fg-muted">
           <span className="material-symbols-outlined text-base">arrow_back</span>
           Back
         </Link>
 
         <div className="w-full max-w-md">
           <div className="md:hidden text-center mb-8">
-            <Link href="/" className="font-['Playfair_Display'] text-3xl font-bold text-black tracking-tight">
-              Aura<span style={{ color: "#c9a84c" }}>·</span>Goli
+            <Link href="/" className="dd-display text-3xl text-fg tracking-tight">
+              Aura<span className="text-accent">·</span>Goli
             </Link>
-            <p className="text-sm text-[#747878] mt-1">Premium threads, crafted with care.</p>
+            <p className="text-sm text-fg-subtle mt-1">Premium threads, crafted with care.</p>
           </div>
 
-          <div className="bg-white rounded-3xl p-7 md:p-8"
-            style={{ boxShadow: "0 20px 60px rgba(11,11,20,0.12), 0 4px 16px rgba(11,11,20,0.06)" }}>
+          <div className="bg-surface border border-line rounded-3xl p-7 md:p-8">
 
             {/* Mode toggle */}
-            <div className="flex rounded-2xl overflow-hidden mb-7 p-1 gap-1"
-              style={{ background: "#f4f3f3" }}>
+            <div className="flex rounded-2xl overflow-hidden mb-7 p-1 gap-1 bg-surface-raised">
               {(["login", "register"] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => { setMode(m); setError(""); }}
-                  className="flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-200"
-                  style={{
-                    background: mode === m ? "#0b0b14" : "transparent",
-                    color: mode === m ? "#faf7f0" : "#747878",
-                    boxShadow: mode === m ? "0 3px 10px rgba(11,11,20,0.25)" : "none",
-                  }}
+                  className={`flex-1 py-2.5 text-xs font-medium uppercase tracking-widest rounded-xl transition-all duration-200 ${
+                    mode === m ? "bg-accent text-accent-fg" : "text-fg-subtle"
+                  }`}
                 >
                   {m === "login" ? "Sign In" : "Register"}
                 </button>
@@ -151,13 +139,13 @@ export default function LoginClient() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "register" && (
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-widest text-[#444748] mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-widest text-fg-muted mb-1.5">
                     Full Name
                   </label>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-xl px-4 py-3.5 text-sm border border-[#e8e8e8] bg-[#fafafa] outline-none focus:border-[#3d2b7a] transition-all"
+                    className="field-input"
                     placeholder="Your full name"
                     required
                     autoComplete="name"
@@ -166,14 +154,14 @@ export default function LoginClient() {
               )}
 
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-widest text-[#444748] mb-1.5">
+                <label className="block text-[11px] font-medium uppercase tracking-widest text-fg-muted mb-1.5">
                   Email Address
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl px-4 py-3.5 text-sm border border-[#e8e8e8] bg-[#fafafa] outline-none focus:border-[#3d2b7a] transition-all"
+                  className="field-input"
                   placeholder="you@example.com"
                   required
                   autoComplete="email"
@@ -182,11 +170,11 @@ export default function LoginClient() {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-widest text-[#444748]">
+                  <label className="text-[11px] font-medium uppercase tracking-widest text-fg-muted">
                     Password
                   </label>
                   {mode === "login" && (
-                    <Link href="/forgot-password" className="text-xs text-[#5951b4]">
+                    <Link href="/forgot-password" className="text-xs text-accent">
                       Forgot password?
                     </Link>
                   )}
@@ -196,7 +184,7 @@ export default function LoginClient() {
                     type={showPass ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl px-4 py-3.5 pr-12 text-sm border border-[#e8e8e8] bg-[#fafafa] outline-none focus:border-[#3d2b7a] transition-all"
+                    className="field-input pr-12"
                     placeholder={mode === "register" ? "Min. 8 characters" : "Your password"}
                     required
                     minLength={mode === "register" ? 8 : undefined}
@@ -205,7 +193,7 @@ export default function LoginClient() {
                   <button
                     type="button"
                     onClick={() => setShowPass((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#747878]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-subtle"
                   >
                     <span className="material-symbols-outlined text-lg">{showPass ? "visibility_off" : "visibility"}</span>
                   </button>
@@ -213,31 +201,26 @@ export default function LoginClient() {
               </div>
 
               {success && (
-                <div className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm bg-green-50 border border-green-200">
-                  <span className="material-symbols-outlined text-base text-green-600 mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                  <span className="text-green-700">{success}</span>
+                <div className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm" style={{ background: "var(--success-tint)", border: "1px solid var(--success)" }}>
+                  <span className="material-symbols-outlined text-base mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1", color: "var(--success)" }}>check_circle</span>
+                  <span style={{ color: "var(--success)" }}>{success}</span>
                 </div>
               )}
               {error && (
-                <div className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm bg-[#ffdad6] border border-[#ba1a1a]/15">
-                  <span className="material-symbols-outlined text-base text-[#ba1a1a] mt-0.5 shrink-0">error</span>
-                  <span className="text-[#ba1a1a]">{error}</span>
+                <div className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm" style={{ background: "var(--danger-tint)", border: "1px solid var(--danger)" }}>
+                  <span className="material-symbols-outlined text-base mt-0.5 shrink-0" style={{ color: "var(--danger)" }}>error</span>
+                  <span style={{ color: "var(--danger)" }}>{error}</span>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl py-4 text-[11px] font-bold uppercase tracking-[0.18em] disabled:opacity-50 mt-2 flex items-center justify-center gap-2 transition-all"
-                style={{
-                  background: "#0b0b14",
-                  color: "#faf7f0",
-                  boxShadow: "0 6px 0 rgba(0,0,0,0.4), 0 10px 28px rgba(11,11,20,0.2)",
-                }}
+                className="w-full rounded-2xl py-4 text-[11px] font-medium uppercase tracking-[0.18em] disabled:opacity-50 mt-2 flex items-center justify-center gap-2 transition-colors bg-accent text-accent-fg hover:bg-accent-hover"
               >
                 {loading ? (
                   <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <Spinner size={16} />
                     Please wait…
                   </>
                 ) : mode === "login" ? "Sign In" : "Create Account"}
@@ -245,17 +228,16 @@ export default function LoginClient() {
             </form>
 
             <div className="flex items-center gap-3 my-5">
-              <div className="flex-1 h-px bg-[#e8e8e8]" />
-              <span className="text-xs text-[#c4c7c7]">OR</span>
-              <div className="flex-1 h-px bg-[#e8e8e8]" />
+              <div className="flex-1 h-px bg-line" />
+              <span className="text-xs text-fg-subtle">OR</span>
+              <div className="flex-1 h-px bg-line" />
             </div>
 
             {/* Google sign-in */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-semibold border transition-all hover:bg-[#f9f9f9] active:scale-[0.98]"
-              style={{ borderColor: "#e0e0e0", color: "#3c4043", background: "#fff" }}
+              className="w-full flex items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-medium border border-line-strong text-fg transition-all hover:bg-surface-raised active:scale-[0.98]"
             >
               {/* Google "G" logo SVG */}
               <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -270,18 +252,18 @@ export default function LoginClient() {
             <div className="mt-4 text-center">
               <button
                 onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}
-                className="text-sm text-[#5951b4] font-semibold"
+                className="text-sm text-accent font-medium"
               >
                 {mode === "login" ? "Don't have an account? Register" : "Already have an account? Sign In"}
               </button>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-[#747878] mt-5 px-4 leading-relaxed">
+          <p className="text-center text-[11px] text-fg-subtle mt-5 px-4 leading-relaxed">
             By continuing you agree to our{" "}
-            <Link href="/privacy" className="underline hover:text-black">Privacy Policy</Link>
+            <Link href="/privacy" className="underline hover:text-fg">Privacy Policy</Link>
             {" "}and{" "}
-            <Link href="/terms" className="underline hover:text-black">Terms of Service</Link>.
+            <Link href="/terms" className="underline hover:text-fg">Terms of Service</Link>.
           </p>
         </div>
       </div>

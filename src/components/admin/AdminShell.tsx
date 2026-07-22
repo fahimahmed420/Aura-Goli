@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import Spinner from "@/components/ui/Spinner";
 
 interface AdminUser { id: string; name: string; email: string; role: string; }
 
@@ -32,10 +33,10 @@ export default function AdminShell({ title, children }: { title: string; childre
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+      <div className="min-h-screen flex items-center justify-center bg-canvas">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#444748] text-sm">Authenticating…</p>
+          <Spinner size={32} />
+          <p className="text-fg-muted text-sm">Authenticating…</p>
         </div>
       </div>
     );
@@ -44,7 +45,7 @@ export default function AdminShell({ title, children }: { title: string; childre
   if (!admin) return null;
 
   return (
-    <div className="flex min-h-screen overflow-hidden" style={{ background: "#f9f9f9" }}>
+    <div className="flex min-h-screen overflow-hidden bg-canvas">
       <Sidebar adminName={admin.name} />
       {/* Main content — push down on mobile for the fixed top bar */}
       <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto pt-14 md:pt-0">

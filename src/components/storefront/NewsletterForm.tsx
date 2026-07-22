@@ -35,17 +35,17 @@ export default function NewsletterForm() {
   if (submitted) {
     return (
       <div className="py-6 text-center">
-        <p className="font-['Playfair_Display'] text-2xl font-semibold italic" style={{ color: "#c9a84c" }}>
+        <p className="dd-display text-2xl text-accent" style={{ fontStyle: "italic" }}>
           You&apos;re in the circle.
         </p>
-        <p className="text-sm mt-2" style={{ color: "rgba(250,247,240,0.5)" }}>Watch your inbox for the next drop.</p>
+        <p className="text-sm mt-2 text-fg-muted">Watch your inbox for the next drop.</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-lg mx-auto">
-      <form className="flex flex-col sm:flex-row gap-0" onSubmit={handleSubmit}>
+      <form className="flex flex-col sm:flex-row gap-3" onSubmit={handleSubmit}>
         <input
           type="email"
           value={email}
@@ -54,27 +54,20 @@ export default function NewsletterForm() {
           required
           disabled={loading}
           aria-label="Email address"
-          className="flex-1 px-6 py-4 text-sm focus:outline-none transition-colors disabled:opacity-60"
-          style={{
-            background: "rgba(250,247,240,0.06)",
-            border: "1px solid rgba(201,168,76,0.3)",
-            borderRight: "none",
-            color: "#faf7f0",
-          }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.8)"; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.3)"; }}
+          className="flex-1 h-12 px-6 text-sm outline-none transition-colors disabled:opacity-60 bg-[var(--field-bg)] border border-[var(--field-border)] text-fg placeholder:text-fg-subtle focus:border-[var(--field-border-focus)]"
+          style={{ borderRadius: "var(--radius-pill)" }}
         />
         <button
           type="submit"
           disabled={loading}
-          className="px-10 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 hover:brightness-90 disabled:opacity-70 disabled:cursor-not-allowed"
-          style={{ background: "#c9a84c", color: "#0b0b14" }}
+          className="h-12 px-10 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors disabled:opacity-60 bg-accent text-accent-fg hover:bg-accent-hover"
+          style={{ borderRadius: "var(--radius-pill)" }}
         >
           {loading ? "Subscribing…" : "Subscribe"}
         </button>
       </form>
       {error && (
-        <p className="mt-3 text-[12px]" role="alert" style={{ color: "#ff9b9b" }}>{error}</p>
+        <p className="mt-3 text-[12px]" role="alert" style={{ color: "var(--danger)" }}>{error}</p>
       )}
     </div>
   );

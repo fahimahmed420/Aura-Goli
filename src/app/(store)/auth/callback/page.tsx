@@ -18,10 +18,10 @@ function CallbackInner() {
   }, [router, sp]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0b0b14" }}>
+    <div className="min-h-screen flex items-center justify-center bg-canvas">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-2 border-white/20 border-t-[#c9a84c] rounded-full animate-spin" />
-        <p className="text-sm font-medium" style={{ color: "rgba(250,247,240,0.5)" }}>Signing you in…</p>
+        <div className="w-10 h-10 border-2 border-line-strong border-t-accent rounded-full animate-spin" />
+        <p className="text-sm font-medium text-fg-subtle">Signing you in…</p>
       </div>
     </div>
   );
@@ -30,8 +30,8 @@ function CallbackInner() {
 export default function AuthCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0b0b14" }}>
-        <div className="w-10 h-10 border-2 border-white/20 border-t-[#c9a84c] rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-canvas">
+        <div className="w-10 h-10 border-2 border-line-strong border-t-accent rounded-full animate-spin" />
       </div>
     }>
       <CallbackInner />

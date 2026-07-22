@@ -10,7 +10,7 @@ interface Settings {
   instagramUrl: string; facebookUrl: string; tiktokUrl: string; youtubeUrl: string;
 }
 
-const INPUT = "w-full border border-[#e8e8e8] rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:border-[#5951b4] transition-colors bg-white";
+const INPUT = "w-full border border-[color:var(--line)] rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:border-[color:var(--accent)] transition-colors bg-surface";
 
 export default function StoreSettingsPage() {
   const [form, setForm] = useState<Settings>({
@@ -57,7 +57,7 @@ export default function StoreSettingsPage() {
     return (
       <AdminShell title="Store Settings">
         <div className="flex items-center justify-center h-64">
-          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-line-strong border-t-transparent rounded-full animate-spin" />
         </div>
       </AdminShell>
     );
@@ -68,16 +68,16 @@ export default function StoreSettingsPage() {
       <div className="max-w-3xl space-y-6">
 
         {/* Store Identity */}
-        <section className="bg-white rounded-2xl border border-[#e8e8e8] p-6 md:p-8">
-          <h2 className="font-['Playfair_Display'] text-[20px] font-semibold text-black mb-6">Store Identity</h2>
+        <section className="bg-surface rounded-2xl border border-[color:var(--line)] p-6 md:p-8">
+          <h2 className="text-[20px] font-semibold text-fg mb-6">Store Identity</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Store Name</label>
+              <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Store Name</label>
               <input value={form.storeName} onChange={(e) => set("storeName", e.target.value)} className={INPUT}
                 placeholder="e.g. Aura Goli" />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Legal Entity Name</label>
+              <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Legal Entity Name</label>
               <input value={form.legalName} onChange={(e) => set("legalName", e.target.value)} className={INPUT}
                 placeholder="e.g. Aura Goli Ltd." />
             </div>
@@ -85,22 +85,22 @@ export default function StoreSettingsPage() {
         </section>
 
         {/* Contact Details */}
-        <section className="bg-white rounded-2xl border border-[#e8e8e8] p-6 md:p-8">
-          <h2 className="font-['Playfair_Display'] text-[20px] font-semibold text-black mb-6">Contact Details</h2>
+        <section className="bg-surface rounded-2xl border border-[color:var(--line)] p-6 md:p-8">
+          <h2 className="text-[20px] font-semibold text-fg mb-6">Contact Details</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Public Email</label>
+              <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Public Email</label>
               <input value={form.email} onChange={(e) => set("email", e.target.value)} type="email" className={INPUT}
                 placeholder="hello@youstore.com" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Phone</label>
+                <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Phone</label>
                 <input value={form.phone} onChange={(e) => set("phone", e.target.value)} className={INPUT}
                   placeholder="+880 1700 000000" />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Business Address</label>
+                <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Business Address</label>
                 <input value={form.address} onChange={(e) => set("address", e.target.value)} className={INPUT}
                   placeholder="Dhaka, Bangladesh" />
               </div>
@@ -109,11 +109,11 @@ export default function StoreSettingsPage() {
         </section>
 
         {/* Regional Settings */}
-        <section className="bg-white rounded-2xl border border-[#e8e8e8] p-6 md:p-8">
-          <h2 className="font-['Playfair_Display'] text-[20px] font-semibold text-black mb-6">Regional Settings</h2>
+        <section className="bg-surface rounded-2xl border border-[color:var(--line)] p-6 md:p-8">
+          <h2 className="text-[20px] font-semibold text-fg mb-6">Regional Settings</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Currency</label>
+              <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Currency</label>
               <select value={form.currency} onChange={(e) => set("currency", e.target.value)} className={INPUT}>
                 <option value="BDT">BDT — Bangladeshi Taka (৳)</option>
                 <option value="USD">USD — US Dollar ($)</option>
@@ -122,7 +122,7 @@ export default function StoreSettingsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-2">Time Zone</label>
+              <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-2">Time Zone</label>
               <select value={form.timezone} onChange={(e) => set("timezone", e.target.value)} className={INPUT}>
                 <option value="Asia/Dhaka">Asia/Dhaka (UTC+6)</option>
                 <option value="UTC">UTC</option>
@@ -132,7 +132,7 @@ export default function StoreSettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-3">Weight Units</label>
+            <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-3">Weight Units</label>
             <div className="flex gap-6">
               {(["kg", "g", "lb"] as const).map((v) => {
                 const labels: Record<string, string> = { kg: "Kilograms (kg)", g: "Grams (g)", lb: "Pounds (lb)" };
@@ -140,7 +140,7 @@ export default function StoreSettingsPage() {
                   <label key={v} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="weight" value={v} checked={form.weightUnit === v}
                       onChange={() => set("weightUnit", v)} className="accent-black" />
-                    <span className="text-[14px] text-[#1a1c1c]">{labels[v]}</span>
+                    <span className="text-[14px] text-[color:var(--fg)]">{labels[v]}</span>
                   </label>
                 );
               })}
@@ -149,8 +149,8 @@ export default function StoreSettingsPage() {
         </section>
 
         {/* Social Media */}
-        <section className="bg-white rounded-2xl border border-[#e8e8e8] p-6 md:p-8">
-          <h2 className="font-['Playfair_Display'] text-[20px] font-semibold text-black mb-6">Social Media</h2>
+        <section className="bg-surface rounded-2xl border border-[color:var(--line)] p-6 md:p-8">
+          <h2 className="text-[20px] font-semibold text-fg mb-6">Social Media</h2>
           <div className="space-y-4">
             {[
               { key: "instagramUrl" as const, label: "Instagram URL", placeholder: "https://instagram.com/auragoli" },
@@ -159,7 +159,7 @@ export default function StoreSettingsPage() {
               { key: "youtubeUrl" as const, label: "YouTube URL", placeholder: "https://youtube.com/@auragoli" },
             ].map(({ key, label, placeholder }) => (
               <div key={key}>
-                <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider mb-1.5">{label}</label>
+                <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider mb-1.5">{label}</label>
                 <input type="url" value={form[key]} onChange={(e) => set(key, e.target.value)} className={INPUT} placeholder={placeholder} />
               </div>
             ))}
@@ -167,13 +167,13 @@ export default function StoreSettingsPage() {
         </section>
 
         {/* Advanced — Maintenance only, no danger zone */}
-        <section className="bg-white rounded-2xl border border-[#e8e8e8] p-6 md:p-8">
-          <h2 className="font-['Playfair_Display'] text-[20px] font-semibold text-black mb-6">Advanced</h2>
+        <section className="bg-surface rounded-2xl border border-[color:var(--line)] p-6 md:p-8">
+          <h2 className="text-[20px] font-semibold text-fg mb-6">Advanced</h2>
           <div className="flex items-center justify-between p-5 rounded-2xl"
-            style={{ background: form.maintenanceMode ? "#ffdad6" : "#f4f3f3", border: `1px solid ${form.maintenanceMode ? "#ba1a1a30" : "#e8e8e8"}` }}>
+            style={{ background: form.maintenanceMode ? "var(--danger-tint)" : "var(--surface)", border: `1px solid ${form.maintenanceMode ? "var(--danger)" : "var(--line)"}` }}>
             <div>
-              <p className="font-semibold text-black text-[15px]">Maintenance Mode</p>
-              <p className="text-[13px] mt-0.5" style={{ color: form.maintenanceMode ? "#ba1a1a" : "#444748" }}>
+              <p className="font-semibold text-fg text-[15px]">Maintenance Mode</p>
+              <p className="text-[13px] mt-0.5" style={{ color: form.maintenanceMode ? "var(--danger)" : "var(--fg-muted)" }}>
                 {form.maintenanceMode
                   ? "⚠ Store is currently in maintenance — visitors see a maintenance notice."
                   : "Temporarily show a maintenance notice to all store visitors."}
@@ -181,20 +181,20 @@ export default function StoreSettingsPage() {
             </div>
             <button onClick={() => set("maintenanceMode", !form.maintenanceMode)}
               className="relative inline-flex h-7 w-12 items-center rounded-full transition-colors ml-4 shrink-0"
-              style={{ background: form.maintenanceMode ? "#ba1a1a" : "#c4c7c7" }}>
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${form.maintenanceMode ? "translate-x-6" : "translate-x-1"}`} />
+              style={{ background: form.maintenanceMode ? "var(--danger)" : "var(--fg-subtle)" }}>
+              <span className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition-transform ${form.maintenanceMode ? "translate-x-6" : "translate-x-1"}`} />
             </button>
           </div>
         </section>
 
         {/* Save */}
-        {error && <p className="text-sm text-[#ba1a1a] text-right">{error}</p>}
+        {error && <p className="text-sm text-[color:var(--danger)] text-right">{error}</p>}
         <div className="flex justify-end pb-8">
           <button onClick={handleSave} disabled={saving}
             className="px-8 py-3.5 rounded-full text-[14px] font-semibold disabled:opacity-50 transition-all"
             style={{
-              background: saved ? "#41379b" : "#0b0b14",
-              color: "#faf7f0",
+              background: saved ? "var(--accent)" : "var(--canvas)",
+              color: "var(--fg)",
               boxShadow: "0 4px 0 rgba(0,0,0,0.3), 0 8px 20px rgba(11,11,20,0.2)",
             }}>
             {saving ? "Saving…" : saved ? "✓ Saved!" : "Save Changes"}

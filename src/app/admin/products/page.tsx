@@ -31,11 +31,11 @@ function StockCell({ product, expanded, onToggle }: { product: Product; expanded
         onClick={onToggle}
         className="flex items-center gap-2 hover:opacity-70 transition-opacity text-left"
       >
-        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${totalStock === 0 ? "bg-[#ba1a1a]" : hasLow ? "bg-amber-500" : "bg-[#5951b4]"}`} />
-        <span className={totalStock === 0 ? "text-[#ba1a1a] font-bold" : hasLow ? "text-amber-600 font-bold" : "text-[#444748]"}>
+        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${totalStock === 0 ? "bg-[color:var(--danger)]" : hasLow ? "bg-amber-500" : "bg-[color:var(--accent)]"}`} />
+        <span className={totalStock === 0 ? "text-[color:var(--danger)] font-bold" : hasLow ? "text-amber-600 font-bold" : "text-[color:var(--fg-muted)]"}>
           {totalStock === 0 ? "Out of stock" : `${totalStock} units`}
         </span>
-        <span className="material-symbols-outlined text-[14px] text-[#747878]" style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+        <span className="material-symbols-outlined text-[14px] text-[color:var(--fg-subtle)]" style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
           expand_more
         </span>
       </button>
@@ -44,33 +44,33 @@ function StockCell({ product, expanded, onToggle }: { product: Product; expanded
       )}
 
       {expanded && (
-        <div className="mt-2 rounded-lg border border-[#e2e2e2] overflow-hidden">
+        <div className="mt-2 rounded-lg border border-[color:var(--line-strong)] overflow-hidden">
           <table className="text-[11px] w-full border-collapse">
             <thead>
-              <tr className="bg-[#f4f3f3]">
-                <th className="px-2 py-1.5 text-left font-semibold text-[#444748] border-b border-[#e2e2e2]">Color</th>
+              <tr className="bg-[color:var(--surface)]">
+                <th className="px-2 py-1.5 text-left font-semibold text-[color:var(--fg-muted)] border-b border-[color:var(--line-strong)]">Color</th>
                 {sizes.map((s) => (
-                  <th key={s} className="px-2 py-1.5 text-center font-semibold text-[#444748] border-b border-[#e2e2e2]">{s}</th>
+                  <th key={s} className="px-2 py-1.5 text-center font-semibold text-[color:var(--fg-muted)] border-b border-[color:var(--line-strong)]">{s}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f0f0f0]">
+            <tbody className="divide-y divide-[color:var(--surface-raised)]">
               {colors.map((color) => (
-                <tr key={color} className="hover:bg-[#f9f9f9]">
-                  <td className="px-2 py-1.5 font-medium text-black capitalize">{color}</td>
+                <tr key={color} className="hover:bg-[color:var(--canvas)]">
+                  <td className="px-2 py-1.5 font-medium text-fg capitalize">{color}</td>
                   {sizes.map((size) => {
                     const v = product.variants.find((vv) => (vv.color ?? "—") === color && (vv.size ?? "—") === size);
                     const qty = v?.stockQuantity ?? null;
                     return (
                       <td key={size} className="px-2 py-1.5 text-center">
                         {qty === null ? (
-                          <span className="text-[#c4c7c7]">—</span>
+                          <span className="text-[color:var(--fg-subtle)]">—</span>
                         ) : qty === 0 ? (
-                          <span className="font-bold text-[#ba1a1a]">0</span>
+                          <span className="font-bold text-[color:var(--danger)]">0</span>
                         ) : qty <= 5 ? (
                           <span className="font-bold text-amber-600">{qty}</span>
                         ) : (
-                          <span className="text-[#444748]">{qty}</span>
+                          <span className="text-[color:var(--fg-muted)]">{qty}</span>
                         )}
                       </td>
                     );
@@ -86,9 +86,9 @@ function StockCell({ product, expanded, onToggle }: { product: Product; expanded
 }
 
 const STATUS_CHIP: Record<string, string> = {
-  active: "bg-[#e4dfff] text-[#41379b]",
-  draft: "bg-[#eeeeee] text-[#444748]",
-  archived: "bg-[#e5e2e1] text-[#474746]",
+  active: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
+  draft: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
+  archived: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
 };
 
 function AdminProductsInner() {
@@ -147,11 +147,11 @@ function AdminProductsInner() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <p className="text-[#444748]">Manage your catalog, stock levels, and publication status.</p>
+            <p className="text-[color:var(--fg-muted)]">Manage your catalog, stock levels, and publication status.</p>
           </div>
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg font-semibold text-[13px] hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-2 bg-accent text-accent-fg px-6 py-3 rounded-lg font-semibold text-[13px] hover:opacity-80 transition-opacity"
           >
             <span className="material-symbols-outlined text-lg">add</span>
             Add New Product
@@ -159,22 +159,22 @@ function AdminProductsInner() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white border border-[#c4c7c7] rounded-lg p-4 flex flex-wrap items-center gap-4 high-fashion-shadow">
-          <div className="flex items-center gap-2 border-b border-[#c4c7c7] py-1">
-            <span className="material-symbols-outlined text-[#444748] text-lg">search</span>
+        <div className="bg-surface border border-[color:var(--fg-subtle)] rounded-lg p-4 flex flex-wrap items-center gap-4 high-fashion-shadow">
+          <div className="flex items-center gap-2 border-b border-[color:var(--fg-subtle)] py-1">
+            <span className="material-symbols-outlined text-[color:var(--fg-muted)] text-lg">search</span>
             <input
               value={q}
               onChange={(e) => { setQ(e.target.value); setPage(1); }}
-              className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-[#747878]"
+              className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-[color:var(--fg-subtle)]"
               placeholder="Search products..."
             />
           </div>
-          <div className="flex items-center gap-2 border-b border-[#c4c7c7] py-1">
-            <span className="material-symbols-outlined text-[#444748] text-lg">filter_list</span>
+          <div className="flex items-center gap-2 border-b border-[color:var(--fg-subtle)] py-1">
+            <span className="material-symbols-outlined text-[color:var(--fg-muted)] text-lg">filter_list</span>
             <select
               value={category}
               onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-              className="border-none bg-transparent outline-none text-sm text-black"
+              className="border-none bg-transparent outline-none text-sm text-fg"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -182,12 +182,12 @@ function AdminProductsInner() {
               ))}
             </select>
           </div>
-          <div className="flex items-center gap-2 border-b border-[#c4c7c7] py-1">
-            <span className="material-symbols-outlined text-[#444748] text-lg">info</span>
+          <div className="flex items-center gap-2 border-b border-[color:var(--fg-subtle)] py-1">
+            <span className="material-symbols-outlined text-[color:var(--fg-muted)] text-lg">info</span>
             <select
               value={status}
               onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-              className="border-none bg-transparent outline-none text-sm text-black"
+              className="border-none bg-transparent outline-none text-sm text-fg"
             >
               <option value="">Status: All</option>
               <option value="active">Active</option>
@@ -195,45 +195,45 @@ function AdminProductsInner() {
               <option value="archived">Archived</option>
             </select>
           </div>
-          <span className="ml-auto text-xs text-[#444748] uppercase tracking-widest">
+          <span className="ml-auto text-xs text-[color:var(--fg-muted)] uppercase tracking-widest">
             Showing {total} Products
           </span>
         </div>
 
         {/* Table */}
-        <div className="bg-white border border-[#c4c7c7] rounded-lg high-fashion-shadow overflow-hidden">
+        <div className="bg-surface border border-[color:var(--fg-subtle)] rounded-lg high-fashion-shadow overflow-hidden">
           <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-left">
-              <thead className="bg-[#f4f3f3] border-b border-[#c4c7c7]">
+              <thead className="bg-[color:var(--surface)] border-b border-[color:var(--fg-subtle)]">
                 <tr>
                   {["Product", "Category", "Price", "Stock", "Sales", "Status", ""].map((h) => (
-                    <th key={h} className="px-6 py-4 text-xs font-semibold text-[#444748] uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-6 py-4 text-xs font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e2e2e2]">
+              <tbody className="divide-y divide-[color:var(--line-strong)]">
                 {loading ? (
                   <tr><td colSpan={7} className="px-6 py-16 text-center">
-                    <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto" />
+                    <div className="w-6 h-6 border-2 border-line-strong border-t-transparent rounded-full animate-spin mx-auto" />
                   </td></tr>
                 ) : products.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-16 text-center text-[#747878] text-sm">No products found.</td></tr>
+                  <tr><td colSpan={7} className="px-6 py-16 text-center text-[color:var(--fg-subtle)] text-sm">No products found.</td></tr>
                 ) : products.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#f4f3f3] transition-colors">
+                  <tr key={p.id} className="hover:bg-[color:var(--surface)] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {p.images[0] ? (
                           <img src={p.images[0].url} alt={p.name} className="w-10 h-10 object-cover rounded" />
                         ) : (
-                          <div className="w-10 h-10 bg-[#e2e2e2] rounded flex items-center justify-center">
-                            <span className="material-symbols-outlined text-[#747878] text-lg">image</span>
+                          <div className="w-10 h-10 bg-[color:var(--line-strong)] rounded flex items-center justify-center">
+                            <span className="material-symbols-outlined text-[color:var(--fg-subtle)] text-lg">image</span>
                           </div>
                         )}
-                        <span className="text-sm font-semibold text-black max-w-[200px] truncate">{p.name}</span>
+                        <span className="text-sm font-semibold text-fg max-w-[200px] truncate">{p.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#444748]">{p.category?.name ?? "—"}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-black">৳{Number(p.price).toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-[color:var(--fg-muted)]">{p.category?.name ?? "—"}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-fg">৳{Number(p.price).toLocaleString()}</td>
                     <td className="px-6 py-4 text-sm">
                       <StockCell
                         product={p}
@@ -245,7 +245,7 @@ function AdminProductsInner() {
                         })}
                       />
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#444748]">{p.salesCount}</td>
+                    <td className="px-6 py-4 text-sm text-[color:var(--fg-muted)]">{p.salesCount}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${STATUS_CHIP[p.status] ?? "bg-gray-100"}`}>
                         {p.status}
@@ -255,7 +255,7 @@ function AdminProductsInner() {
                       <div className="flex items-center gap-2 justify-end">
                         <Link
                           href={`/admin/products/${p.id}/edit`}
-                          className="text-[#5951b4] hover:text-[#33288d] transition-colors"
+                          className="text-[color:var(--accent)] hover:text-[color:var(--accent)] transition-colors"
                           title="Edit"
                         >
                           <span className="material-symbols-outlined text-xl">edit</span>
@@ -263,7 +263,7 @@ function AdminProductsInner() {
                         <button
                           onClick={() => deleteProduct(p.id)}
                           disabled={deleting === p.id}
-                          className="text-[#ba1a1a] hover:text-[#93000a] transition-colors disabled:opacity-50"
+                          className="text-[color:var(--danger)] hover:text-[color:var(--danger)] transition-colors disabled:opacity-50"
                           title="Delete"
                         >
                           <span className="material-symbols-outlined text-xl">delete</span>
@@ -278,18 +278,18 @@ function AdminProductsInner() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-[#c4c7c7]">
-              <p className="text-sm text-[#444748]">Page {page} of {totalPages}</p>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-[color:var(--fg-subtle)]">
+              <p className="text-sm text-[color:var(--fg-muted)]">Page {page} of {totalPages}</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1 border border-[#c4c7c7] text-sm disabled:opacity-40 hover:bg-[#f4f3f3] transition-colors"
+                  className="px-3 py-1 border border-[color:var(--fg-subtle)] text-sm disabled:opacity-40 hover:bg-[color:var(--surface)] transition-colors"
                 >Prev</button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-3 py-1 border border-[#c4c7c7] text-sm disabled:opacity-40 hover:bg-[#f4f3f3] transition-colors"
+                  className="px-3 py-1 border border-[color:var(--fg-subtle)] text-sm disabled:opacity-40 hover:bg-[color:var(--surface)] transition-colors"
                 >Next</button>
               </div>
             </div>

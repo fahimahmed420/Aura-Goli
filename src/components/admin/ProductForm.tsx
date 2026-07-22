@@ -208,7 +208,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl pb-10">
       {error && (
-        <div className="bg-[#ffdad6] border border-[#ba1a1a]/20 px-4 py-3 text-sm text-[#93000a] flex items-center gap-2 rounded-xl">
+        <div className="bg-[color:var(--danger-tint)] border border-[color:var(--danger)]/20 px-4 py-3 text-sm text-[color:var(--danger)] flex items-center gap-2 rounded-xl">
           <span className="material-symbols-outlined text-base">error</span>{error}
         </div>
       )}
@@ -226,18 +226,18 @@ export default function ProductForm({ productId }: { productId?: string }) {
                 className="field-input pr-10" placeholder="oversized-cotton-tee"
                 onFocus={() => setShowSlugSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSlugSuggestions(false), 150)} />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-[#747878]">link</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-[color:var(--fg-subtle)]">link</span>
             </div>
             {/* Slug suggestions */}
             {showSlugSuggestions && suggestions.length > 0 && (
               <div className="mt-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#747878] mb-1.5">Suggestions</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--fg-subtle)] mb-1.5">Suggestions</p>
                 <div className="flex flex-wrap gap-2">
                   {suggestions.map((s) => (
                     <button key={s} type="button"
                       onClick={() => { setForm((f) => ({ ...f, slug: s })); setShowSlugSuggestions(false); }}
-                      className="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all hover:bg-[#0b0b14] hover:text-white hover:border-[#0b0b14]"
-                      style={{ borderColor: "#e8e8e8", color: "#444748" }}>
+                      className="px-3 py-1.5 rounded-full text-[12px] font-medium border transition-all hover:bg-[color:var(--canvas)] hover:text-white hover:border-[color:var(--canvas)]"
+                      style={{ borderColor: "var(--line)", color: "var(--fg-muted)" }}>
                       {s}
                     </button>
                   ))}
@@ -276,15 +276,15 @@ export default function ProductForm({ productId }: { productId?: string }) {
         <div className="space-y-4">
           {/* Upload drop zone */}
           <div
-            className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors hover:border-[#0b0b14]"
-            style={{ borderColor: "#e8e8e8" }}
+            className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors hover:border-[color:var(--canvas)]"
+            style={{ borderColor: "var(--line)" }}
             onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); handleImageFiles(e.dataTransfer.files); }}
           >
-            <span className="material-symbols-outlined text-4xl block mb-2" style={{ color: "#c4c7c7" }}>add_photo_alternate</span>
-            <p className="text-sm font-semibold text-[#444748]">Click to upload or drag &amp; drop</p>
-            <p className="text-[12px] text-[#747878] mt-1">JPG, PNG, WEBP — multiple allowed. First image = cover.</p>
+            <span className="material-symbols-outlined text-4xl block mb-2" style={{ color: "var(--fg-subtle)" }}>add_photo_alternate</span>
+            <p className="text-sm font-semibold text-[color:var(--fg-muted)]">Click to upload or drag &amp; drop</p>
+            <p className="text-[12px] text-[color:var(--fg-subtle)] mt-1">JPG, PNG, WEBP — multiple allowed. First image = cover.</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -304,11 +304,11 @@ export default function ProductForm({ productId }: { productId?: string }) {
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }}
               placeholder="Or paste a media URL (.jpg, .png, .mp4, .webm…)"
               className="flex-1 rounded-xl px-4 py-2.5 text-[13px] outline-none"
-              style={{ border: "1px solid #e8e8e8", background: "#fafafa", color: "#0b0b14" }}
+              style={{ border: "1px solid var(--line)", background: "var(--field-bg)", color: "var(--fg)" }}
             />
             <button type="button" onClick={addImageUrl}
               className="px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-colors"
-              style={{ background: "#0b0b14", color: "#faf7f0" }}>
+              style={{ background: "var(--canvas)", color: "var(--fg)" }}>
               Add URL
             </button>
           </div>
@@ -318,7 +318,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {form.images.map((img, i) => (
                 <div key={i} className="relative group rounded-xl overflow-hidden border"
-                  style={{ aspectRatio: "1", borderColor: i === 0 ? "#c9a84c" : "#e8e8e8", borderWidth: i === 0 ? "2px" : "1px" }}>
+                  style={{ aspectRatio: "1", borderColor: i === 0 ? "var(--accent)" : "var(--line)", borderWidth: i === 0 ? "2px" : "1px" }}>
                   {/\.(mp4|webm|ogg)$/i.test(img.url) ? (
                     <video src={img.url} muted loop autoPlay playsInline className="w-full h-full object-cover" />
                   ) : (
@@ -329,18 +329,18 @@ export default function ProductForm({ productId }: { productId?: string }) {
                   {/* Cover badge */}
                   {i === 0 && (
                     <span className="absolute top-1.5 left-1.5 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                      style={{ background: "#c9a84c", color: "#0b0b14" }}>Cover</span>
+                      style={{ background: "var(--accent)", color: "var(--canvas)" }}>Cover</span>
                   )}
 
                   {/* Controls overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                     <div className="flex items-center gap-1">
                       <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0}
-                        className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center disabled:opacity-30 transition-all">
+                        className="w-7 h-7 rounded-full bg-surface/20 hover:bg-surface/40 flex items-center justify-center disabled:opacity-30 transition-all">
                         <span className="material-symbols-outlined text-white text-[14px]">arrow_back</span>
                       </button>
                       <button type="button" onClick={() => moveImage(i, 1)} disabled={i === form.images.length - 1}
-                        className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center disabled:opacity-30 transition-all">
+                        className="w-7 h-7 rounded-full bg-surface/20 hover:bg-surface/40 flex items-center justify-center disabled:opacity-30 transition-all">
                         <span className="material-symbols-outlined text-white text-[14px]">arrow_forward</span>
                       </button>
                     </div>
@@ -354,16 +354,16 @@ export default function ProductForm({ productId }: { productId?: string }) {
 
               {/* Uploading spinner */}
               {uploadingIdx !== null && (
-                <div className="rounded-xl border border-dashed border-[#e8e8e8] flex items-center justify-center"
+                <div className="rounded-xl border border-dashed border-[color:var(--line)] flex items-center justify-center"
                   style={{ aspectRatio: "1" }}>
-                  <div className="w-6 h-6 border-2 border-[#0b0b14] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[color:var(--canvas)] border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
           )}
 
           {form.images.length > 0 && (
-            <p className="text-[11px] text-[#747878]">
+            <p className="text-[11px] text-[color:var(--fg-subtle)]">
               ← → arrows reorder · first image is the cover · hover to delete
             </p>
           )}
@@ -402,11 +402,11 @@ export default function ProductForm({ productId }: { productId?: string }) {
       <Section title="Variants & Stock" icon="category">
         <div className="space-y-3">
           {form.variants.length === 0 && (
-            <p className="text-sm text-[#747878] py-2">No variants yet. Add size/colour combinations below.</p>
+            <p className="text-sm text-[color:var(--fg-subtle)] py-2">No variants yet. Add size/colour combinations below.</p>
           )}
           {form.variants.map((v, i) => (
-            <div key={i} className="border border-[#e8e8e8] rounded-xl p-4 grid grid-cols-2 md:grid-cols-6 gap-3 items-end"
-              style={{ background: "#fafafa" }}>
+            <div key={i} className="border border-[color:var(--line)] rounded-xl p-4 grid grid-cols-2 md:grid-cols-6 gap-3 items-end"
+              style={{ background: "var(--canvas)" }}>
               <Field label="Color">
                 <select value={v.color} onChange={(e) => updateVariant(i, "color", e.target.value)} className="field-input">
                   {COLORS.map((c) => <option key={c}>{c}</option>)}
@@ -433,16 +433,16 @@ export default function ProductForm({ productId }: { productId?: string }) {
               </Field>
               <div className="flex justify-end pb-1">
                 <button type="button" onClick={() => removeVariant(i)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-[#ffdad6]"
-                  style={{ color: "#ba1a1a" }}>
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-[color:var(--danger-tint)]"
+                  style={{ color: "var(--danger)" }}>
                   <span className="material-symbols-outlined text-[20px]">delete</span>
                 </button>
               </div>
             </div>
           ))}
           <button type="button" onClick={addVariant}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed text-[13px] font-semibold transition-all hover:border-[#0b0b14]"
-            style={{ borderColor: "#e8e8e8", color: "#444748" }}>
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed text-[13px] font-semibold transition-all hover:border-[color:var(--canvas)]"
+            style={{ borderColor: "var(--line)", color: "var(--fg-muted)" }}>
             <span className="material-symbols-outlined text-lg">add_circle</span>
             Add Variant
           </button>
@@ -453,14 +453,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
         <button type="submit" disabled={saving}
           className="flex items-center justify-center gap-2 px-10 py-3.5 rounded-full text-[13px] font-bold uppercase tracking-wider transition-all disabled:opacity-50"
-          style={{ background: "#0b0b14", color: "#faf7f0", boxShadow: "0 4px 0 rgba(0,0,0,0.3)" }}>
+          style={{ background: "var(--canvas)", color: "var(--fg)", boxShadow: "0 4px 0 rgba(0,0,0,0.3)" }}>
           {saving
             ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving…</>
             : <><span className="material-symbols-outlined text-[18px]">save</span> {isEdit ? "Update Product" : "Create Product"}</>}
         </button>
         <button type="button" onClick={() => router.push("/admin/products")}
           className="px-10 py-3.5 rounded-full border text-[13px] font-semibold uppercase tracking-wider transition-all"
-          style={{ borderColor: "#e8e8e8", color: "#444748" }}>
+          style={{ borderColor: "var(--line)", color: "var(--fg-muted)" }}>
           Cancel
         </button>
       </div>
@@ -470,14 +470,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
 
 function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[#e8e8e8] rounded-2xl p-6 space-y-5"
+    <div className="bg-surface border border-[color:var(--line)] rounded-2xl p-6 space-y-5"
       style={{ boxShadow: "0 2px 12px rgba(11,11,20,0.04)" }}>
-      <div className="flex items-center gap-3 border-b border-[#f0eeea] pb-4">
+      <div className="flex items-center gap-3 border-b border-[color:var(--surface-raised)] pb-4">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{ background: "rgba(11,11,20,0.05)" }}>
-          <span className="material-symbols-outlined text-[18px] text-[#444748]">{icon}</span>
+          <span className="material-symbols-outlined text-[18px] text-[color:var(--fg-muted)]">{icon}</span>
         </div>
-        <h3 className="font-['Playfair_Display'] text-[17px] font-semibold text-black">{title}</h3>
+        <h3 className="text-[17px] font-semibold text-fg">{title}</h3>
       </div>
       {children}
     </div>
@@ -487,11 +487,11 @@ function Section({ title, icon, children }: { title: string; icon: string; child
 function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] font-semibold text-[#444748] uppercase tracking-wider">
-        {label}{required && <span className="text-[#ba1a1a] ml-0.5">*</span>}
+      <label className="block text-[11px] font-semibold text-[color:var(--fg-muted)] uppercase tracking-wider">
+        {label}{required && <span className="text-[color:var(--danger)] ml-0.5">*</span>}
       </label>
       {children}
-      {hint && <p className="text-[11px] text-[#747878]">{hint}</p>}
+      {hint && <p className="text-[11px] text-[color:var(--fg-subtle)]">{hint}</p>}
     </div>
   );
 }

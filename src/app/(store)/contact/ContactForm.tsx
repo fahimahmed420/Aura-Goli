@@ -48,17 +48,17 @@ export default function ContactForm({ email, phone, address }: Props) {
     <div className="max-w-5xl mx-auto px-4 md:px-12 py-16 grid grid-cols-1 md:grid-cols-2 gap-16">
       {/* Contact info */}
       <div>
-        <h2 className="font-['Playfair_Display'] text-2xl font-bold text-black mb-8">Contact Information</h2>
+        <h2 className="dd-display text-2xl text-fg mb-8">Contact Information</h2>
         <ul className="space-y-6">
           {contacts.map((c) => (
             <li key={c.label} className="flex items-start gap-4">
-              <span className="material-symbols-outlined text-2xl text-[#5951b4] mt-0.5">{c.icon}</span>
+              <span className="material-symbols-outlined text-2xl text-accent mt-0.5">{c.icon}</span>
               <div>
-                <p className="text-xs font-semibold text-[#444748] uppercase tracking-wider mb-0.5">{c.label}</p>
+                <p className="text-xs font-medium text-fg-subtle uppercase tracking-wider mb-0.5">{c.label}</p>
                 {c.href ? (
-                  <a href={c.href} className="text-sm text-black hover:text-[#5951b4] transition-colors">{c.value}</a>
+                  <a href={c.href} className="text-sm text-fg hover:text-accent transition-colors">{c.value}</a>
                 ) : (
-                  <p className="text-sm text-black">{c.value}</p>
+                  <p className="text-sm text-fg">{c.value}</p>
                 )}
               </div>
             </li>
@@ -69,30 +69,30 @@ export default function ContactForm({ email, phone, address }: Props) {
       {/* Form */}
       <div>
         {sent ? (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
-            <span className="material-symbols-outlined text-5xl text-green-600 mb-4 block"
-              style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-            <h3 className="font-['Playfair_Display'] text-2xl font-bold text-black mb-2">Message Sent!</h3>
-            <p className="text-[#444748]">We&apos;ll get back to you within 24 hours.</p>
+          <div className="rounded-xl p-8 text-center" style={{ background: "var(--success-tint)", border: "1px solid var(--success)" }}>
+            <span className="material-symbols-outlined text-5xl mb-4 block"
+              style={{ fontVariationSettings: "'FILL' 1", color: "var(--success)" }}>check_circle</span>
+            <h3 className="dd-display text-2xl text-fg mb-2">Message Sent!</h3>
+            <p className="text-fg-muted">We&apos;ll get back to you within 24 hours.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-[#444748] uppercase tracking-wider mb-1.5">Name</label>
+                <label className="block text-xs font-medium text-fg-subtle uppercase tracking-wider mb-1.5">Name</label>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required
-                  className="w-full border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5951b4] transition-colors" />
+                  className="field-input" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#444748] uppercase tracking-wider mb-1.5">Email</label>
+                <label className="block text-xs font-medium text-fg-subtle uppercase tracking-wider mb-1.5">Email</label>
                 <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required
-                  className="w-full border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5951b4] transition-colors" />
+                  className="field-input" />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#444748] uppercase tracking-wider mb-1.5">Subject</label>
+              <label className="block text-xs font-medium text-fg-subtle uppercase tracking-wider mb-1.5">Subject</label>
               <select value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} required
-                className="w-full border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5951b4] bg-white">
+                className="field-input">
                 <option value="">Select a topic…</option>
                 <option>Order Enquiry</option>
                 <option>Return / Exchange</option>
@@ -102,17 +102,17 @@ export default function ContactForm({ email, phone, address }: Props) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#444748] uppercase tracking-wider mb-1.5">Message</label>
+              <label className="block text-xs font-medium text-fg-subtle uppercase tracking-wider mb-1.5">Message</label>
               <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required rows={5}
-                className="w-full border border-[#e8e8e8] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5951b4] resize-none" />
+                className="field-input resize-none" />
             </div>
             {error && (
-              <div className="rounded-xl px-4 py-3 text-sm bg-[#ffdad6] border border-[#ba1a1a]/20 text-[#ba1a1a]">
+              <div className="rounded-xl px-4 py-3 text-sm" style={{ background: "var(--danger-tint)", border: "1px solid var(--danger)", color: "var(--danger)" }}>
                 {error}
               </div>
             )}
             <button type="submit" disabled={loading}
-              className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#5951b4] transition-colors disabled:opacity-50">
+              className="w-full bg-accent text-accent-fg py-4 text-xs font-medium uppercase tracking-widest rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-50">
               {loading ? "Sending…" : "Send Message"}
             </button>
           </form>

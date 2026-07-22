@@ -26,13 +26,13 @@ interface Customer {
 }
 
 const STATUS_CHIP: Record<string, string> = {
-  pending_payment: "bg-[#eeeeee] text-[#444748]",
-  confirmed: "bg-[#e4dfff] text-[#41379b]",
-  packed: "bg-[#e4dfff] text-[#41379b]",
-  shipped: "bg-[#9f97ff] text-[#33288d]",
-  delivered: "bg-[#e5e2e1] text-[#474746]",
-  cancelled: "bg-[#ffdad6] text-[#ba1a1a]",
-  refunded: "bg-[#fff8e1] text-[#b06000]",
+  pending_payment: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
+  confirmed: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
+  packed: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
+  shipped: "bg-[color:var(--accent)] text-[color:var(--accent)]",
+  delivered: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
+  cancelled: "bg-[color:var(--danger-tint)] text-[color:var(--danger)]",
+  refunded: "bg-[color:var(--warning-tint)] text-[color:var(--warning)]",
 };
 
 export default function CustomerDetailPage() {
@@ -67,7 +67,7 @@ export default function CustomerDetailPage() {
     return (
       <AdminShell title="Customer">
         <div className="flex items-center justify-center h-64">
-          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-line-strong border-t-transparent rounded-full animate-spin" />
         </div>
       </AdminShell>
     );
@@ -76,7 +76,7 @@ export default function CustomerDetailPage() {
   if (!customer) {
     return (
       <AdminShell title="Customer">
-        <div className="text-center py-20 text-[#444748]">Customer not found.</div>
+        <div className="text-center py-20 text-[color:var(--fg-muted)]">Customer not found.</div>
       </AdminShell>
     );
   }
@@ -89,15 +89,15 @@ export default function CustomerDetailPage() {
       <div className="max-w-5xl space-y-6">
 
         {/* Back */}
-        <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-[#444748] hover:text-black transition-colors">
+        <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-[color:var(--fg-muted)] hover:text-fg transition-colors">
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
           Back to Customers
         </button>
 
         {/* Profile card */}
-        <div className="bg-white rounded-2xl border border-[#e8e8e8] p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
+        <div className="bg-surface rounded-2xl border border-[color:var(--line)] p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center font-bold text-xl shrink-0"
-            style={{ background: "rgba(201,168,76,0.15)", color: "#c9a84c", border: "2px solid rgba(201,168,76,0.3)" }}>
+            style={{ background: "rgba(201,168,76,0.15)", color: "var(--accent)", border: "2px solid rgba(201,168,76,0.3)" }}>
             {customer.avatarUrl
               ? <img src={customer.avatarUrl} alt="" className="w-full h-full object-cover" />
               : initials}
@@ -105,17 +105,17 @@ export default function CustomerDetailPage() {
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h1 className="font-['Playfair_Display'] text-2xl font-semibold text-black">{customer.name}</h1>
+              <h1 className="text-2xl font-semibold text-fg">{customer.name}</h1>
               {customer.isBlocked && (
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#ffdad6] text-[#ba1a1a]">Blocked</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[color:var(--danger-tint)] text-[color:var(--danger)]">Blocked</span>
               )}
               {!customer.emailVerifiedAt && (
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#fff8e1] text-[#b06000]">Unverified</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[color:var(--warning-tint)] text-[color:var(--warning)]">Unverified</span>
               )}
             </div>
-            <p className="text-[#444748] text-sm">{customer.email}</p>
-            {customer.phone && <p className="text-[#747878] text-sm">{customer.phone}</p>}
-            <p className="text-[11px] text-[#747878] mt-1">
+            <p className="text-[color:var(--fg-muted)] text-sm">{customer.email}</p>
+            {customer.phone && <p className="text-[color:var(--fg-subtle)] text-sm">{customer.phone}</p>}
+            <p className="text-[11px] text-[color:var(--fg-subtle)] mt-1">
               Joined {new Date(customer.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
@@ -125,9 +125,9 @@ export default function CustomerDetailPage() {
             disabled={toggling}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50"
             style={{
-              background: customer.isBlocked ? "#0b0b14" : "#ffdad6",
-              color: customer.isBlocked ? "#faf7f0" : "#ba1a1a",
-              borderColor: customer.isBlocked ? "#0b0b14" : "#ba1a1a30",
+              background: customer.isBlocked ? "var(--canvas)" : "var(--danger-tint)",
+              color: customer.isBlocked ? "var(--fg)" : "var(--danger)",
+              borderColor: customer.isBlocked ? "var(--canvas)" : "var(--danger)",
             }}
           >
             {toggling ? "Updating…" : customer.isBlocked ? "Unblock Customer" : "Block Customer"}
@@ -137,15 +137,15 @@ export default function CustomerDetailPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Total Orders", value: customer._count.orders.toString(), icon: "receipt_long", color: "#5951b4" },
-            { label: "Total Spent", value: `৳${totalSpend.toLocaleString()}`, icon: "payments", color: "#c9a84c" },
-            { label: "Loyalty Points", value: customer.loyaltyPoints.toLocaleString(), icon: "stars", color: "#41379b" },
-            { label: "Reviews", value: customer._count.reviews.toString(), icon: "rate_review", color: "#444748" },
+            { label: "Total Orders", value: customer._count.orders.toString(), icon: "receipt_long", color: "var(--accent)" },
+            { label: "Total Spent", value: `৳${totalSpend.toLocaleString()}`, icon: "payments", color: "var(--accent)" },
+            { label: "Loyalty Points", value: customer.loyaltyPoints.toLocaleString(), icon: "stars", color: "var(--accent)" },
+            { label: "Reviews", value: customer._count.reviews.toString(), icon: "rate_review", color: "var(--fg-muted)" },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl border border-[#e8e8e8] p-5">
+            <div key={s.label} className="bg-surface rounded-2xl border border-[color:var(--line)] p-5">
               <span className="material-symbols-outlined text-[22px] mb-2 block" style={{ color: s.color }}>{s.icon}</span>
-              <p className="font-['Playfair_Display'] text-[26px] font-semibold text-black leading-none">{s.value}</p>
-              <p className="text-[11px] text-[#747878] font-medium mt-1.5 uppercase tracking-wider">{s.label}</p>
+              <p className="text-[26px] font-semibold text-fg leading-none">{s.value}</p>
+              <p className="text-[11px] text-[color:var(--fg-subtle)] font-medium mt-1.5 uppercase tracking-wider">{s.label}</p>
             </div>
           ))}
         </div>
@@ -153,31 +153,31 @@ export default function CustomerDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* Orders */}
-          <div className="md:col-span-2 bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#f4f3f3] flex items-center justify-between">
-              <h2 className="font-semibold text-black">Recent Orders</h2>
-              <Link href={`/admin/orders?customer=${customer.id}`} className="text-xs text-[#5951b4] font-semibold hover:underline">
+          <div className="md:col-span-2 bg-surface rounded-2xl border border-[color:var(--line)] overflow-hidden">
+            <div className="px-6 py-4 border-b border-[color:var(--surface)] flex items-center justify-between">
+              <h2 className="font-semibold text-fg">Recent Orders</h2>
+              <Link href={`/admin/orders?customer=${customer.id}`} className="text-xs text-[color:var(--accent)] font-semibold hover:underline">
                 View all
               </Link>
             </div>
             {customer.orders.length === 0 ? (
-              <div className="px-6 py-10 text-center text-[#747878] text-sm">No orders yet.</div>
+              <div className="px-6 py-10 text-center text-[color:var(--fg-subtle)] text-sm">No orders yet.</div>
             ) : (
-              <div className="divide-y divide-[#f4f3f3]">
+              <div className="divide-y divide-[color:var(--surface)]">
                 {customer.orders.map((o) => (
                   <div key={o.id} className="px-6 py-4 flex items-center gap-4">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-black">{o.orderNumber}</p>
-                      <p className="text-xs text-[#747878] mt-0.5 truncate">
+                      <p className="text-sm font-bold text-fg">{o.orderNumber}</p>
+                      <p className="text-xs text-[color:var(--fg-subtle)] mt-0.5 truncate">
                         {o.items.map((i) => `${i.productNameSnapshot} ×${i.quantity}`).join(", ")}
                       </p>
-                      <p className="text-[11px] text-[#c4c7c7] mt-0.5">
+                      <p className="text-[11px] text-[color:var(--fg-subtle)] mt-0.5">
                         {new Date(o.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-sm font-semibold text-black">৳{Number(o.total).toLocaleString()}</p>
-                      <span className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${STATUS_CHIP[o.status] ?? "bg-[#eeeeee] text-[#444748]"}`}>
+                      <p className="text-sm font-semibold text-fg">৳{Number(o.total).toLocaleString()}</p>
+                      <span className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${STATUS_CHIP[o.status] ?? "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]"}`}>
                         {o.status.replace(/_/g, " ")}
                       </span>
                     </div>
@@ -188,25 +188,25 @@ export default function CustomerDetailPage() {
           </div>
 
           {/* Addresses */}
-          <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#f4f3f3]">
-              <h2 className="font-semibold text-black">Saved Addresses</h2>
+          <div className="bg-surface rounded-2xl border border-[color:var(--line)] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[color:var(--surface)]">
+              <h2 className="font-semibold text-fg">Saved Addresses</h2>
             </div>
             {customer.addresses.length === 0 ? (
-              <div className="px-5 py-10 text-center text-[#747878] text-sm">No addresses saved.</div>
+              <div className="px-5 py-10 text-center text-[color:var(--fg-subtle)] text-sm">No addresses saved.</div>
             ) : (
-              <div className="divide-y divide-[#f4f3f3]">
+              <div className="divide-y divide-[color:var(--surface)]">
                 {customer.addresses.map((a) => (
                   <div key={a.id} className="px-5 py-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-black">{a.fullName}</p>
+                      <p className="text-sm font-semibold text-fg">{a.fullName}</p>
                       {a.isDefault && (
                         <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                          style={{ background: "rgba(89,81,180,0.1)", color: "#5951b4" }}>Default</span>
+                          style={{ background: "rgba(89,81,180,0.1)", color: "var(--accent)" }}>Default</span>
                       )}
                     </div>
-                    <p className="text-xs text-[#747878]">{a.line1}, {a.city}</p>
-                    <p className="text-xs text-[#747878]">{a.phone}</p>
+                    <p className="text-xs text-[color:var(--fg-subtle)]">{a.line1}, {a.city}</p>
+                    <p className="text-xs text-[color:var(--fg-subtle)]">{a.phone}</p>
                   </div>
                 ))}
               </div>

@@ -37,51 +37,46 @@ export default async function Footer() {
   ];
 
   return (
-    <footer style={{ background: "#0b0b14", color: "#faf7f0" }}>
+    <footer className="bg-canvas text-fg border-t border-line">
       <div className="max-w-[1400px] mx-auto px-5 md:px-10 pt-14 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-8">
 
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 mb-3 font-['Playfair_Display'] text-2xl font-bold tracking-tight"
-              style={{ color: "#faf7f0" }}>
+            <Link href="/" className="dd-display flex items-center gap-2.5 mb-3 text-2xl text-fg">
               <Image src="/logo-mark.png" alt={displayName} width={29} height={32} className="h-8 w-auto" />
               <span>
                 {displayName.includes(" ") ? (
                   <>
                     {displayName.split(" ")[0]}
-                    <span style={{ color: "#c9a84c" }}> {displayName.split(" ").slice(1).join(" ")}</span>
+                    <span className="text-accent"> {displayName.split(" ").slice(1).join(" ")}</span>
                   </>
                 ) : (
-                  <span style={{ color: "#faf7f0" }}>{displayName}</span>
+                  <span className="text-fg">{displayName}</span>
                 )}
               </span>
             </Link>
-            <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(250,247,240,0.4)" }}>
+            <p className="text-sm leading-relaxed mb-5 text-fg-muted">
               Premium threads crafted with intention. Every piece is designed to endure — in quality, in style, in feeling.
             </p>
 
             {/* Contact info from settings */}
             <div className="space-y-2 mb-5">
               {email && (
-                <a href={`mailto:${email}`}
-                  className="flex items-center gap-2 text-sm transition-colors"
-                  style={{ color: "rgba(250,247,240,0.5)" }}>
-                  <span className="material-symbols-outlined text-base" style={{ color: "#c9a84c" }}>mail</span>
+                <a href={`mailto:${email}`} className="flex items-center gap-2 text-sm text-fg-muted hover:text-fg transition-colors">
+                  <span className="material-symbols-outlined text-base text-fg-subtle">mail</span>
                   {email}
                 </a>
               )}
               {phone && (
-                <a href={`tel:${phone}`}
-                  className="flex items-center gap-2 text-sm transition-colors"
-                  style={{ color: "rgba(250,247,240,0.5)" }}>
-                  <span className="material-symbols-outlined text-base" style={{ color: "#c9a84c" }}>phone</span>
+                <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm text-fg-muted hover:text-fg transition-colors">
+                  <span className="material-symbols-outlined text-base text-fg-subtle">phone</span>
                   {phone}
                 </a>
               )}
               {address && (
-                <p className="flex items-center gap-2 text-sm" style={{ color: "rgba(250,247,240,0.5)" }}>
-                  <span className="material-symbols-outlined text-base" style={{ color: "#c9a84c" }}>location_on</span>
+                <p className="flex items-center gap-2 text-sm text-fg-muted">
+                  <span className="material-symbols-outlined text-base text-fg-subtle">location_on</span>
                   {address}
                 </p>
               )}
@@ -95,8 +90,7 @@ export default async function Footer() {
                 { label: "YouTube", href: youtubeUrl, svg: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> },
               ].filter((s) => s.href).map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-                  className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
-                  style={{ background: "rgba(250,247,240,0.08)", border: "1px solid rgba(250,247,240,0.12)", color: "rgba(250,247,240,0.7)" }}>
+                  className="dd-link w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 bg-surface border border-line text-fg-muted hover:text-fg">
                   {s.svg}
                 </a>
               ))}
@@ -106,14 +100,11 @@ export default async function Footer() {
           {/* Nav sections */}
           {sections.map((sec) => (
             <div key={sec.title}>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] mb-4" style={{ color: "#c9a84c" }}>
-                {sec.title}
-              </p>
+              <p className="dd-eyebrow text-fg-subtle mb-4">{sec.title}</p>
               <ul className="space-y-2.5">
                 {sec.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="text-sm transition-colors duration-200"
-                      style={{ color: "rgba(250,247,240,0.45)" }}>
+                    <Link href={l.href} className="dd-link text-sm text-fg-muted hover:text-fg transition-colors duration-200">
                       {l.label}
                     </Link>
                   </li>
@@ -123,13 +114,11 @@ export default async function Footer() {
           ))}
         </div>
 
-        {/* Trust badges */}
-        <div className="mt-10 pt-8 flex flex-wrap items-center gap-3"
-          style={{ borderTop: "1px solid rgba(250,247,240,0.07)" }}>
+        {/* Trust badges — neutral, not gold: these are informational, not a CTA */}
+        <div className="mt-10 pt-8 flex flex-wrap items-center gap-3 border-t border-line">
           {["SSL Secured", "Cash on Delivery", "Easy Returns", "Authentic Products"].map((b) => (
             <span key={b}
-              className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-full"
-              style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", color: "#c9a84c" }}>
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-[var(--radius-pill)] bg-surface border border-line text-fg-subtle">
               <span className="material-symbols-outlined text-xs">verified</span>
               {b}
             </span>
@@ -137,12 +126,11 @@ export default async function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-6 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2"
-          style={{ borderTop: "1px solid rgba(250,247,240,0.06)" }}>
-          <p className="text-[11px]" style={{ color: "rgba(250,247,240,0.3)" }}>
+        <div className="mt-6 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-line">
+          <p className="text-[11px] text-fg-subtle">
             © {year} {displayName}. All rights reserved.
           </p>
-          <p className="text-[11px]" style={{ color: "rgba(250,247,240,0.2)" }}>
+          <p className="text-[11px] text-fg-subtle opacity-70">
             Crafted with care · Bangladesh
           </p>
         </div>

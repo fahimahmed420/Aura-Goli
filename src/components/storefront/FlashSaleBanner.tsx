@@ -71,31 +71,22 @@ export default function FlashSaleBanner() {
       }}
     >
       <div
-        className="rounded-2xl overflow-hidden shadow-2xl"
-        style={{
-          background: "linear-gradient(135deg, #0b0b14 0%, #1a1230 100%)",
-          border: "1px solid rgba(201,168,76,0.25)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(201,168,76,0.08)",
-        }}
+        className="overflow-hidden bg-surface border border-line-strong"
+        style={{ borderRadius: "var(--radius-card)", boxShadow: "0 20px 60px rgba(0,0,0,0.45)" }}
       >
-        {/* Gold accent line */}
-        <div style={{ height: "3px", background: "linear-gradient(90deg, #c9a84c, #d4b05a, #c9a84c)" }} />
+        <div className="h-[2px] bg-accent" />
 
         <div className="px-5 py-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-base">⚡</span>
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em]" style={{ color: "#c9a84c" }}>Flash Sale</p>
-              </div>
-              <p className="text-[15px] font-bold leading-snug" style={{ color: "#faf7f0" }}>{sale.bannerText}</p>
-              <p className="text-[12px] mt-0.5" style={{ color: "rgba(250,247,240,0.5)" }}>{sale.discountPercent}% off sitewide</p>
+              <p className="dd-eyebrow text-accent mb-1.5">Flash sale</p>
+              <p className="text-[15px] font-medium leading-snug text-fg">{sale.bannerText}</p>
+              <p className="text-[12px] mt-0.5 text-fg-muted">{sale.discountPercent}% off sitewide</p>
             </div>
             <button
               onClick={dismiss}
-              className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5"
-              style={{ background: "rgba(250,247,240,0.1)", color: "rgba(250,247,240,0.5)" }}
+              className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5 bg-surface-raised text-fg-subtle hover:text-fg transition-colors"
               aria-label="Dismiss">
               <span className="material-symbols-outlined text-[16px]">close</span>
             </button>
@@ -103,17 +94,16 @@ export default function FlashSaleBanner() {
 
           {/* Countdown */}
           <div className="flex items-center gap-2 mb-4">
-            <p className="text-[10px] font-semibold" style={{ color: "rgba(250,247,240,0.4)" }}>Ends in</p>
+            <p className="text-[10px] font-medium text-fg-subtle">Ends in</p>
             <div className="flex items-center gap-1">
               {[{ val: time.h, label: "hr" }, { val: time.m, label: "min" }, { val: time.s, label: "sec" }].map(({ val, label }, i) => (
                 <div key={label} className="flex items-center gap-1">
-                  {i > 0 && <span className="font-bold text-sm" style={{ color: "rgba(201,168,76,0.5)" }}>:</span>}
-                  <div className="flex flex-col items-center px-2 py-1 rounded-lg"
-                    style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.15)" }}>
-                    <span className="font-mono font-bold text-[15px] leading-none tabular-nums" style={{ color: "#c9a84c" }}>
+                  {i > 0 && <span className="font-bold text-sm text-fg-subtle">:</span>}
+                  <div className="flex flex-col items-center px-2 py-1 rounded-[6px] bg-surface-raised border border-line">
+                    <span className="font-mono font-bold text-[15px] leading-none tabular-nums text-fg">
                       {String(val).padStart(2, "0")}
                     </span>
-                    <span className="text-[8px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(201,168,76,0.5)" }}>{label}</span>
+                    <span className="text-[8px] uppercase tracking-wider mt-0.5 text-fg-subtle">{label}</span>
                   </div>
                 </div>
               ))}
@@ -124,9 +114,9 @@ export default function FlashSaleBanner() {
           <Link
             href="/shop"
             onClick={dismiss}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
-            style={{ background: "linear-gradient(90deg, #c9a84c, #d4b05a)", color: "#0b0b14" }}>
-            Shop the Sale
+            className="flex items-center justify-center gap-2 w-full py-3 text-sm font-medium uppercase tracking-[0.1em] transition-colors active:scale-[0.98] bg-accent text-accent-fg hover:bg-accent-hover"
+            style={{ borderRadius: "var(--radius-pill)" }}>
+            Shop the sale
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </Link>
         </div>

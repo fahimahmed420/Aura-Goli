@@ -235,7 +235,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       .tab-btn { transition: color 0.2s; }
       .size-pill { transition: all 0.15s; }
       .atc-btn { transition: all 0.25s; }
-      .atc-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(11,11,20,0.25); }
+      .atc-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(247,244,236,0.25); }
       @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
       .shake { animation: shake 0.4s ease; }
       @keyframes slideDown { from { opacity:0; transform:translateY(-100%) } to { opacity:1; transform:none } }
@@ -244,7 +244,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       .share-panel { animation: shareSlideDown 0.22s cubic-bezier(.4,0,.2,1) both; }
     `}</style>
 
-    <div style={{ fontFamily: "'Hanken Grotesk', sans-serif", background: "#faf7f0", minHeight: "100vh", paddingTop: "4px" }}>
+    <div style={{ background: "var(--canvas)", minHeight: "100vh", paddingTop: "4px" }}>
       <LoadingScreen isLoading={!isReady} />
 
       {/* ═══════════════════════════════════════════════════════
@@ -253,18 +253,18 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       <div className="md:hidden">
 
         {/* Breadcrumbs */}
-        <div className="px-4 pt-4 pb-3 flex items-center gap-1.5 text-[11px] flex-wrap" style={{ color: "rgba(18,16,58,0.4)" }}>
-          <Link href="/" className="hover:text-[#0b0b14] transition-colors">Home</Link>
-          <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
-          <Link href="/shop" className="hover:text-[#0b0b14] transition-colors">Shop</Link>
+        <div className="px-4 pt-4 pb-3 flex items-center gap-1.5 text-[11px] flex-wrap" style={{ color: "rgba(247,244,236,0.4)" }}>
+          <Link href="/" className="hover:text-fg transition-colors">Home</Link>
+          <span style={{ color: "rgba(247,244,236,0.2)" }}>/</span>
+          <Link href="/shop" className="hover:text-fg transition-colors">Shop</Link>
           {product.category && (
             <>
-              <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
-              <Link href={`/shop?category=${product.category.slug}`} className="hover:text-[#0b0b14] transition-colors">{product.category.name}</Link>
+              <span style={{ color: "rgba(247,244,236,0.2)" }}>/</span>
+              <Link href={`/shop?category=${product.category.slug}`} className="hover:text-fg transition-colors">{product.category.name}</Link>
             </>
           )}
-          <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
-          <span className="font-semibold truncate max-w-[160px]" style={{ color: "#0b0b14" }}>{product.name}</span>
+          <span style={{ color: "rgba(247,244,236,0.2)" }}>/</span>
+          <span className="font-semibold truncate max-w-[160px]" style={{ color: "var(--fg)" }}>{product.name}</span>
         </div>
 
         {/* Image gallery — main image + thumbnail strip (same approach as desktop) */}
@@ -278,13 +278,13 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                     className="relative rounded-lg overflow-hidden transition-all"
                     style={{
                       width: "52px", height: "66px",
-                      border: `2px solid ${i === activeImage ? "#0b0b14" : "transparent"}`,
-                      background: "#ede9e1",
+                      border: `2px solid ${i === activeImage ? "var(--fg)" : "transparent"}`,
+                      background: "var(--surface-raised)",
                       opacity: i === activeImage ? 1 : 0.5,
                       flexShrink: 0,
                     }}>
                     {isVideo(img.url) ? (
-                      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "#1a1a2e" }}>
+                      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "var(--surface-raised)" }}>
                         <span className="material-symbols-outlined text-[16px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>play_circle</span>
                       </div>
                     ) : (
@@ -296,7 +296,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             )}
 
             {/* Main image */}
-            <div className="flex-1 relative rounded-xl img-zoom" style={{ aspectRatio: "3/4", background: "#ede9e1" }}>
+            <div className="flex-1 relative rounded-xl img-zoom" style={{ aspectRatio: "3/4", background: "var(--surface-raised)" }}>
               {product.images[activeImage] ? (
                 isVideo(product.images[activeImage].url) ? (
                   <video src={product.images[activeImage].url}
@@ -308,12 +308,12 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 )
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center rounded-xl">
-                  <span className="material-symbols-outlined text-5xl" style={{ color: "#c8c6c5" }}>checkroom</span>
+                  <span className="material-symbols-outlined text-5xl" style={{ color: "var(--fg-subtle)" }}>checkroom</span>
                 </div>
               )}
               {hasDiscount && (
                 <span className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ background: "#ba1a1a", color: "white" }}>
+                  style={{ background: "var(--danger)", color: "white" }}>
                   -{discountPct}%
                 </span>
               )}
@@ -324,10 +324,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   style={{
                     background: wishlisted ? "rgba(186,26,26,0.1)" : "rgba(255,255,255,0.9)",
                     backdropFilter: "blur(8px)",
-                    boxShadow: "0 2px 8px rgba(11,11,20,0.12)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                   }}>
                   <span className="material-symbols-outlined text-[18px]"
-                    style={{ color: wishlisted ? "#ba1a1a" : "#444748", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
+                    style={{ color: wishlisted ? "var(--danger)" : "var(--fg-muted)", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
                     favorite
                   </span>
                 </button>
@@ -336,9 +336,9 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   style={{
                     background: "rgba(255,255,255,0.9)",
                     backdropFilter: "blur(8px)",
-                    boxShadow: "0 2px 8px rgba(11,11,20,0.12)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                   }}>
-                  <span className="material-symbols-outlined text-[18px]" style={{ color: "#444748" }}>ios_share</span>
+                  <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--fg-muted)" }}>ios_share</span>
                 </button>
               </div>
             </div>
@@ -350,20 +350,20 @@ export default function ProductDetailClient({ product, related }: { product: Pro
           <div className="flex items-start justify-between gap-2 mb-1">
             <div className="flex-1 min-w-0">
               {product.category && (
-                <p className="text-[9px] font-bold uppercase tracking-[0.22em] mb-0.5" style={{ color: "#c9a84c" }}>
+                <p className="text-[9px] font-medium uppercase tracking-[0.22em] mb-0.5 text-fg-subtle">
                   {product.category.name}
                 </p>
               )}
-              <h1 className="font-['Playfair_Display'] text-[1.3rem] font-bold leading-snug" style={{ color: "#0b0b14" }}>
+              <h1 className="dd-display text-[1.3rem] font-bold leading-snug" style={{ color: "var(--fg)" }}>
                 {product.name}
               </h1>
             </div>
             <div className="shrink-0 text-right pt-1">
-              <p className="font-['Playfair_Display'] text-[1.3rem] font-bold leading-none" style={{ color: "#0b0b14" }}>
+              <p className="dd-display text-[1.3rem] font-bold leading-none" style={{ color: "var(--fg)" }}>
                 ৳{finalPrice.toLocaleString()}
               </p>
               {hasDiscount && (
-                <p className="text-[11px] line-through mt-0.5" style={{ color: "rgba(11,11,20,0.35)" }}>
+                <p className="text-[11px] line-through mt-0.5" style={{ color: "rgba(247,244,236,0.35)" }}>
                   ৳{Number(product.compareAtPrice).toLocaleString()}
                 </p>
               )}
@@ -374,16 +374,16 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               <div className="flex">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i} className="text-[12px]"
-                    style={{ color: i < Math.round(rating) ? "#c9a84c" : "#e2e2e2" }}>★</span>
+                    style={{ color: i < Math.round(rating) ? "#c9a84c" : "var(--line-strong)" }}>★</span>
                 ))}
               </div>
-              <span className="text-[11px]" style={{ color: "rgba(11,11,20,0.45)" }}>
+              <span className="text-[11px]" style={{ color: "rgba(247,244,236,0.45)" }}>
                 {rating.toFixed(1)} · {product.reviews.length} review{product.reviews.length !== 1 ? "s" : ""}
               </span>
             </div>
           )}
 
-          <div style={{ height: "1px", background: "rgba(11,11,20,0.07)", marginBottom: "12px" }} />
+          <div style={{ height: "1px", background: "rgba(247,244,236,0.07)", marginBottom: "12px" }} />
 
           {/* Color selector */}
           {colors.length > 0 && (
@@ -391,11 +391,11 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               style={colorError ? { padding: "6px 10px", background: "rgba(186,26,26,0.05)", border: "1px solid rgba(186,26,26,0.25)", borderRadius: "12px" } : undefined}>
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: colorError ? "#ba1a1a" : "rgba(11,11,20,0.45)" }}>
+                  style={{ color: colorError ? "var(--danger)" : "rgba(247,244,236,0.45)" }}>
                   Colour{colorError
                     ? <span className="normal-case tracking-normal font-semibold"> — select</span>
                     : selectedColor
-                    ? <span className="normal-case tracking-normal font-normal" style={{ color: "#0b0b14" }}> · {selectedColor}</span>
+                    ? <span className="normal-case tracking-normal font-normal" style={{ color: "var(--fg)" }}> · {selectedColor}</span>
                     : null}
                 </p>
               </div>
@@ -409,19 +409,19 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       title={oos ? `${c} — Out of stock` : c}
                       className="w-8 h-8 rounded-full transition-all flex items-center justify-center relative"
                       style={{
-                        backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
-                        border: selectedColor === c ? "2px solid #0b0b14" : "2px solid transparent",
-                        boxShadow: selectedColor === c ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14" : "0 0 0 1px rgba(11,11,20,0.15)",
+                        backgroundColor: c.toLowerCase() === "white" ? "#f4f2ec" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
+                        border: selectedColor === c ? "2px solid var(--fg)" : "2px solid transparent",
+                        boxShadow: selectedColor === c ? "0 0 0 2px var(--canvas), 0 0 0 4px var(--fg)" : "0 0 0 1px rgba(247,244,236,0.15)",
                         opacity: oos ? 0.35 : 1,
                         cursor: oos ? "not-allowed" : "pointer",
                       }}>
                       {oos ? (
                         <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <svg width="22" height="22" viewBox="0 0 22 22"><line x1="3" y1="19" x2="19" y2="3" stroke="rgba(11,11,20,0.5)" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                          <svg width="22" height="22" viewBox="0 0 22 22"><line x1="3" y1="19" x2="19" y2="3" stroke="rgba(247,244,236,0.5)" strokeWidth="1.5" strokeLinecap="round"/></svg>
                         </span>
                       ) : selectedColor === c ? (
                         <span className="material-symbols-outlined text-[11px]"
-                          style={{ color: ["white","beige","yellow","cream"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
+                          style={{ color: ["white","beige","yellow","cream"].includes(c.toLowerCase()) ? "var(--fg)" : "white" }}>
                           check
                         </span>
                       ) : null}
@@ -438,7 +438,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               style={sizeError ? { padding: "6px 10px", background: "rgba(186,26,26,0.05)", border: "1px solid rgba(186,26,26,0.25)", borderRadius: "12px" } : undefined}>
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: sizeError ? "#ba1a1a" : "rgba(11,11,20,0.45)" }}>
+                  style={{ color: sizeError ? "var(--danger)" : "rgba(247,244,236,0.45)" }}>
                   Size{sizeError && <span className="normal-case tracking-normal font-semibold"> — select</span>}
                 </p>
                 <button onClick={openSizeChart} className="text-[11px] font-semibold flex items-center gap-0.5" style={{ color: "#c9a84c" }}>
@@ -462,9 +462,9 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       disabled={oos}
                       className="size-pill min-w-[44px] h-9 px-3 rounded-lg text-[12px] font-semibold text-center"
                       style={{
-                        background: selectedSize === s ? "#0b0b14" : oos ? "transparent" : "white",
-                        color: selectedSize === s ? "#faf7f0" : oos ? "rgba(11,11,20,0.2)" : "#0b0b14",
-                        border: `1.5px solid ${selectedSize === s ? "#0b0b14" : oos ? "rgba(11,11,20,0.08)" : sizeError ? "rgba(186,26,26,0.35)" : "rgba(11,11,20,0.13)"}`,
+                        background: selectedSize === s ? "var(--fg)" : oos ? "transparent" : "var(--surface-raised)",
+                        color: selectedSize === s ? "var(--canvas)" : oos ? "rgba(247,244,236,0.2)" : "var(--fg)",
+                        border: `1.5px solid ${selectedSize === s ? "var(--fg)" : oos ? "rgba(247,244,236,0.08)" : sizeError ? "rgba(186,26,26,0.35)" : "rgba(247,244,236,0.13)"}`,
                         textDecoration: oos ? "line-through" : "none",
                         cursor: oos ? "not-allowed" : "pointer",
                       }}>
@@ -478,51 +478,51 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
           {/* Scarcity indicator */}
           {lowStock && (
-            <p className="text-[11px] font-semibold mb-3" style={{ color: "#ba1a1a" }}>
+            <p className="text-[11px] font-semibold mb-3" style={{ color: "var(--danger)" }}>
               ⚠ Only {lowStock} left in this size — order soon
             </p>
           )}
 
           {/* Material */}
           <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl"
-            style={{ background: "rgba(11,11,20,0.03)", border: "1px solid rgba(11,11,20,0.07)" }}>
-            <span className="material-symbols-outlined text-[15px]" style={{ color: "#3d2b7a" }}>texture</span>
-            <span className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(11,11,20,0.4)" }}>Material</span>
-            <span className="text-[12px] font-semibold ml-auto" style={{ color: "#0b0b14" }}>{product.material || "100% Cotton"}</span>
+            style={{ background: "rgba(247,244,236,0.03)", border: "1px solid rgba(247,244,236,0.07)" }}>
+            <span className="material-symbols-outlined text-[15px]" style={{ color: "var(--accent)" }}>texture</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(247,244,236,0.4)" }}>Material</span>
+            <span className="text-[12px] font-semibold ml-auto" style={{ color: "var(--fg)" }}>{product.material || "100% Cotton"}</span>
           </div>
 
           {/* Quantity + ATC */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "rgba(11,11,20,0.45)" }}>Quantity</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "rgba(247,244,236,0.45)" }}>Quantity</span>
               <div className="flex items-center rounded-xl overflow-hidden"
-                style={{ border: "1px solid rgba(11,11,20,0.13)", background: "white" }}>
+                style={{ border: "1px solid var(--field-border)", background: "var(--field-bg)" }}>
                 <button onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="w-9 h-9 flex items-center justify-center" style={{ color: "#0b0b14" }}>
+                  className="w-9 h-9 flex items-center justify-center" style={{ color: "var(--fg)" }}>
                   <span className="material-symbols-outlined text-[17px]">remove</span>
                 </button>
-                <span className="w-9 text-center text-[13px] font-bold" style={{ color: "#0b0b14" }}>{qty}</span>
+                <span className="w-9 text-center text-[13px] font-bold" style={{ color: "var(--fg)" }}>{qty}</span>
                 <button onClick={() => setQty((q) => q + 1)}
-                  className="w-9 h-9 flex items-center justify-center" style={{ color: "#0b0b14" }}>
+                  className="w-9 h-9 flex items-center justify-center" style={{ color: "var(--fg)" }}>
                   <span className="material-symbols-outlined text-[17px]">add</span>
                 </button>
               </div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => addToCart()} disabled={!inStock}
-                className="flex-1 h-11 rounded-xl text-[13px] font-bold atc-btn active:scale-[0.98]"
+                className="flex-1 h-11 rounded-xl text-[13px] font-medium atc-btn active:scale-[0.98]"
                 style={{
-                  background: addedToCart ? "#16a34a" : inStock ? "#0b0b14" : "rgba(11,11,20,0.1)",
-                  color: addedToCart ? "white" : inStock ? "#faf7f0" : "rgba(11,11,20,0.3)",
+                  background: addedToCart ? "var(--success)" : inStock ? "var(--accent)" : "var(--surface-raised)",
+                  color: addedToCart ? "var(--canvas)" : inStock ? "var(--accent-fg)" : "var(--fg-subtle)",
                 }}>
                 {addedToCart ? "✓ Added to Bag" : inStock ? `Add to Bag — ৳${(finalPrice * qty).toLocaleString()}` : "Out of Stock"}
               </button>
               <button onClick={buyNow} disabled={!inStock}
-                className="h-11 px-4 rounded-xl text-[13px] font-bold transition-all active:scale-[0.98] shrink-0"
+                className="h-11 px-4 rounded-xl text-[13px] font-medium transition-all active:scale-[0.98] shrink-0"
                 style={{
-                  border: "1.5px solid rgba(11,11,20,0.18)",
-                  color: inStock ? "#0b0b14" : "rgba(11,11,20,0.25)",
-                  background: "white",
+                  border: "1.5px solid var(--line-strong)",
+                  color: inStock ? "var(--fg)" : "var(--fg-subtle)",
+                  background: "transparent",
                 }}>
                 Buy Now
               </button>
@@ -532,15 +532,15 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
           {/* Trust badges */}
           <div className="flex items-center gap-3 py-3 mb-2"
-            style={{ borderTop: "1px solid rgba(11,11,20,0.06)", borderBottom: "1px solid rgba(11,11,20,0.06)" }}>
+            style={{ borderTop: "1px solid rgba(247,244,236,0.06)", borderBottom: "1px solid rgba(247,244,236,0.06)" }}>
             {[
               { icon: "local_shipping", text: "Free ৳2k+" },
               { icon: "autorenew", text: "30-day return" },
               { icon: "verified_user", text: "Authentic" },
             ].map((t) => (
               <div key={t.icon} className="flex items-center gap-1.5 flex-1">
-                <span className="material-symbols-outlined text-[15px]" style={{ color: "#3d2b7a" }}>{t.icon}</span>
-                <span className="text-[10px] font-medium" style={{ color: "#5a5358" }}>{t.text}</span>
+                <span className="material-symbols-outlined text-[15px]" style={{ color: "var(--accent)" }}>{t.icon}</span>
+                <span className="text-[10px] font-medium" style={{ color: "var(--fg-muted)" }}>{t.text}</span>
               </div>
             ))}
           </div>
@@ -551,17 +551,17 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               key: "details",
               label: "Product Details",
               content: (
-                <div className="space-y-3 text-[13px] leading-relaxed" style={{ color: "#5a5358" }}>
+                <div className="space-y-3 text-[13px] leading-relaxed" style={{ color: "var(--fg-muted)" }}>
                   <p>{product.description ?? "Premium quality garment with exceptional finish and comfort."}</p>
                   {product.material && (
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-0.5" style={{ color: "rgba(11,11,20,0.45)" }}>Material</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-0.5" style={{ color: "rgba(247,244,236,0.45)" }}>Material</p>
                       <p>{product.material}</p>
                     </div>
                   )}
                   {product.careInstructions && (
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-0.5" style={{ color: "rgba(11,11,20,0.45)" }}>Care</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-0.5" style={{ color: "rgba(247,244,236,0.45)" }}>Care</p>
                       <p>{product.careInstructions}</p>
                     </div>
                   )}
@@ -574,13 +574,13 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               content: <ReviewsTab slug={product.slug} initialReviews={product.reviews} initialAvg={product.averageRating ?? 0} />,
             },
           ].map(({ key, label, content }) => (
-            <div key={key} style={{ borderTop: "1px solid rgba(11,11,20,0.07)" }}>
+            <div key={key} style={{ borderTop: "1px solid rgba(247,244,236,0.07)" }}>
               <button
                 onClick={() => setOpenAccordion(openAccordion === key ? null : key)}
                 className="flex items-center justify-between w-full py-3.5">
-                <span className="text-[13px] font-semibold" style={{ color: "#0b0b14" }}>{label}</span>
+                <span className="text-[13px] font-semibold" style={{ color: "var(--fg)" }}>{label}</span>
                 <span className="material-symbols-outlined text-[18px] transition-transform"
-                  style={{ color: "rgba(11,11,20,0.35)", transform: openAccordion === key ? "rotate(180deg)" : "none" }}>
+                  style={{ color: "rgba(247,244,236,0.35)", transform: openAccordion === key ? "rotate(180deg)" : "none" }}>
                   expand_more
                 </span>
               </button>
@@ -589,17 +589,17 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               )}
             </div>
           ))}
-          <div style={{ borderTop: "1px solid rgba(11,11,20,0.07)" }} />
+          <div style={{ borderTop: "1px solid rgba(247,244,236,0.07)" }} />
         </div>
 
         {/* Related products */}
         {related.length > 0 && (
           <div className="mt-6 pb-8">
             <div className="flex items-center justify-between px-4 mb-3">
-              <h2 className="font-['Playfair_Display'] text-[1rem] font-bold" style={{ color: "#0b0b14" }}>
+              <h2 className="dd-display text-[1rem] font-bold" style={{ color: "var(--fg)" }}>
                 You Might Like
               </h2>
-              <Link href="/shop" className="text-[11px] font-semibold" style={{ color: "rgba(11,11,20,0.4)" }}>
+              <Link href="/shop" className="text-[11px] font-semibold" style={{ color: "rgba(247,244,236,0.4)" }}>
                 See all
               </Link>
             </div>
@@ -609,17 +609,17 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   className="shrink-0 active:scale-[0.97] transition-transform"
                   style={{ width: "40vw", maxWidth: "160px" }}>
                   <div className="relative rounded-xl overflow-hidden mb-1.5"
-                    style={{ aspectRatio: "3/4", background: "#ede8e0" }}>
+                    style={{ aspectRatio: "3/4", background: "var(--surface-raised)" }}>
                     {p.images[0] ? (
                       <Image src={p.images[0].url} alt={p.name} fill className="object-cover" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-2xl" style={{ color: "#c8c6c5" }}>checkroom</span>
+                        <span className="material-symbols-outlined text-2xl" style={{ color: "var(--fg-subtle)" }}>checkroom</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-[12px] font-semibold line-clamp-1" style={{ color: "#0b0b14" }}>{p.name}</p>
-                  <p className="text-[12px] font-bold" style={{ color: "#3d2b7a" }}>৳{Number(p.price).toLocaleString()}</p>
+                  <p className="text-[12px] font-semibold line-clamp-1" style={{ color: "var(--fg)" }}>{p.name}</p>
+                  <p className="text-[12px] font-bold" style={{ color: "var(--accent)" }}>৳{Number(p.price).toLocaleString()}</p>
                 </Link>
               ))}
             </div>
@@ -633,44 +633,41 @@ export default function ProductDetailClient({ product, related }: { product: Pro
           <div className="share-panel absolute left-1/2 -translate-x-1/2 w-full max-w-sm px-4"
             style={{ top: "80px" }}
             onClick={(e) => e.stopPropagation()}>
-            <div className="rounded-2xl overflow-hidden shadow-2xl"
-              style={{ background: "#faf7f0", border: "1px solid rgba(11,11,20,0.08)" }}>
+            <div className="rounded-2xl overflow-hidden shadow-2xl bg-surface border border-line">
               <div className="px-5 pt-4 pb-2">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: "rgba(11,11,20,0.35)" }}>Share this product</p>
+                <p className="dd-eyebrow text-fg-subtle">Share this product</p>
               </div>
               <div className="px-3 pb-3 space-y-1.5">
                 <button onClick={copyLink}
                   className="flex items-center gap-3 w-full px-3 py-3 rounded-xl active:scale-[0.98] transition-all"
                   style={{
-                    background: copied ? "rgba(22,163,74,0.07)" : "white",
-                    border: `1px solid ${copied ? "rgba(22,163,74,0.18)" : "rgba(11,11,20,0.06)"}`,
+                    background: copied ? "var(--success-tint)" : "var(--surface-raised)",
+                    border: `1px solid ${copied ? "var(--success)" : "var(--line)"}`,
                   }}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: copied ? "rgba(22,163,74,0.12)" : "rgba(61,43,122,0.08)" }}>
-                    <span className="material-symbols-outlined text-[16px]" style={{ color: copied ? "#16a34a" : "#3d2b7a" }}>
+                    style={{ background: copied ? "var(--success-tint)" : "var(--accent-tint)" }}>
+                    <span className="material-symbols-outlined text-[16px]" style={{ color: copied ? "var(--success)" : "var(--accent)" }}>
                       {copied ? "check" : "link"}
                     </span>
                   </div>
                   <div className="text-left">
-                    <p className="text-[13px] font-semibold" style={{ color: copied ? "#16a34a" : "#0b0b14" }}>
+                    <p className="text-[13px] font-medium" style={{ color: copied ? "var(--success)" : "var(--fg)" }}>
                       {copied ? "Link copied!" : "Copy link"}
                     </p>
-                    <p className="text-[11px]" style={{ color: "rgba(11,11,20,0.4)" }}>
+                    <p className="text-[11px] text-fg-subtle">
                       {copied ? "Paste it anywhere" : "Copy page URL"}
                     </p>
                   </div>
                 </button>
                 {typeof navigator !== "undefined" && !!navigator.share && (
                   <button onClick={nativeShare}
-                    className="flex items-center gap-3 w-full px-3 py-3 rounded-xl active:scale-[0.98] transition-all"
-                    style={{ background: "white", border: "1px solid rgba(11,11,20,0.06)" }}>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(61,43,122,0.08)" }}>
-                      <span className="material-symbols-outlined text-[16px]" style={{ color: "#3d2b7a" }}>ios_share</span>
+                    className="flex items-center gap-3 w-full px-3 py-3 rounded-xl active:scale-[0.98] transition-all bg-surface-raised border border-line">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-accent-tint">
+                      <span className="material-symbols-outlined text-[16px] text-accent">ios_share</span>
                     </div>
                     <div className="text-left">
-                      <p className="text-[13px] font-semibold" style={{ color: "#0b0b14" }}>More options</p>
-                      <p className="text-[11px]" style={{ color: "rgba(11,11,20,0.4)" }}>Share via your apps</p>
+                      <p className="text-[13px] font-medium text-fg">More options</p>
+                      <p className="text-[11px] text-fg-subtle">Share via your apps</p>
                     </div>
                   </button>
                 )}
@@ -683,16 +680,19 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
       {/* ── Sticky ATC bar (desktop only, appears when ATC scrolls out of view) ── */}
       {showStickyBar && (
-        <div className="sticky-bar hidden md:flex fixed top-0 inset-x-0 z-[55] items-center gap-6 px-8 lg:px-16 py-3"
-          style={{ background: "rgba(11,11,20,0.97)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div className="sticky-bar hidden md:flex fixed top-0 inset-x-0 z-[55] items-center gap-6 px-8 lg:px-16 py-3 bg-canvas/95 backdrop-blur-xl border-b border-line">
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold uppercase tracking-widest truncate" style={{ color: "rgba(250,247,240,0.5)" }}>{product.category?.name}</p>
-            <p className="font-['Playfair_Display'] text-base font-bold truncate" style={{ color: "#faf7f0" }}>{product.name}</p>
+            <p className="dd-eyebrow text-fg-subtle truncate">{product.category?.name}</p>
+            <p className="dd-display text-base truncate text-fg">{product.name}</p>
           </div>
-          <p className="font-['Playfair_Display'] text-xl font-bold shrink-0" style={{ color: "#c9a84c" }}>৳{finalPrice.toLocaleString()}</p>
+          <p className="dd-display text-xl shrink-0 text-fg">৳{finalPrice.toLocaleString()}</p>
           <button onClick={() => addToCart()} disabled={!inStock}
-            className="shrink-0 px-8 py-2.5 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-[#c9a84c] hover:text-[#0b0b14]"
-            style={{ background: inStock ? "#faf7f0" : "rgba(250,247,240,0.2)", color: inStock ? "#0b0b14" : "rgba(250,247,240,0.3)", cursor: inStock ? "pointer" : "not-allowed" }}>
+            className="shrink-0 px-8 py-2.5 text-xs font-medium uppercase tracking-widest rounded-[var(--radius-pill)] transition-colors disabled:cursor-not-allowed"
+            style={{
+              background: inStock ? "var(--accent)" : "var(--surface-raised)",
+              color: inStock ? "var(--accent-fg)" : "var(--fg-subtle)",
+              cursor: inStock ? "pointer" : "not-allowed",
+            }}>
             {addedToCart ? "✓ Added" : "Add to Bag"}
           </button>
         </div>
@@ -701,21 +701,21 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       {/* ═══════════════════════════════════════════════════════
           DESKTOP LAYOUT — FULL REDESIGN
       ═══════════════════════════════════════════════════════ */}
-      <div className="hidden md:block" style={{ background: "#faf7f0" }}>
+      <div className="hidden md:block" style={{ background: "var(--canvas)" }}>
 
         {/* Breadcrumbs */}
-        <div className="max-w-[1440px] mx-auto px-8 lg:px-16 py-4 flex items-center gap-2 text-xs" style={{ color: "rgba(18,16,58,0.4)" }}>
-          <Link href="/" className="hover:text-[#0b0b14] transition-colors">Home</Link>
-          <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
-          <Link href="/shop" className="hover:text-[#0b0b14] transition-colors">Shop</Link>
+        <div className="max-w-[1440px] mx-auto px-8 lg:px-16 py-4 flex items-center gap-2 text-xs" style={{ color: "rgba(247,244,236,0.4)" }}>
+          <Link href="/" className="hover:text-fg transition-colors">Home</Link>
+          <span style={{ color: "rgba(247,244,236,0.2)" }}>/</span>
+          <Link href="/shop" className="hover:text-fg transition-colors">Shop</Link>
           {product.category && (
             <>
-              <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
-              <Link href={`/shop?category=${product.category.slug}`} className="hover:text-[#0b0b14] transition-colors">{product.category.name}</Link>
+              <span style={{ color: "rgba(247,244,236,0.2)" }}>/</span>
+              <Link href={`/shop?category=${product.category.slug}`} className="hover:text-fg transition-colors">{product.category.name}</Link>
             </>
           )}
-          <span style={{ color: "rgba(18,16,58,0.2)" }}>/</span>
-          <span className="font-semibold truncate max-w-[200px]" style={{ color: "#0b0b14" }}>{product.name}</span>
+          <span style={{ color: "rgba(247,244,236,0.2)" }}>/</span>
+          <span className="font-semibold truncate max-w-[200px]" style={{ color: "var(--fg)" }}>{product.name}</span>
         </div>
 
         {/* Main product section */}
@@ -735,13 +735,13 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                         className="relative rounded-lg overflow-hidden transition-all"
                         style={{
                           width: "60px", height: "76px",
-                          border: `2px solid ${i === activeImage ? "#0b0b14" : "transparent"}`,
-                          background: "#ede9e1",
+                          border: `2px solid ${i === activeImage ? "var(--fg)" : "transparent"}`,
+                          background: "var(--surface-raised)",
                           opacity: i === activeImage ? 1 : 0.5,
                           flexShrink: 0,
                         }}>
                         {isVideo(img.url) ? (
-                          <div className="absolute inset-0 flex items-center justify-center" style={{ background: "#1a1a2e" }}>
+                          <div className="absolute inset-0 flex items-center justify-center" style={{ background: "var(--surface-raised)" }}>
                             <span className="material-symbols-outlined text-[22px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>play_circle</span>
                           </div>
                         ) : (
@@ -754,7 +754,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
                 {/* Main image */}
                 <div className="flex-1 relative rounded-xl img-zoom"
-                  style={{ aspectRatio: "4/5", background: "#ede9e1" }}>
+                  style={{ aspectRatio: "4/5", background: "var(--surface-raised)" }}>
                   {product.images[activeImage] ? (
                     isVideo(product.images[activeImage].url) ? (
                       <video
@@ -772,7 +772,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                     )
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center rounded-xl">
-                      <span className="material-symbols-outlined text-7xl" style={{ color: "#c8c6c5" }}>checkroom</span>
+                      <span className="material-symbols-outlined text-7xl" style={{ color: "var(--fg-subtle)" }}>checkroom</span>
                     </div>
                   )}
 
@@ -780,7 +780,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   {hasDiscount && (
                     <div className="absolute top-4 left-4 z-10">
                       <span className="text-[11px] font-bold px-3 py-1 rounded-full"
-                        style={{ background: "#ba1a1a", color: "white" }}>
+                        style={{ background: "var(--danger)", color: "white" }}>
                         -{discountPct}% OFF
                       </span>
                     </div>
@@ -794,10 +794,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       style={{
                         background: wishlisted ? "rgba(186,26,26,0.1)" : "rgba(255,255,255,0.9)",
                         backdropFilter: "blur(8px)",
-                        boxShadow: "0 2px 8px rgba(11,11,20,0.12)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                       }}>
                       <span className="material-symbols-outlined text-[20px]"
-                        style={{ color: wishlisted ? "#ba1a1a" : "#444748", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
+                        style={{ color: wishlisted ? "var(--danger)" : "var(--fg-muted)", fontVariationSettings: wishlisted ? "'FILL' 1" : "'FILL' 0" }}>
                         favorite
                       </span>
                     </button>
@@ -807,9 +807,9 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                       style={{
                         background: "rgba(255,255,255,0.9)",
                         backdropFilter: "blur(8px)",
-                        boxShadow: "0 2px 8px rgba(11,11,20,0.12)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
                       }}>
-                      <span className="material-symbols-outlined text-[18px]" style={{ color: "#444748" }}>
+                      <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--fg-muted)" }}>
                         {copied ? "check" : "share"}
                       </span>
                     </button>
@@ -818,7 +818,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   {/* Image counter */}
                   {product.images.length > 1 && (
                     <div className="absolute bottom-4 right-4 z-10 px-2.5 py-1 rounded-full text-[11px] font-bold"
-                      style={{ background: "rgba(11,11,20,0.5)", color: "white", backdropFilter: "blur(4px)" }}>
+                      style={{ background: "rgba(11,11,20,0.55)", color: "white", backdropFilter: "blur(4px)" }}>
                       {activeImage + 1} / {product.images.length}
                     </div>
                   )}
@@ -831,16 +831,16 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
               {/* Category */}
               {product.category && (
-                <p className="pd-fade-up text-[10px] font-bold uppercase tracking-[0.28em] mb-3"
-                  style={{ color: "#c9a84c", animationDelay: "0s" }}>
+                <p className="pd-fade-up text-[10px] font-medium uppercase tracking-[0.28em] mb-3 text-fg-subtle"
+                  style={{ animationDelay: "0s" }}>
                   {product.category.name}
                 </p>
               )}
 
               {/* Product name */}
               <h1
-                className="pd-fade-up font-['Playfair_Display'] font-bold leading-tight mb-4"
-                style={{ fontSize: "clamp(2rem,3vw,3.25rem)", color: "#0b0b14", animationDelay: "0.06s" }}>
+                className="dd-display pd-fade-up leading-tight mb-4"
+                style={{ fontSize: "clamp(2rem,3vw,3.25rem)", color: "var(--fg)", animationDelay: "0.06s" }}>
                 {product.name}
               </h1>
 
@@ -850,10 +850,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <span key={i} className="text-[16px]"
-                        style={{ color: i < Math.round(rating) ? "#c9a84c" : "#e2e2e2" }}>★</span>
+                        style={{ color: i < Math.round(rating) ? "#c9a84c" : "var(--line-strong)" }}>★</span>
                     ))}
                   </div>
-                  <span className="text-sm" style={{ color: "rgba(11,11,20,0.5)" }}>
+                  <span className="text-sm" style={{ color: "rgba(247,244,236,0.5)" }}>
                     {rating.toFixed(1)} ({product.reviews.length} review{product.reviews.length !== 1 ? "s" : ""})
                   </span>
                 </div>
@@ -861,16 +861,16 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
               {/* Price */}
               <div className="pd-fade-up flex items-baseline gap-3 mb-5" style={{ animationDelay: "0.13s" }}>
-                <span className="font-['Playfair_Display'] text-[2rem] font-bold" style={{ color: "#0b0b14" }}>
+                <span className="text-[2rem] font-bold" style={{ color: "var(--fg)" }}>
                   ৳{finalPrice.toLocaleString()}
                 </span>
                 {hasDiscount && (
                   <>
-                    <span className="text-lg line-through" style={{ color: "rgba(11,11,20,0.35)" }}>
+                    <span className="text-lg line-through" style={{ color: "rgba(247,244,236,0.35)" }}>
                       ৳{Number(product.compareAtPrice).toLocaleString()}
                     </span>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: "rgba(186,26,26,0.1)", color: "#ba1a1a" }}>
+                      style={{ background: "rgba(186,26,26,0.1)", color: "var(--danger)" }}>
                       {discountPct}% OFF
                     </span>
                   </>
@@ -878,17 +878,17 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               </div>
 
               {/* Divider */}
-              <div className="pd-fade-up mb-6" style={{ height: "1px", background: "#e8e4dc", animationDelay: "0.15s" }} />
+              <div className="pd-fade-up mb-6" style={{ height: "1px", background: "var(--surface-raised)", animationDelay: "0.15s" }} />
 
               {/* Color selector */}
               {colors.length > 0 && (
                 <div ref={colorRef} className={`pd-fade-up mb-6 ${colorError ? "shake" : ""}`}
                   style={{ animationDelay: "0.17s" }}>
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
-                    style={{ color: colorError ? "#ba1a1a" : "rgba(11,11,20,0.45)" }}>
+                    style={{ color: colorError ? "var(--danger)" : "rgba(247,244,236,0.45)" }}>
                     Colour
                     {colorError ? <span className="normal-case tracking-normal font-semibold"> — Please select</span>
-                      : selectedColor ? <span className="normal-case tracking-normal font-normal" style={{ color: "#0b0b14" }}> · {selectedColor}</span>
+                      : selectedColor ? <span className="normal-case tracking-normal font-normal" style={{ color: "var(--fg)" }}> · {selectedColor}</span>
                       : null}
                   </p>
                   <div className="flex gap-3 flex-wrap">
@@ -902,20 +902,20 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                           className="rounded-full transition-all flex items-center justify-center relative"
                           style={{
                             width: "40px", height: "40px",
-                            backgroundColor: c.toLowerCase() === "white" ? "#f9f9f9" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
+                            backgroundColor: c.toLowerCase() === "white" ? "#f4f2ec" : c.toLowerCase() === "beige" ? "#d4b896" : c.toLowerCase(),
                             boxShadow: selectedColor === c
-                              ? "0 0 0 2px #faf7f0, 0 0 0 4px #0b0b14"
-                              : colorError ? "0 0 0 2px rgba(186,26,26,0.4)" : "0 0 0 1px rgba(11,11,20,0.15)",
+                              ? "0 0 0 2px var(--canvas), 0 0 0 4px var(--fg)"
+                              : colorError ? "0 0 0 2px rgba(186,26,26,0.4)" : "0 0 0 1px rgba(247,244,236,0.15)",
                             opacity: oos ? 0.35 : 1,
                             cursor: oos ? "not-allowed" : "pointer",
                           }}>
                           {oos ? (
                             <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              <svg width="28" height="28" viewBox="0 0 28 28"><line x1="4" y1="24" x2="24" y2="4" stroke="rgba(11,11,20,0.5)" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                              <svg width="28" height="28" viewBox="0 0 28 28"><line x1="4" y1="24" x2="24" y2="4" stroke="rgba(247,244,236,0.5)" strokeWidth="1.5" strokeLinecap="round"/></svg>
                             </span>
                           ) : selectedColor === c ? (
                             <span className="material-symbols-outlined text-[14px]"
-                              style={{ color: ["white","beige","yellow","ivory"].includes(c.toLowerCase()) ? "#0b0b14" : "white" }}>
+                              style={{ color: ["white","beige","yellow","ivory"].includes(c.toLowerCase()) ? "var(--fg)" : "white" }}>
                               check
                             </span>
                           ) : null}
@@ -932,7 +932,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   style={{ animationDelay: "0.2s" }}>
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em]"
-                      style={{ color: sizeError ? "#ba1a1a" : "rgba(11,11,20,0.45)" }}>
+                      style={{ color: sizeError ? "var(--danger)" : "rgba(247,244,236,0.45)" }}>
                       Size
                       {sizeError && <span className="normal-case tracking-normal font-semibold"> — Please select</span>}
                     </p>
@@ -958,9 +958,9 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                           disabled={oos}
                           className="size-pill px-5 py-2.5 text-sm font-semibold rounded-lg"
                           style={{
-                            background: selectedSize === s ? "#0b0b14" : "white",
-                            color: selectedSize === s ? "#faf7f0" : oos ? "rgba(11,11,20,0.2)" : "#0b0b14",
-                            border: `1.5px solid ${selectedSize === s ? "#0b0b14" : oos ? "rgba(11,11,20,0.08)" : sizeError ? "rgba(186,26,26,0.4)" : "rgba(11,11,20,0.15)"}`,
+                            background: selectedSize === s ? "var(--fg)" : "var(--surface-raised)",
+                            color: selectedSize === s ? "var(--canvas)" : oos ? "rgba(247,244,236,0.2)" : "var(--fg)",
+                            border: `1.5px solid ${selectedSize === s ? "var(--fg)" : oos ? "rgba(247,244,236,0.08)" : sizeError ? "rgba(186,26,26,0.4)" : "rgba(247,244,236,0.15)"}`,
                             textDecoration: oos ? "line-through" : "none",
                             cursor: oos ? "not-allowed" : "pointer",
                           }}>
@@ -974,34 +974,34 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
               {/* Scarcity indicator */}
               {lowStock && (
-                <p className="text-[12px] font-semibold mb-1" style={{ color: "#ba1a1a" }}>
+                <p className="text-[12px] font-semibold mb-1" style={{ color: "var(--danger)" }}>
                   ⚠ Only {lowStock} left in this size — order soon
                 </p>
               )}
 
               {/* Material */}
               <div className="flex items-center gap-2 mb-5 px-3.5 py-2.5 rounded-xl"
-                style={{ background: "rgba(11,11,20,0.03)", border: "1px solid rgba(11,11,20,0.07)" }}>
-                <span className="material-symbols-outlined text-[16px]" style={{ color: "#3d2b7a" }}>texture</span>
-                <span className="text-[11px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(11,11,20,0.4)" }}>Material</span>
-                <span className="text-[13px] font-semibold ml-auto" style={{ color: "#0b0b14" }}>{product.material || "100% Cotton"}</span>
+                style={{ background: "rgba(247,244,236,0.03)", border: "1px solid rgba(247,244,236,0.07)" }}>
+                <span className="material-symbols-outlined text-[16px]" style={{ color: "var(--accent)" }}>texture</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(247,244,236,0.4)" }}>Material</span>
+                <span className="text-[13px] font-semibold ml-auto" style={{ color: "var(--fg)" }}>{product.material || "100% Cotton"}</span>
               </div>
 
               {/* Quantity */}
               <div className="pd-fade-up mb-6" style={{ animationDelay: "0.22s" }}>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
-                  style={{ color: "rgba(11,11,20,0.45)" }}>Quantity</p>
+                  style={{ color: "rgba(247,244,236,0.45)" }}>Quantity</p>
                 <div className="flex items-center rounded-xl overflow-hidden w-fit"
-                  style={{ border: "1.5px solid rgba(11,11,20,0.15)", background: "white" }}>
+                  style={{ border: "1.5px solid var(--field-border)", background: "var(--field-bg)" }}>
                   <button onClick={() => setQty((q) => Math.max(1, q - 1))}
                     className="w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
-                    style={{ color: "#0b0b14" }}>
+                    style={{ color: "var(--fg)" }}>
                     <span className="material-symbols-outlined text-[18px]">remove</span>
                   </button>
-                  <span className="w-12 text-center text-sm font-bold" style={{ color: "#0b0b14" }}>{qty}</span>
+                  <span className="w-12 text-center text-sm font-bold" style={{ color: "var(--fg)" }}>{qty}</span>
                   <button onClick={() => setQty((q) => q + 1)}
                     className="w-11 h-11 flex items-center justify-center hover:bg-gray-50 transition-colors"
-                    style={{ color: "#0b0b14" }}>
+                    style={{ color: "var(--fg)" }}>
                     <span className="material-symbols-outlined text-[18px]">add</span>
                   </button>
                 </div>
@@ -1013,10 +1013,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   ref={atcRef}
                   onClick={() => addToCart()}
                   disabled={!inStock}
-                  className="atc-btn w-full py-4 text-sm font-bold uppercase tracking-widest rounded-xl"
+                  className="atc-btn w-full py-4 text-sm font-medium uppercase tracking-widest rounded-xl"
                   style={{
-                    background: addedToCart ? "#16a34a" : inStock ? "#0b0b14" : "rgba(11,11,20,0.1)",
-                    color: addedToCart ? "white" : inStock ? "#faf7f0" : "rgba(11,11,20,0.3)",
+                    background: addedToCart ? "var(--success)" : inStock ? "var(--accent)" : "var(--surface-raised)",
+                    color: addedToCart ? "var(--canvas)" : inStock ? "var(--accent-fg)" : "var(--fg-subtle)",
                     cursor: inStock ? "pointer" : "not-allowed",
                   }}>
                   {addedToCart ? "✓ Added to Bag" : inStock ? "Add to Bag" : "Out of Stock"}
@@ -1024,10 +1024,10 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                 <button
                   onClick={buyNow}
                   disabled={!inStock}
-                  className="w-full py-4 text-sm font-bold uppercase tracking-widest rounded-xl transition-all hover:bg-[#0b0b14] hover:text-[#faf7f0] disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-4 text-sm font-medium uppercase tracking-widest rounded-xl transition-all hover:bg-surface-raised disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{
-                    border: "2px solid #0b0b14",
-                    color: "#0b0b14",
+                    border: "2px solid var(--line-strong)",
+                    color: "var(--fg)",
                     background: "transparent",
                   }}>
                   Buy Now
@@ -1043,14 +1043,14 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                   { icon: "verified_user", title: "Authentic", sub: "Quality guaranteed" },
                 ].map((t) => (
                   <div key={t.icon} className="flex flex-col items-center text-center gap-2 px-2 py-3 rounded-xl"
-                    style={{ background: "rgba(61,43,122,0.04)", border: "1px solid rgba(61,43,122,0.08)" }}>
+                    style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint)" }}>
                     <div className="w-9 h-9 rounded-full flex items-center justify-center"
-                      style={{ background: "rgba(61,43,122,0.1)" }}>
-                      <span className="material-symbols-outlined text-[18px]" style={{ color: "#3d2b7a" }}>{t.icon}</span>
+                      style={{ background: "var(--accent-tint)" }}>
+                      <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--accent)" }}>{t.icon}</span>
                     </div>
                     <div>
-                      <p className="text-[11px] font-bold" style={{ color: "#0b0b14" }}>{t.title}</p>
-                      <p className="text-[10px]" style={{ color: "rgba(11,11,20,0.45)" }}>{t.sub}</p>
+                      <p className="text-[11px] font-bold" style={{ color: "var(--fg)" }}>{t.title}</p>
+                      <p className="text-[10px]" style={{ color: "rgba(247,244,236,0.45)" }}>{t.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -1062,7 +1062,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
           {/* ── Below fold: Tabs ── */}
           <div ref={tabsRef} className="mt-24">
             {/* Tab bar */}
-            <div className="relative" style={{ borderBottom: "1px solid #e8e4dc" }}>
+            <div className="relative" style={{ borderBottom: "1px solid var(--line)" }}>
               <div className="flex">
                 {tabs.map((tab) => (
                   <button
@@ -1070,7 +1070,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
                     onClick={() => setActiveTab(tab.key)}
                     className="tab-btn px-6 py-4 text-sm font-semibold relative"
                     style={{
-                      color: activeTab === tab.key ? "#0b0b14" : "rgba(11,11,20,0.4)",
+                      color: activeTab === tab.key ? "var(--fg)" : "rgba(247,244,236,0.4)",
                       minWidth: `${tabWidthPct}%`,
                     }}>
                     {tab.label}
@@ -1081,7 +1081,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               <div
                 className="absolute bottom-0 h-[2px] rounded-full"
                 style={{
-                  background: "#0b0b14",
+                  background: "var(--fg)",
                   width: `${tabWidthPct}%`,
                   left: `${tabIdx * tabWidthPct}%`,
                   transition: "left 0.3s cubic-bezier(.4,0,.2,1)",
@@ -1092,17 +1092,17 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             {/* Tab content */}
             <div className="py-10 max-w-4xl">
               {activeTab === "description" && (
-                <div className="pd-fade-in space-y-6 text-[#5a5358] leading-relaxed">
+                <div className="pd-fade-in space-y-6 text-fg-muted leading-relaxed">
                   <p className="text-base">{product.description ?? "Premium quality garment with exceptional finish and comfort."}</p>
                   {product.material && (
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: "rgba(11,11,20,0.4)" }}>Material</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: "rgba(247,244,236,0.4)" }}>Material</p>
                       <p>{product.material}</p>
                     </div>
                   )}
                   {product.careInstructions && (
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: "rgba(11,11,20,0.4)" }}>Care Instructions</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.22em] mb-2" style={{ color: "rgba(247,244,236,0.4)" }}>Care Instructions</p>
                       <p>{product.careInstructions}</p>
                     </div>
                   )}
@@ -1118,26 +1118,26 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
           {/* Related products */}
           {related.length > 0 && (
-            <div className="mt-8 pt-16" style={{ borderTop: "1px solid #e8e4dc" }}>
-              <h2 className="font-['Playfair_Display'] text-2xl font-bold mb-8" style={{ color: "#0b0b14" }}>
+            <div className="mt-8 pt-16" style={{ borderTop: "1px solid var(--line)" }}>
+              <h2 className="dd-display text-2xl font-bold mb-8" style={{ color: "var(--fg)" }}>
                 You might also like
               </h2>
               <div className="grid grid-cols-4 gap-6">
                 {related.map((p) => (
                   <Link key={p.id} href={`/products/${p.slug}`} className="group">
                     <div className="relative rounded-xl overflow-hidden mb-3 img-zoom"
-                      style={{ aspectRatio: "3/4", background: "#ede9e1" }}>
+                      style={{ aspectRatio: "3/4", background: "var(--surface-raised)" }}>
                       {p.images[0] ? (
                         <Image src={p.images[0].url} alt={p.name} fill className="object-cover" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-4xl" style={{ color: "#c4c7c7" }}>checkroom</span>
+                          <span className="material-symbols-outlined text-4xl" style={{ color: "var(--line-strong)" }}>checkroom</span>
                         </div>
                       )}
                     </div>
-                    <p className="text-sm font-semibold mb-0.5 transition-colors group-hover:text-[#5951b4]"
-                      style={{ color: "#0b0b14" }}>{p.name}</p>
-                    <p className="text-sm font-bold" style={{ color: "#3d2b7a" }}>৳{Number(p.price).toLocaleString()}</p>
+                    <p className="text-sm font-semibold mb-0.5 transition-colors group-hover:text-accent"
+                      style={{ color: "var(--fg)" }}>{p.name}</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--accent)" }}>৳{Number(p.price).toLocaleString()}</p>
                   </Link>
                 ))}
               </div>
@@ -1151,43 +1151,43 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       {sizeModalOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4"
           onClick={() => setSizeModalOpen(false)}>
-          <div className="absolute inset-0" style={{ background: "rgba(11,11,20,0.6)", backdropFilter: "blur(4px)" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(247,244,236,0.6)", backdropFilter: "blur(4px)" }} />
           <div className="share-panel relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl"
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#faf7f0", border: "1px solid rgba(11,11,20,0.08)", boxShadow: "0 24px 60px rgba(11,11,20,0.4)" }}>
+            style={{ background: "var(--canvas)", border: "1px solid rgba(247,244,236,0.08)", boxShadow: "0 24px 60px rgba(247,244,236,0.4)" }}>
             <div className="sticky top-0 flex items-center justify-between px-5 py-4"
-              style={{ background: "#faf7f0", borderBottom: "1px solid #e8e4dc" }}>
+              style={{ background: "var(--canvas)", borderBottom: "1px solid var(--line)" }}>
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[20px]" style={{ color: "#c9a84c" }}>straighten</span>
-                <h3 className="font-['Playfair_Display'] text-lg font-bold" style={{ color: "#0b0b14" }}>Size Guide</h3>
+                <h3 className="dd-display text-lg font-bold" style={{ color: "var(--fg)" }}>Size Guide</h3>
               </div>
               <button onClick={() => setSizeModalOpen(false)}
                 className="w-9 h-9 flex items-center justify-center rounded-full"
-                style={{ color: "rgba(11,11,20,0.5)" }} aria-label="Close">
+                style={{ color: "rgba(247,244,236,0.5)" }} aria-label="Close">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="p-5">
-              <p className="text-[13px] mb-4" style={{ color: "rgba(11,11,20,0.55)" }}>
+              <p className="text-[13px] mb-4" style={{ color: "rgba(247,244,236,0.55)" }}>
                 All measurements are in inches. For the best fit, measure yourself and compare to the chart below.
               </p>
-              <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #e8e4dc" }}>
+              <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--line)" }}>
                 <table className="w-full text-[13px] border-collapse">
                   <thead>
-                    <tr style={{ background: "#f3f0e8" }}>
+                    <tr style={{ background: "var(--surface-raised)" }}>
                       {["Size", "Chest", "Length", "Shoulder"].map((h) => (
                         <th key={h} className="px-3 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em]"
-                          style={{ color: "rgba(11,11,20,0.45)", borderBottom: "1px solid #e8e4dc" }}>{h}</th>
+                          style={{ color: "rgba(247,244,236,0.45)", borderBottom: "1px solid var(--line)" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {sizeChartRows.map((row, i) => (
-                      <tr key={row.size} style={{ background: i % 2 === 0 ? "white" : "rgba(243,240,232,0.4)" }}>
-                        <td className="px-3 py-3 font-bold" style={{ color: "#0b0b14", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.size}</td>
-                        <td className="px-3 py-3" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.chest}</td>
-                        <td className="px-3 py-3" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.length}</td>
-                        <td className="px-3 py-3" style={{ color: "#5a5358", borderBottom: "1px solid rgba(11,11,20,0.05)" }}>{row.shoulder}</td>
+                      <tr key={row.size} style={{ background: i % 2 === 0 ? "var(--surface)" : "var(--surface-raised)" }}>
+                        <td className="px-3 py-3 font-bold" style={{ color: "var(--fg)", borderBottom: "1px solid rgba(247,244,236,0.05)" }}>{row.size}</td>
+                        <td className="px-3 py-3" style={{ color: "var(--fg-muted)", borderBottom: "1px solid rgba(247,244,236,0.05)" }}>{row.chest}</td>
+                        <td className="px-3 py-3" style={{ color: "var(--fg-muted)", borderBottom: "1px solid rgba(247,244,236,0.05)" }}>{row.length}</td>
+                        <td className="px-3 py-3" style={{ color: "var(--fg-muted)", borderBottom: "1px solid rgba(247,244,236,0.05)" }}>{row.shoulder}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1217,7 +1217,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (v: number) 
         <button key={s} type="button"
           onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(0)}
           onClick={() => onChange(s)}
-          className={`text-2xl transition-colors ${s <= (hover || value) ? "text-yellow-400" : "text-[#c4c7c7]"}`}>★</button>
+          className={`text-2xl transition-colors ${s <= (hover || value) ? "text-yellow-400" : "text-fg-subtle"}`}>★</button>
       ))}
     </div>
   );
@@ -1262,16 +1262,15 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
   return (
     <div className="space-y-6">
       {reviews.length > 0 && (
-        <div className="flex items-center gap-4 pb-5"
-          style={{ borderBottom: "1px solid rgba(18,16,58,0.08)" }}>
+        <div className="flex items-center gap-4 pb-5 border-b border-line">
           <div className="text-center">
-            <p className="font-['Playfair_Display'] text-[2.5rem] font-bold leading-none" style={{ color: "#12103a" }}>{avg.toFixed(1)}</p>
+            <p className="dd-display text-[2.5rem] leading-none text-fg">{avg.toFixed(1)}</p>
             <div className="flex justify-center mt-1 gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className="text-[14px]" style={{ color: i < Math.round(avg) ? "#c9a84c" : "#e2e2e2" }}>★</span>
+                <span key={i} className="text-[14px]" style={{ color: i < Math.round(avg) ? "var(--accent)" : "var(--line-strong)" }}>★</span>
               ))}
             </div>
-            <p className="text-[11px] mt-1" style={{ color: "rgba(18,16,58,0.4)" }}>{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
+            <p className="text-[11px] mt-1 text-fg-subtle">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
           </div>
         </div>
       )}
@@ -1279,14 +1278,12 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
       {!showForm && !success && (
         loggedIn ? (
           <button onClick={() => setShowForm(true)}
-            className="px-6 py-3 rounded-xl text-[13px] font-bold"
-            style={{ background: "#12103a", color: "#faf7f0" }}>
+            className="px-6 py-3 rounded-xl text-[13px] font-medium bg-accent text-accent-fg">
             Write a Review
           </button>
         ) : (
           <Link href={`/login?next=${encodeURIComponent(`/products/${slug}`)}`}
-            className="inline-block px-6 py-3 rounded-xl text-[13px] font-bold"
-            style={{ background: "#12103a", color: "#faf7f0" }}>
+            className="inline-block px-6 py-3 rounded-xl text-[13px] font-medium bg-accent text-accent-fg">
             Sign in to Review
           </Link>
         )
@@ -1294,53 +1291,47 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
 
       {success && (
         <div className="px-4 py-3 rounded-xl text-[13px]"
-          style={{ background: "rgba(22,163,74,0.08)", color: "#16a34a", border: "1px solid rgba(22,163,74,0.2)" }}>
+          style={{ background: "var(--success-tint)", color: "var(--success)", border: "1px solid var(--success)" }}>
           Thank you! Your review has been submitted.
         </div>
       )}
 
       {showForm && (
-        <form onSubmit={submitReview} className="space-y-4 p-4 rounded-2xl"
-          style={{ background: "white", border: "1px solid rgba(18,16,58,0.08)" }}>
-          <h3 className="font-['Playfair_Display'] text-[1.1rem] font-semibold" style={{ color: "#12103a" }}>Write a Review</h3>
+        <form onSubmit={submitReview} className="space-y-4 p-4 rounded-2xl bg-surface border border-line">
+          <h3 className="dd-display text-[1.1rem] text-fg">Write a Review</h3>
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: "rgba(18,16,58,0.5)" }}>Your Rating</label>
+            <label className="block text-[11px] font-medium uppercase tracking-[0.15em] mb-2 text-fg-subtle">Your Rating</label>
             <StarPicker value={rating} onChange={setRating} />
           </div>
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.15em] mb-1.5" style={{ color: "rgba(18,16,58,0.5)" }}>Title (optional)</label>
+            <label className="block text-[11px] font-medium uppercase tracking-[0.15em] mb-1.5 text-fg-subtle">Title (optional)</label>
             <input value={title} onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl px-4 py-3 text-[14px] outline-none"
-              style={{ border: "1px solid rgba(18,16,58,0.12)", background: "#faf7f0", color: "#12103a" }}
+              className="field-input text-[14px]"
               placeholder="Summarise your experience" />
           </div>
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.15em] mb-1.5" style={{ color: "rgba(18,16,58,0.5)" }}>Review</label>
+            <label className="block text-[11px] font-medium uppercase tracking-[0.15em] mb-1.5 text-fg-subtle">Review</label>
             <textarea value={body} onChange={(e) => setBody(e.target.value)}
               rows={4} required
-              className="w-full rounded-xl px-4 py-3 text-[14px] outline-none resize-none"
-              style={{ border: "1px solid rgba(18,16,58,0.12)", background: "#faf7f0", color: "#12103a" }}
+              className="field-input text-[14px] resize-none"
               placeholder="Fit, quality, material…" />
           </div>
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-[0.15em] mb-1.5" style={{ color: "rgba(18,16,58,0.5)" }}>Add photos <span className="normal-case tracking-normal font-normal" style={{ color: "rgba(18,16,58,0.35)" }}>(optional)</span></label>
+            <label className="block text-[11px] font-medium uppercase tracking-[0.15em] mb-1.5 text-fg-subtle">Add photos <span className="normal-case tracking-normal font-normal text-fg-subtle opacity-70">(optional)</span></label>
             <textarea value={photoUrls} onChange={(e) => setPhotoUrls(e.target.value)}
               rows={2}
-              className="w-full rounded-xl px-4 py-3 text-[14px] outline-none resize-none"
-              style={{ border: "1px solid rgba(18,16,58,0.12)", background: "#faf7f0", color: "#12103a" }}
+              className="field-input text-[14px] resize-none"
               placeholder="Paste image URLs separated by commas (Cloudinary, Imgur, etc.)" />
-            <p className="text-[11px] mt-1" style={{ color: "rgba(18,16,58,0.35)" }}>Paste one or more image URLs, separated by commas</p>
+            <p className="text-[11px] mt-1 text-fg-subtle opacity-70">Paste one or more image URLs, separated by commas</p>
           </div>
-          {formError && <p className="text-[13px]" style={{ color: "#ba1a1a" }}>{formError}</p>}
+          {formError && <p className="text-[13px]" style={{ color: "var(--danger)" }}>{formError}</p>}
           <div className="flex gap-2">
             <button type="submit" disabled={submitting}
-              className="flex-1 py-3 rounded-xl text-[13px] font-bold disabled:opacity-50"
-              style={{ background: "#12103a", color: "#faf7f0" }}>
+              className="flex-1 py-3 rounded-xl text-[13px] font-medium disabled:opacity-50 bg-accent text-accent-fg">
               {submitting ? "Submitting…" : "Submit"}
             </button>
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-5 py-3 rounded-xl text-[13px] font-semibold"
-              style={{ border: "1px solid rgba(18,16,58,0.12)", color: "#5a5358" }}>
+              className="px-5 py-3 rounded-xl text-[13px] font-medium border border-line text-fg-muted">
               Cancel
             </button>
           </div>
@@ -1349,41 +1340,40 @@ function ReviewsTab({ slug, initialReviews, initialAvg }: { slug: string; initia
 
       {reviews.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-[14px]" style={{ color: "rgba(18,16,58,0.4)" }}>No reviews yet. Be the first!</p>
+          <p className="text-[14px] text-fg-subtle">No reviews yet. Be the first!</p>
         </div>
       ) : (
         <div className="space-y-5">
           {reviews.map((r) => (
-            <div key={r.id} className="pb-5" style={{ borderBottom: "1px solid rgba(18,16,58,0.07)" }}>
+            <div key={r.id} className="pb-5 border-b border-line">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold"
-                    style={{ background: "rgba(61,43,122,0.1)", color: "#3d2b7a" }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold bg-accent-tint text-accent">
                     {(r.user?.name ?? "V")[0].toUpperCase()}
                   </div>
-                  <span className="text-[13px] font-semibold" style={{ color: "#12103a" }}>{r.user?.name ?? "Verified Buyer"}</span>
+                  <span className="text-[13px] font-medium text-fg">{r.user?.name ?? "Verified Buyer"}</span>
                 </div>
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i} className="text-[12px]" style={{ color: i < r.rating ? "#c9a84c" : "#e2e2e2" }}>★</span>
+                    <span key={i} className="text-[12px]" style={{ color: i < r.rating ? "var(--accent)" : "var(--line-strong)" }}>★</span>
                   ))}
                 </div>
               </div>
-              {r.title && <p className="text-[13px] font-semibold mb-1" style={{ color: "#12103a" }}>{r.title}</p>}
-              <p className="text-[13px] leading-relaxed" style={{ color: "#5a5358" }}>{r.body}</p>
+              {r.title && <p className="text-[13px] font-medium mb-1 text-fg">{r.title}</p>}
+              <p className="text-[13px] leading-relaxed text-fg-muted">{r.body}</p>
               {r.photos && r.photos.length > 0 && (
                 <div className="flex gap-2 mt-2 flex-wrap">
                   {r.photos.map((photo, pi) => (
                     <a key={pi} href={photo} target="_blank" rel="noopener noreferrer"
                       className="shrink-0 rounded-xl overflow-hidden block"
-                      style={{ height: "80px", width: "80px", background: "#ede8e0" }}>
+                      style={{ height: "80px", width: "80px", background: "var(--surface-raised)" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={photo} alt={`Review photo ${pi + 1}`} width={80} height={80} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     </a>
                   ))}
                 </div>
               )}
-              <p className="text-[11px] mt-2" style={{ color: "rgba(18,16,58,0.3)" }}>
+              <p className="text-[11px] mt-2" style={{ color: "rgba(247,244,236,0.3)" }}>
                 {new Date(r.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
               </p>
             </div>
@@ -1413,9 +1403,9 @@ function NotifyMeButton({ productId, variantId, size }: { productId: string; var
   }
 
   if (done) return (
-    <div className="flex items-center gap-2 mt-3 px-4 py-3 rounded-xl" style={{ background: "#d4f0d9" }}>
-      <span className="material-symbols-outlined text-base text-[#1a7f37]">check_circle</span>
-      <p className="text-sm font-semibold text-[#1a7f37]">We&apos;ll notify you when this is back in stock.</p>
+    <div className="flex items-center gap-2 mt-3 px-4 py-3 rounded-xl" style={{ background: "var(--success-tint)" }}>
+      <span className="material-symbols-outlined text-base text-[var(--success)]">check_circle</span>
+      <p className="text-sm font-semibold text-[var(--success)]">We&apos;ll notify you when this is back in stock.</p>
     </div>
   );
 

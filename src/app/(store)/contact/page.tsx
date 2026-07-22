@@ -16,14 +16,14 @@ export default async function ContactPage() {
   const name = storeName || "Aura Goli";
 
   return (
-    <div className="min-h-screen bg-[#f9f9f9]">
-      <div className="bg-black text-white px-4 md:px-12 py-16">
+    <div className="min-h-screen bg-canvas">
+      <div className="bg-surface border-b border-line px-4 md:px-12 py-16">
         <div className="max-w-5xl mx-auto">
-          <p className="text-xs font-semibold text-[#9f97ff] uppercase tracking-widest mb-3">Get in Touch</p>
-          <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl font-bold">
+          <p className="dd-eyebrow text-fg-subtle uppercase tracking-widest mb-3">Get in Touch</p>
+          <h1 className="dd-display text-4xl md:text-5xl text-fg">
             We&apos;d love to hear from you.
           </h1>
-          <p className="mt-3 text-white/60 text-sm">{name} — here to help.</p>
+          <p className="mt-3 text-fg-subtle text-sm">{name} — here to help.</p>
         </div>
       </div>
       <ContactForm email={email} phone={phone} address={address} />

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyUnsubscribeToken } from "@/lib/email";
+import { BRAND } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -27,12 +28,12 @@ function page(title: string, message: string, status = 200) {
   return new Response(
     `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
       <meta name="robots" content="noindex"/><title>${title} — Aura Goli</title></head>
-      <body style="margin:0;font-family:Arial,sans-serif;background:#0b0b14;color:#faf7f0;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+      <body style="margin:0;font-family:Arial,sans-serif;background:${BRAND.canvas};color:${BRAND.fg};display:flex;align-items:center;justify-content:center;min-height:100vh;">
         <div style="max-width:420px;text-align:center;padding:40px 24px;">
-          <p style="font-family:Georgia,serif;font-size:26px;font-weight:700;margin:0 0 20px;">Aura <span style="color:#c9a84c;">Goli</span></p>
+          <p style="font-family:Georgia,serif;font-size:26px;font-weight:700;margin:0 0 20px;">Aura <span style="color:${BRAND.accent};">Goli</span></p>
           <h1 style="font-size:20px;font-weight:600;margin:0 0 12px;">${title}</h1>
-          <p style="font-size:14px;line-height:1.6;color:rgba(250,247,240,0.6);margin:0 0 24px;">${message}</p>
-          <a href="/" style="display:inline-block;background:#c9a84c;color:#0b0b14;text-decoration:none;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:12px 28px;border-radius:100px;">Back to store</a>
+          <p style="font-size:14px;line-height:1.6;color:${BRAND.fgMuted};margin:0 0 24px;">${message}</p>
+          <a href="/" style="display:inline-block;background:${BRAND.accent};color:${BRAND.accentFg};text-decoration:none;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:12px 28px;border-radius:100px;">Back to store</a>
         </div>
       </body></html>`,
     { status, headers: { "Content-Type": "text/html; charset=utf-8" } },

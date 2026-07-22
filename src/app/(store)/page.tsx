@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 import NewsletterForm from "@/components/storefront/NewsletterForm";
 import TestimonialSlider from "@/components/storefront/TestimonialSlider";
 import Hero3D from "@/components/storefront/Hero3D";
-import ProductCard, { type Product } from "@/components/storefront/ProductCard";
+import ProductCard, { type ProductCardData } from "@/components/ui/ProductCard";
+import Marquee from "@/components/ui/Marquee";
+import SectionHeader from "@/components/ui/SectionHeader";
+import Button, { ArrowRight } from "@/components/ui/Button";
 
 // ISR: regenerate the homepage at most every 5 minutes instead of querying
 // Postgres on every request. Admin product/category edits call revalidatePath("/").
@@ -51,25 +54,47 @@ async function getHomeData() {
       },
     }),
   ]);
-  // Prisma returns Decimal for price fields — serialize to plain numbers for the cards.
-  const toCard = (p: (typeof bestsellers)[number]) => ({
-    ...p,
+  // Prisma returns Decimal for price fields — serialize to plain numbers, and
+  // normalize into the shape components/ui/ProductCard consumes.
+  const toCard = (p: (typeof bestsellers)[number], isNew: boolean): ProductCardData => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
     price: Number(p.price),
     compareAtPrice: p.compareAtPrice != null ? Number(p.compareAtPrice) : undefined,
+    images: p.images,
+    categoryName: p.category?.name,
+    reviewCount: p._count.reviews,
+    stock: p.variants.reduce((s, v) => s + v.stockQuantity, 0),
+    isNew,
   });
   return {
     categories,
-    bestsellers: bestsellers.map(toCard),
-    newArrivals: newArrivals.map(toCard),
+    bestsellers: bestsellers.map((p) => toCard(p, false)),
+    newArrivals: newArrivals.map((p) => toCard(p, true)),
     latestReviews: latestReviews.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })),
   };
 }
 
+const TRUST = [
+  "Free shipping above ৳2,000",
+  "30-day returns",
+  "Ethically sourced cotton",
+  "Lifetime quality promise",
+  "Made in Bangladesh",
+  "4.9★ customer rating",
+];
+
+const VALUES = [
+  { icon: "verified", t: "Lifetime quality", b: "Stitching, printing, and fabric quality guaranteed. If it fails, we replace it — no questions." },
+  { icon: "eco", t: "Ethically sourced", b: "100% Supima cotton from GOTS-certified mills. Ethical wages, audited annually." },
+  { icon: "local_shipping", t: "Free delivery", b: "Free shipping on all orders above ৳2,000. Same-day delivery across Dhaka." },
+];
+
 export default async function HomePage() {
   const { categories, bestsellers, newArrivals, latestReviews } = await getHomeData();
 
-  // Shoppable lookbook built from real catalog imagery (deduped, max 6) — replaces
-  // the previous hardcoded placeholder photos.
+  // Shoppable lookbook built from real catalog imagery (deduped, max 6).
   const lookbook = Array.from(
     new Map(
       [...bestsellers, ...newArrivals]
@@ -79,115 +104,60 @@ export default async function HomePage() {
   ).slice(0, 6);
 
   return (
-    <div style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
+    <div className="bg-canvas">
 
-      {/* ── HERO — 3D interactive ────────────────────────────────────── */}
+      {/* ── HERO — WebGL silk, interactive tilt ─────────────────────────── */}
       <Hero3D />
 
-      {/* ── TRUST BAR — scrolling marquee on mobile ───────────────────── */}
-      <section className="overflow-hidden" style={{ background: "#c9a84c" }}>
-        <div className="flex animate-[marquee_18s_linear_infinite] whitespace-nowrap py-3.5">
-          {[
-            "Free Shipping above ৳2,000",
-            "30-Day Returns",
-            "Ethically Sourced Cotton",
-            "Lifetime Quality Promise",
-            "Made in Bangladesh",
-            "4.9★ Customer Rating",
-          ].flatMap((t, i) => [
-            <span key={`a${i}`} className="text-[12px] font-bold uppercase tracking-[0.2em] px-6 shrink-0"
-              style={{ color: "#0b0b14" }}>{t}</span>,
-            <span key={`d${i}`} className="text-[11px] font-bold px-2 opacity-30 shrink-0"
-              style={{ color: "#0b0b14" }}>·</span>,
-          ])}
-          {/* Duplicate for seamless loop */}
-          {[
-            "Free Shipping above ৳2,000",
-            "30-Day Returns",
-            "Ethically Sourced Cotton",
-            "Lifetime Quality Promise",
-            "Made in Bangladesh",
-            "4.9★ Customer Rating",
-          ].flatMap((t, i) => [
-            <span key={`b${i}`} className="text-[12px] font-bold uppercase tracking-[0.2em] px-6 shrink-0"
-              style={{ color: "#0b0b14" }}>{t}</span>,
-            <span key={`e${i}`} className="text-[11px] font-bold px-2 opacity-30 shrink-0"
-              style={{ color: "#0b0b14" }}>·</span>,
-          ])}
-        </div>
-      </section>
+      {/* ── TRUST BAR ────────────────────────────────────────────────────── */}
+      <div className="border-y border-line text-fg-subtle bg-canvas">
+        <Marquee items={TRUST} />
+      </div>
 
-      {/* ── CATEGORIES — horizontal scroll on mobile ──────────────────── */}
+      {/* ── COLLECTIONS ──────────────────────────────────────────────────── */}
       {categories.length > 0 && (
-        <section style={{ background: "#12103a" }} className="py-14 md:py-24">
-          <div className="max-w-[1280px] mx-auto">
-            {/* Header */}
-            <div className="flex items-end justify-between mb-8 px-5 md:px-14">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: "#c9a84c" }}>
-                  Collections
-                </p>
-                <h2 className="font-['Playfair_Display'] font-bold leading-tight"
-                  style={{ fontSize: "clamp(1.8rem, 6vw, 3.8rem)", color: "#faf7f0" }}>
-                  Shop by Style
-                </h2>
-              </div>
-              <Link href="/shop"
-                className="text-[11px] font-bold uppercase tracking-[0.15em] shrink-0 mb-1"
-                style={{ color: "rgba(250,247,240,0.4)" }}>
-                View All
-              </Link>
-            </div>
+        <section className="py-14 md:py-32">
+          <div className="max-w-[1440px] mx-auto px-5 md:px-10">
+            <SectionHeader eyebrow="Collections" title="Shop by style" link={{ href: "/shop", label: "View all" }} size="xl" />
 
-            {/* Mobile: horizontal scroll; Desktop: bento grid */}
-            <div className="flex md:hidden overflow-x-auto gap-3 px-5 pb-4 scrollbar-none">
-              {categories.map((cat, i) => (
+            {/* Mobile: horizontal scroll */}
+            <div className="flex md:hidden overflow-x-auto gap-3 pb-4 scrollbar-none -mx-5 px-5">
+              {categories.map((cat) => (
                 <Link key={cat.id} href={`/shop?category=${cat.slug}`}
-                  className="relative overflow-hidden rounded-2xl shrink-0 active:scale-[0.97] transition-transform flex flex-col"
-                  style={{ width: "68vw", maxWidth: "260px", minHeight: "300px" }}>
-                  {/* Solid background for transparent PNGs */}
-                  <div className="absolute inset-0" style={{ background: "#faf7f0" }} />
-                  {cat.imageUrl && (
-                    <Image src={cat.imageUrl} alt={cat.name} fill sizes="68vw" className="object-cover" />
-                  )}
-                  {/* Always-visible text panel */}
+                  className="relative overflow-hidden shrink-0 flex flex-col active:scale-[0.97] transition-transform"
+                  style={{ width: "68vw", maxWidth: "260px", minHeight: "300px", borderRadius: "var(--radius-card)" }}>
+                  <div className="absolute inset-0 bg-surface-raised" />
+                  {cat.imageUrl && <Image src={cat.imageUrl} alt={cat.name} fill sizes="68vw" className="object-cover" />}
                   <div className="absolute inset-x-0 bottom-0 p-5 pt-20"
-                    style={{ background: "linear-gradient(to top, rgba(11,11,20,0.92) 50%, transparent 100%)" }}>
-                    <p className="text-[9px] font-bold uppercase tracking-[0.3em] mb-1" style={{ color: "rgba(201,168,76,0.75)" }}>
-                      Collection
-                    </p>
-                    <h3 className="font-['Playfair_Display'] text-[1.2rem] font-bold text-white leading-tight mb-3">{cat.name}</h3>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full"
-                      style={{ background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.3)", color: "#c9a84c" }}>
-                      Shop <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
+                    style={{ background: "linear-gradient(to top, var(--canvas) 40%, transparent 100%)" }}>
+                    <h3 className="dd-display text-fg text-[1.3rem] mb-3">{cat.name}</h3>
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider px-3 py-1.5 rounded-[var(--radius-pill)] bg-accent-tint text-accent border border-accent/25">
+                      Shop <ArrowRight className="w-3 h-3" />
                     </span>
                   </div>
                 </Link>
               ))}
             </div>
 
-            {/* Desktop bento */}
-            <div className="hidden md:grid grid-cols-4 gap-3 px-14">
-              {categories.map((cat, i) => (
+            {/* Desktop: bento */}
+            <div className="hidden md:grid grid-cols-4 gap-3">
+              {categories.slice(0, 4).map((cat, i) => (
                 <Link key={cat.id} href={`/shop?category=${cat.slug}`}
-                  className={`group relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
-                  <div className={`relative overflow-hidden ${i === 0 ? "h-full min-h-[480px]" : "aspect-[3/4]"}`}
-                    style={{ background: "#faf7f0" }}>
+                  className={`dd-card group relative overflow-hidden ${i === 0 ? "col-span-2 row-span-2" : ""}`}
+                  style={{ borderRadius: "var(--radius-card)" }}>
+                  <div className={`dd-media relative overflow-hidden bg-surface-raised ${i === 0 ? "h-full min-h-[480px]" : "aspect-[3/4]"}`}>
                     {cat.imageUrl && (
                       <Image src={cat.imageUrl} alt={cat.name} fill
                         sizes={i === 0 ? "(max-width: 1280px) 50vw, 640px" : "(max-width: 1280px) 25vw, 320px"}
-                        className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                        className="object-cover" />
                     )}
-                    <div className="absolute inset-0 flex flex-col justify-end p-7">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: "rgba(201,168,76,0.7)" }}>
-                        Collection
-                      </p>
-                      <h3 className={`font-['Playfair_Display'] font-bold text-white leading-tight ${i === 0 ? "text-[2.2rem]" : "text-[1.4rem]"}`}>
+                    <div className="absolute inset-0 flex flex-col justify-end p-7"
+                      style={{ background: "linear-gradient(to top, var(--canvas) 4%, transparent 55%)" }}>
+                      <h3 className={`dd-display text-fg leading-tight ${i === 0 ? "text-[2.2rem]" : "text-[1.4rem]"}`}>
                         {cat.name}
                       </h3>
-                      <div className="flex items-center gap-2 mt-3 text-[11px] font-bold uppercase tracking-[0.2em] opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
-                        style={{ color: "#c9a84c" }}>
-                        Shop Now <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+                      <div className="flex items-center gap-2 mt-3 text-[11px] font-medium uppercase tracking-[0.16em] opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-fg-muted">
+                        Shop now <ArrowRight className="w-3.5 h-3.5" />
                       </div>
                     </div>
                   </div>
@@ -198,30 +168,15 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── BESTSELLERS — horizontal scroll carousel on mobile ────────── */}
+      {/* ── BESTSELLERS ──────────────────────────────────────────────────── */}
       {bestsellers.length > 0 && (
-        <section style={{ background: "#faf7f0" }} className="py-14 md:py-28">
-          <div className="max-w-[1280px] mx-auto">
-            <div className="flex items-end justify-between mb-8 px-5 md:px-14">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: "#c9a84c" }}>
-                  Customer Favourites
-                </p>
-                <h2 className="font-['Playfair_Display'] font-bold leading-tight"
-                  style={{ fontSize: "clamp(1.8rem, 6vw, 4rem)", color: "#12103a" }}>
-                  Bestsellers
-                </h2>
-              </div>
-              <Link href="/shop"
-                className="text-[11px] font-bold uppercase tracking-[0.15em] shrink-0 mb-1"
-                style={{ color: "#12103a" }}>
-                See all
-              </Link>
-            </div>
+        <section className="py-14 md:py-32 bg-surface">
+          <div className="max-w-[1440px] mx-auto px-5 md:px-10">
+            <SectionHeader eyebrow="Customer favourites" title="Bestsellers" link={{ href: "/shop", label: "See all" }} size="xl" />
 
             {/* Mobile carousel */}
-            <div className="flex md:hidden overflow-x-auto gap-3 px-5 pb-3 scrollbar-none">
-              {bestsellers.slice(0, 6).map((p: Product) => (
+            <div className="flex md:hidden overflow-x-auto gap-3 pb-3 scrollbar-none -mx-5 px-5">
+              {bestsellers.slice(0, 6).map((p) => (
                 <div key={p.id} className="shrink-0" style={{ width: "60vw", maxWidth: "220px" }}>
                   <ProductCard product={p} />
                 </div>
@@ -229,120 +184,84 @@ export default async function HomePage() {
             </div>
 
             {/* Desktop grid */}
-            <div className="hidden md:grid grid-cols-4 gap-6 px-14">
-              {bestsellers.slice(0, 4).map((p: Product) => (
-                <ProductCard key={p.id} product={p} />
+            <div className="hidden md:grid grid-cols-4 gap-x-4 gap-y-14">
+              {bestsellers.slice(0, 4).map((p, i) => (
+                <ProductCard key={p.id} product={p} priority={i === 0} />
               ))}
             </div>
 
-            <div className="text-center mt-10 md:mt-16 px-5">
-              <Link href="/shop"
-                className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-4 text-[12px] font-bold uppercase tracking-[0.2em] rounded-full border-2 transition-all active:scale-95"
-                style={{ borderColor: "#12103a", color: "#12103a" }}>
-                View All Products
-                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-              </Link>
+            <div className="text-center mt-10 md:mt-16">
+              <Button href="/shop" variant="secondary">
+                View all products <ArrowRight />
+              </Button>
             </div>
           </div>
         </section>
       )}
 
-      {/* ── NEW ARRIVALS ─────────────────────────────────────────────── */}
+      {/* ── NEW ARRIVALS — editorial split ─────────────────────────────────── */}
       {newArrivals.length > 0 && (
-        <section style={{ background: "#12103a" }} className="py-14 md:py-28 new-arrivals">
-          <div className="max-w-[1280px] mx-auto px-5 md:px-14">
-
-            {/* Header */}
-            <div className="mb-8">
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style={{ color: "#c9a84c" }}>
-                Just Dropped
+        <section className="py-14 md:py-32">
+          <div className="max-w-[1440px] mx-auto px-5 md:px-10 grid lg:grid-cols-[0.85fr_1.15fr] gap-10 lg:gap-24 items-center">
+            <div>
+              <p className="dd-eyebrow text-fg-subtle mb-6">Just dropped</p>
+              <h2 className="dd-display text-fg mb-7" style={{ fontSize: "clamp(2.2rem, 6vw, 4.5rem)" }}>
+                New <span style={{ fontStyle: "italic" }}>arrivals</span>
+              </h2>
+              <p className="text-[15px] leading-relaxed text-fg-muted mb-10 max-w-sm">
+                Fresh cuts, refined silhouettes. The newest Aura Goli pieces — before everyone else has them.
               </p>
-              <div className="flex items-end justify-between">
-                <h2 className="font-['Playfair_Display'] font-bold leading-[1.0]"
-                  style={{ fontSize: "clamp(2rem, 8vw, 4.5rem)", color: "#faf7f0" }}>
-                  New <span style={{ color: "#c9a84c" }}>Arrivals</span>
-                </h2>
-                <Link href="/shop?sort=newest"
-                  className="text-[11px] font-bold uppercase tracking-[0.15em] mb-1 shrink-0"
-                  style={{ color: "rgba(250,247,240,0.7)" }}>
-                  See all
-                </Link>
-              </div>
+              <Button href="/shop?sort=newest" variant="primary" className="hidden lg:inline-flex">
+                Shop new arrivals <ArrowRight />
+              </Button>
             </div>
 
-            <p className="text-[14px] leading-relaxed mb-8 max-w-sm" style={{ color: "rgba(250,247,240,0.5)" }}>
-              Fresh cuts, refined silhouettes. The newest Aura Goli pieces — before everyone else has them.
-            </p>
-
-            {/* Mobile: 2-column grid */}
-            <div className="grid grid-cols-2 gap-3 md:hidden">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 lg:gap-y-12">
+              {newArrivals.slice(0, 4).map((p, i) => (
+                <div key={p.id} style={{ marginTop: i % 2 === 1 ? "2.5rem" : undefined }} className="hidden md:block">
+                  <ProductCard product={p} />
+                </div>
+              ))}
               {newArrivals.slice(0, 4).map((p) => (
-                <ProductCard key={p.id} product={p}/>
+                <div key={`m-${p.id}`} className="md:hidden">
+                  <ProductCard product={p} />
+                </div>
               ))}
             </div>
 
-            {/* Desktop: editorial split */}
-            <div className="hidden md:grid grid-cols-2 gap-20 items-center mt-12">
-              <div className="grid grid-cols-2 gap-3">
-                {newArrivals.slice(0, 4).map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-              <div>
-                <Link href="/shop?sort=newest"
-                  className="inline-flex items-center gap-3 px-10 py-4 text-[12px] font-bold uppercase tracking-[0.2em] rounded-full transition-all"
-                  style={{ background: "#c9a84c", color: "#0b0b14" }}>
-                  Shop New Arrivals
-                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Mobile CTA */}
-            <div className="md:hidden mt-8">
-              <Link href="/shop?sort=newest"
-                className="flex items-center justify-center gap-2 w-full py-4 rounded-full text-[12px] font-bold uppercase tracking-[0.15em] active:scale-95 transition-transform"
-                style={{ background: "#c9a84c", color: "#0b0b14" }}>
-                Shop New Arrivals
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-              </Link>
-            </div>
+            <Button href="/shop?sort=newest" variant="primary" className="lg:hidden w-full">
+              Shop new arrivals <ArrowRight />
+            </Button>
           </div>
         </section>
       )}
 
-      {/* ── TESTIMONIALS ─────────────────────────────────────────────── */}
-      <div style={{ background: "#faf7f0" }}>
-        <TestimonialSlider reviews={latestReviews} />
-      </div>
+      {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
+      <TestimonialSlider reviews={latestReviews} />
 
-      {/* ── LOOKBOOK — shoppable grid from real catalog imagery ───────── */}
+      {/* ── LOOKBOOK ─────────────────────────────────────────────────────── */}
       {lookbook.length > 0 && (
-        <section style={{ background: "#12103a" }} className="py-14 md:py-24">
-          <div className="max-w-[1280px] mx-auto px-5 md:px-14">
-            <div className="text-center mb-8 md:mb-14">
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-3" style={{ color: "#c9a84c" }}>
-                The Lookbook
-              </p>
-              <h2 className="font-['Playfair_Display'] text-[1.8rem] md:text-[2.8rem] font-bold" style={{ color: "#faf7f0" }}>
+        <section className="py-14 md:py-28 bg-surface border-y border-line">
+          <div className="max-w-[1440px] mx-auto px-5 md:px-10">
+            <div className="text-center mb-10 md:mb-14">
+              <p className="dd-eyebrow text-fg-subtle mb-3">The lookbook</p>
+              <h2 className="dd-display text-fg" style={{ fontSize: "clamp(1.8rem, 5vw, 2.8rem)" }}>
                 Styled by Aura
               </h2>
-              <p className="mt-2 text-[13px]" style={{ color: "rgba(250,247,240,0.65)" }}>
-                Tap a piece to shop the look
-              </p>
+              <p className="mt-2 text-[13px] text-fg-muted">Tap a piece to shop the look</p>
             </div>
 
-            {/* 3-col on mobile, 6-col on desktop */}
             <div className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
               {lookbook.map((img, i) => (
                 <Link key={i} href={`/products/${img.slug}`}
-                  className="aspect-square relative overflow-hidden rounded-lg block active:scale-[0.97] transition-transform">
-                  <Image src={img.src} alt={img.alt} fill
-                    sizes="(max-width: 768px) 33vw, 16vw"
-                    className="object-cover" />
+                  className="dd-card aspect-square relative overflow-hidden block active:scale-[0.97] transition-transform"
+                  style={{ borderRadius: "6px" }}>
+                  <div className="dd-media absolute inset-0">
+                    <Image src={img.src} alt={img.alt} fill sizes="(max-width: 768px) 33vw, 16vw" className="object-cover" />
+                  </div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 active:opacity-100 md:hover:opacity-100 transition-opacity duration-200"
-                    style={{ background: "rgba(201,168,76,0.2)" }}>
-                    <span className="material-symbols-outlined text-xl" style={{ color: "#c9a84c" }}>shopping_bag</span>
+                    style={{ background: "var(--accent-tint)" }}>
+                    <span className="material-symbols-outlined text-xl text-accent">shopping_bag</span>
                   </div>
                 </Link>
               ))}
@@ -351,24 +270,18 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── WHY US — 3 quick value props ─────────────────────────────── */}
-      <section style={{ background: "#0b0b14" }} className="py-14 md:py-20">
-        <div className="max-w-[1280px] mx-auto px-5 md:px-14">
+      {/* ── WHY US ───────────────────────────────────────────────────────── */}
+      <section className="py-14 md:py-24">
+        <div className="max-w-[1440px] mx-auto px-5 md:px-10">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {[
-              { icon: "verified", title: "Lifetime Quality", body: "Stitching, printing, and fabric quality guaranteed. If it fails, we replace it — no questions." },
-              { icon: "eco", title: "Ethically Sourced", body: "100% Supima cotton from GOTS-certified mills. Ethical wages, audited annually." },
-              { icon: "local_shipping", title: "Free Delivery", body: "Free shipping on all orders above ৳2,000. Same-day delivery across Dhaka." },
-            ].map((v) => (
-              <div key={v.title} className="flex items-start gap-4 p-5 rounded-2xl"
-                style={{ background: "rgba(250,247,240,0.03)", border: "1px solid rgba(250,247,240,0.06)" }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.2)" }}>
-                  <span className="material-symbols-outlined text-xl" style={{ color: "#c9a84c" }}>{v.icon}</span>
+            {VALUES.map((v) => (
+              <div key={v.t} className="flex items-start gap-4 p-6 bg-surface border border-line" style={{ borderRadius: "var(--radius-card)" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-surface-raised text-fg-subtle">
+                  <span className="material-symbols-outlined text-xl">{v.icon}</span>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1" style={{ color: "#faf7f0" }}>{v.title}</p>
-                  <p className="text-[13px] leading-relaxed" style={{ color: "rgba(250,247,240,0.4)" }}>{v.body}</p>
+                  <p className="font-medium mb-1 text-fg">{v.t}</p>
+                  <p className="text-[13px] leading-relaxed text-fg-muted">{v.b}</p>
                 </div>
               </div>
             ))}
@@ -376,25 +289,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── NEWSLETTER ───────────────────────────────────────────────── */}
-      <section className="py-16 md:py-28 relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #0b0b14 0%, #1a0d2e 100%)" }}>
+      {/* ── NEWSLETTER ───────────────────────────────────────────────────── */}
+      <section className="py-16 md:py-32 relative overflow-hidden bg-surface border-t border-line">
         <div className="absolute inset-0 pointer-events-none"
-          style={{ backgroundImage: "radial-gradient(ellipse 60% 50% at 50% 110%, rgba(201,168,76,0.15) 0%, transparent 70%)" }} />
-        <div className="relative max-w-[1280px] mx-auto px-5 md:px-14 text-center">
+          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 110%, var(--accent-tint) 0%, transparent 70%)" }} />
+        <div className="relative max-w-[1440px] mx-auto px-5 md:px-10 text-center">
           <div className="max-w-xl mx-auto">
-            <p className="text-[10px] font-bold uppercase tracking-[0.35em] mb-5" style={{ color: "#c9a84c" }}>
-              Inner Circle
-            </p>
-            <h2 className="font-['Playfair_Display'] font-bold leading-[1.05] mb-5"
-              style={{ fontSize: "clamp(2rem, 8vw, 4rem)", color: "#faf7f0" }}>
-              Join the <span style={{ color: "#c9a84c" }}>Aura</span>
+            <p className="dd-eyebrow text-fg-subtle mb-5">Inner circle</p>
+            <h2 className="dd-display text-fg mb-5" style={{ fontSize: "clamp(2rem, 8vw, 4rem)" }}>
+              Join the <span style={{ fontStyle: "italic" }}>Aura</span>
             </h2>
-            <p className="text-[14px] leading-relaxed mb-8" style={{ color: "rgba(250,247,240,0.7)" }}>
+            <p className="text-[14px] leading-relaxed text-fg-muted mb-8">
               First access to limited drops, exclusive events, and stories behind each collection. No spam — just the good stuff.
             </p>
             <NewsletterForm />
-            <p className="mt-5 text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(250,247,240,0.2)" }}>
+            <p className="mt-5 text-[10px] uppercase tracking-[0.2em] text-fg-subtle opacity-60">
               By subscribing you agree to our Privacy Policy
             </p>
           </div>
@@ -404,4 +313,3 @@ export default async function HomePage() {
     </div>
   );
 }
-

@@ -46,8 +46,7 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
 
   return (
     <section
-      className="py-14 md:py-28 overflow-hidden"
-      style={{ background: "#faf7f0" }}
+      className="py-14 md:py-28 overflow-hidden bg-canvas"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -56,24 +55,19 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
         {/* Header */}
         <div className="flex items-end justify-between mb-8 md:mb-14">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: "#c9a84c" }}>
-              What They Say
-            </p>
-            <h2 className="font-['Playfair_Display'] font-bold leading-tight"
-              style={{ fontSize: "clamp(1.8rem, 6vw, 3rem)", color: "#12103a" }}>
-              Worn &amp; Loved
+            <p className="dd-eyebrow text-fg-subtle mb-2">What they say</p>
+            <h2 className="dd-display text-fg" style={{ fontSize: "clamp(1.8rem, 6vw, 3rem)" }}>
+              Worn &amp; loved
             </h2>
           </div>
           {reviews.length > 1 && (
             <div className="flex items-center gap-2">
               <button onClick={() => manualNav(prev)} aria-label="Previous"
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90"
-                style={{ border: "1.5px solid rgba(18,16,58,0.15)", color: "#12103a" }}>
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90 border border-line-strong text-fg-muted hover:text-fg">
                 <span className="material-symbols-outlined text-xl">arrow_back</span>
               </button>
               <button onClick={() => manualNav(next)} aria-label="Next"
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90"
-                style={{ background: "#12103a", color: "#faf7f0" }}>
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90 bg-accent text-accent-fg">
                 <span className="material-symbols-outlined text-xl">arrow_forward</span>
               </button>
             </div>
@@ -88,71 +82,60 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
             if (Math.abs(diff) > 40) manualNav(diff > 0 ? next : prev);
           }}
         >
-          <div className="relative rounded-2xl md:rounded-3xl overflow-hidden"
-            style={{ background: "#0b0b14", minHeight: "240px" }}>
-            {/* Gold accent bar */}
-            <div className="absolute top-0 left-0 w-1 bottom-0 rounded-l-2xl"
-              style={{ background: "linear-gradient(to bottom, #c9a84c, rgba(201,168,76,0.2))" }} />
+          <div className="relative overflow-hidden bg-surface border border-line"
+            style={{ minHeight: "240px", borderRadius: "var(--radius-card)" }}>
 
             {/* Progress bar */}
             {reviews.length > 1 && (
-              <div className="absolute top-0 left-1 right-0 h-[2px]" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-line">
                 <div
                   key={active}
-                  className="h-full"
-                  style={{
-                    background: "#c9a84c",
-                    animation: paused ? "none" : `progress-bar ${AUTO_INTERVAL}ms linear forwards`,
-                  }}
+                  className="h-full bg-accent"
+                  style={{ animation: paused ? "none" : `progress-bar ${AUTO_INTERVAL}ms linear forwards` }}
                 />
               </div>
             )}
 
-            <div className="p-7 md:p-12 pl-9 md:pl-14">
+            <div className="p-7 md:p-12">
               {/* Stars */}
-              <div className="flex items-center gap-1 mb-4">
+              <div className="flex items-center gap-1 mb-4 text-fg-subtle">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} style={{ color: i < review.rating ? "#c9a84c" : "rgba(201,168,76,0.2)", fontSize: "15px" }}>★</span>
+                  <svg key={i} viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"
+                    fill={i < review.rating ? "var(--accent)" : "none"} stroke="currentColor" strokeWidth="1.2">
+                    <path d="m10 2 2.4 5.1 5.6.8-4 4 .9 5.6-4.9-2.7-4.9 2.7.9-5.6-4-4 5.6-.8z" />
+                  </svg>
                 ))}
               </div>
 
               {/* Title */}
               {review.title && (
-                <p className="font-['Playfair_Display'] text-[1.15rem] md:text-[1.5rem] font-bold leading-snug mb-3"
-                  style={{ color: "#faf7f0" }}>
+                <p className="dd-display text-fg text-[1.15rem] md:text-[1.5rem] leading-snug mb-3">
                   {review.title}
                 </p>
               )}
 
               {/* Body */}
-              <div className="relative">
-                <span className="absolute -top-3 -left-2 font-['Playfair_Display'] text-[4rem] leading-none select-none pointer-events-none"
-                  style={{ color: "rgba(201,168,76,0.1)" }}>&ldquo;</span>
-                <p className="text-[0.9rem] md:text-[1.05rem] leading-relaxed relative z-10"
-                  style={{ color: "rgba(250,247,240,0.65)" }}>
-                  {review.body}
-                </p>
-              </div>
+              <p className="text-[0.9rem] md:text-[1.05rem] leading-relaxed text-fg-muted">
+                {review.body}
+              </p>
 
               {/* Author + product */}
               <div className="flex items-center justify-between mt-7 flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
-                    style={{ background: "rgba(201,168,76,0.12)", color: "#c9a84c", border: "1.5px solid rgba(201,168,76,0.25)" }}>
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 bg-accent-tint text-accent border border-accent/25">
                     {authorInitial}
                   </div>
                   <div>
-                    <p className="text-[13px] font-bold" style={{ color: "#faf7f0" }}>
+                    <p className="text-[13px] font-medium text-fg">
                       {review.user?.name ?? "Verified Buyer"}
                     </p>
-                    <p className="text-[11px]" style={{ color: "rgba(250,247,240,0.3)" }}>
+                    <p className="text-[11px] text-fg-subtle">
                       {new Date(review.createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
                     </p>
                   </div>
                 </div>
                 {review.product && (
-                  <span className="text-[10px] font-semibold px-3 py-1.5 rounded-full"
-                    style={{ background: "rgba(201,168,76,0.08)", color: "rgba(201,168,76,0.55)", border: "1px solid rgba(201,168,76,0.14)" }}>
+                  <span className="text-[10px] font-medium px-3 py-1.5 rounded-[var(--radius-pill)] bg-surface-raised text-fg-subtle border border-line">
                     {review.product.name}
                   </span>
                 )}
@@ -164,7 +147,7 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
         {/* Counter */}
         {reviews.length > 1 && (
           <div className="flex items-center justify-center gap-3 mt-5">
-            <span className="text-[11px] font-semibold" style={{ color: "rgba(18,16,58,0.3)" }}>
+            <span className="text-[11px] font-medium text-fg-subtle">
               {active + 1} / {reviews.length}
             </span>
           </div>

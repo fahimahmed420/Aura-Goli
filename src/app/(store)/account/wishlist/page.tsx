@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import EmptyState from "@/components/ui/EmptyState";
+import Spinner from "@/components/ui/Spinner";
 
 interface WishlistItem {
   id: string;
@@ -42,7 +44,7 @@ export default function WishlistPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        <Spinner />
       </div>
     );
   }
@@ -51,19 +53,19 @@ export default function WishlistPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between">
         <div>
-          <h2 className="font-['Playfair_Display'] text-[28px] font-semibold text-black">Wishlist</h2>
-          <p className="text-[#444748] text-[14px] mt-1">{items.length} {items.length === 1 ? "item" : "items"} saved</p>
+          <h2 className="dd-display text-[28px] text-fg">Wishlist</h2>
+          <p className="text-fg-muted text-[14px] mt-1">{items.length} {items.length === 1 ? "item" : "items"} saved</p>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-white border border-[#e8e8e8] rounded-2xl p-16 text-center">
-          <span className="material-symbols-outlined text-6xl text-[#c4c7c7] mb-4 block">favorite</span>
-          <h3 className="font-['Playfair_Display'] text-[22px] font-semibold text-black mb-2">Your wishlist is empty</h3>
-          <p className="text-[#444748] text-[14px] mb-6">Save items you love and come back to them anytime.</p>
-          <Link href="/shop" className="inline-block bg-black text-white px-8 py-3 rounded-full text-[13px] font-semibold hover:opacity-80 transition-opacity">
-            Explore Collection
-          </Link>
+        <div className="bg-surface border border-line rounded-2xl">
+          <EmptyState
+            icon="favorite"
+            title="Your wishlist is empty"
+            body="Save items you love and come back to them anytime."
+            action={{ href: "/shop", label: "Explore Collection" }}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -71,31 +73,31 @@ export default function WishlistPage() {
             const v = item.product.variants[0];
             const variant = [v?.color, v?.size].filter(Boolean).join(" · ");
             return (
-              <div key={item.id} className="bg-white border border-[#e8e8e8] rounded-2xl overflow-hidden group">
-                <div className="relative aspect-[4/5] bg-[#eeeeee]">
+              <div key={item.id} className="bg-surface border border-line rounded-2xl overflow-hidden group">
+                <div className="relative aspect-[4/5] bg-surface-raised">
                   {item.product.images[0] ? (
                     <Image src={item.product.images[0].url} alt={item.product.name} fill className="object-cover" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-5xl text-[#c4c7c7]">checkroom</span>
+                      <span className="material-symbols-outlined text-5xl text-fg-subtle">checkroom</span>
                     </div>
                   )}
                   <button
                     onClick={() => remove(item.productId)}
                     disabled={removing === item.productId}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white shadow flex items-center justify-center text-[#444748] hover:text-[#ba1a1a] opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50">
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-canvas shadow flex items-center justify-center text-fg-subtle hover:text-[color:var(--danger)] opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50">
                     <span className="material-symbols-outlined text-[18px]">close</span>
                   </button>
                 </div>
                 <div className="p-4">
-                  <p className="font-semibold text-[15px] text-black">{item.product.name}</p>
-                  {variant && <p className="text-[13px] text-[#444748] mt-0.5">{variant}</p>}
+                  <p className="font-medium text-[15px] text-fg">{item.product.name}</p>
+                  {variant && <p className="text-[13px] text-fg-muted mt-0.5">{variant}</p>}
                   <div className="flex items-center justify-between mt-3">
-                    <span className="font-['Playfair_Display'] text-[18px] font-semibold text-black">
+                    <span className="dd-display text-[18px] text-fg">
                       ৳{Number(item.product.price).toLocaleString()}
                     </span>
                     <Link href={`/products/${item.product.slug}`}
-                      className="px-4 py-2 border border-black text-black text-[12px] font-semibold rounded-full hover:bg-black hover:text-white transition-all">
+                      className="px-4 py-2 border border-line-strong text-fg text-[12px] font-medium rounded-full hover:bg-surface-raised transition-all">
                       View Product
                     </Link>
                   </div>

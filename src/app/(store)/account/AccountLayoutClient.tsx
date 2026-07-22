@@ -60,12 +60,12 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
 
   if (checking) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0b0b14", zIndex: 100 }}>
+      <div className="fixed inset-0 flex items-center justify-center bg-canvas" style={{ zIndex: 100 }}>
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-12 h-12">
-            <div className="absolute inset-0 rounded-full border-2 border-t-[#c9a84c] border-r-[#c9a84c] border-b-transparent border-l-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border-2 border-t-accent border-r-accent border-b-transparent border-l-transparent animate-spin" />
           </div>
-          <p className="text-sm font-medium tracking-widest uppercase" style={{ color: "rgba(250,247,240,0.4)" }}>
+          <p className="dd-eyebrow text-fg-subtle">
             Loading
           </p>
         </div>
@@ -78,53 +78,40 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
   return (
     <>
       {/* ── Page wrapper ── */}
-      <div className="min-h-screen" style={{ paddingTop: 64, background: "#f4f3f3" }}>
+      <div className="min-h-screen bg-canvas" style={{ paddingTop: 64 }}>
         <div className="max-w-6xl mx-auto px-4 md:px-10 pt-3 pb-6 md:py-10">
           <div className="flex flex-col md:grid md:grid-cols-4 gap-6 md:gap-8">
 
             {/* ── Desktop sidebar (hidden on mobile) ── */}
             <aside className="hidden md:block md:col-span-1">
               {/* Identity card */}
-              <div
-                className="rounded-2xl p-5 mb-4 flex items-center gap-3"
-                style={{ background: "#0b0b14", boxShadow: "0 8px 28px rgba(11,11,20,0.18)" }}
-              >
-                <div
-                  className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold shrink-0"
-                  style={{ background: "rgba(201,168,76,0.15)", color: "#c9a84c", border: "2px solid rgba(201,168,76,0.3)", fontSize: "1rem" }}
-                >
+              <div className="rounded-2xl p-5 mb-4 flex items-center gap-3 bg-surface border border-line">
+                <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold shrink-0 bg-accent-tint text-accent border-2 border-accent/30" style={{ fontSize: "1rem" }}>
                   {avatarUrl
                     ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
                     : initials}
                 </div>
                 <div className="overflow-hidden">
-                  <p className="font-semibold text-white text-sm truncate">{name}</p>
-                  <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>Member</p>
+                  <p className="font-medium text-fg text-sm truncate">{name}</p>
+                  <p className="text-[11px] text-fg-subtle">Member</p>
                 </div>
               </div>
 
               {/* Nav links */}
-              <nav
-                className="rounded-2xl overflow-hidden"
-                style={{ background: "white", boxShadow: "0 4px 16px rgba(11,11,20,0.06)" }}
-              >
+              <nav className="rounded-2xl overflow-hidden bg-surface border border-line">
                 {NAV.map((item) => {
                   const active = pathname === item.href || pathname.startsWith(item.href + "/");
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="flex items-center gap-3 px-5 py-4 text-[14px] font-medium border-b transition-all"
-                      style={{
-                        borderColor: "#f4f3f3",
-                        background: active ? "#0b0b14" : "transparent",
-                        color: active ? "#faf7f0" : "#444748",
-                        borderLeft: active ? "3px solid #c9a84c" : "3px solid transparent",
-                      }}
+                      className={`flex items-center gap-3 px-5 py-4 text-[14px] font-medium border-b border-line transition-all ${
+                        active ? "bg-accent-tint text-accent border-l-2 border-l-accent" : "text-fg-muted border-l-2 border-l-transparent"
+                      }`}
                     >
                       <span
                         className="material-symbols-outlined text-[20px]"
-                        style={{ color: active ? "#c9a84c" : "#747878", fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
+                        style={{ color: active ? "var(--accent)" : "var(--fg-subtle)", fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
                       >
                         {item.icon}
                       </span>
@@ -134,8 +121,8 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
                 })}
                 <button
                   onClick={() => { fetch("/api/auth/logout", { method: "POST" }).catch(() => {}); localStorage.removeItem("ag_authed"); window.dispatchEvent(new Event("user-updated")); router.push("/"); }}
-                  className="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium transition-colors"
-                  style={{ color: "#ba1a1a", borderLeft: "3px solid transparent" }}
+                  className="w-full flex items-center gap-3 px-5 py-4 text-[14px] font-medium transition-colors border-l-2 border-l-transparent"
+                  style={{ color: "var(--danger)" }}
                 >
                   <span className="material-symbols-outlined text-[20px]">logout</span>
                   Logout
@@ -158,7 +145,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
           position: "fixed",
           inset: 0,
           zIndex: 70,
-          background: "rgba(11,11,20,0.5)",
+          background: "var(--overlay)",
           opacity: drawerOpen ? 1 : 0,
           pointerEvents: drawerOpen ? "auto" : "none",
           transition: "opacity 0.32s ease",
@@ -175,7 +162,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
           bottom: 0,
           zIndex: 80,
           width: "min(320px, 88vw)",
-          background: "#0b0b14",
+          background: "var(--canvas)",
           boxShadow: "-12px 0 40px rgba(0,0,0,0.5)",
           transform: drawerOpen ? "translate3d(0,0,0)" : "translate3d(105%,0,0)",
           visibility: drawerOpen ? "visible" : "hidden",
@@ -189,7 +176,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
         }}
       >
         {/* Gold accent */}
-        <div style={{ height: 2, background: "linear-gradient(90deg, #c9a84c 0%, transparent 100%)", flexShrink: 0 }} />
+        <div style={{ height: 2, background: "linear-gradient(90deg, var(--accent) 0%, transparent 100%)", flexShrink: 0 }} />
 
         {/* Nav links */}
         <nav className="flex-1 overflow-y-auto py-3" style={{ overscrollBehavior: "contain" }}>
@@ -201,46 +188,46 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
                 href={item.href}
                 onClick={() => setDrawerOpen(false)}
                 className="flex items-center gap-4 mx-3 px-4 py-3.5 rounded-xl transition-all duration-200"
-                style={{ background: active ? "rgba(201,168,76,0.1)" : "transparent" }}
+                style={{ background: active ? "var(--accent-tint)" : "transparent" }}
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                   style={{
-                    background: active ? "rgba(201,168,76,0.18)" : "rgba(255,255,255,0.05)",
-                    border: active ? "1px solid rgba(201,168,76,0.3)" : "1px solid rgba(255,255,255,0.06)",
+                    background: active ? "var(--accent-tint)" : "rgba(247,244,236,0.05)",
+                    border: active ? "1px solid rgba(201,168,76,0.3)" : "1px solid rgba(247,244,236,0.06)",
                   }}
                 >
                   <span
                     className="material-symbols-outlined text-[18px]"
-                    style={{ color: active ? "#c9a84c" : "rgba(250,247,240,0.45)", fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
+                    style={{ color: active ? "var(--accent)" : "rgba(247,244,236,0.45)", fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
                   >
                     {item.icon}
                   </span>
                 </div>
-                <span className="text-[14px] font-medium" style={{ color: active ? "#c9a84c" : "rgba(250,247,240,0.7)" }}>
+                <span className="text-[14px] font-medium" style={{ color: active ? "var(--accent)" : "rgba(247,244,236,0.7)" }}>
                   {item.label}
                 </span>
-                {active && <div className="ml-auto w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#c9a84c" }} />}
+                {active && <div className="ml-auto w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--accent)" }} />}
               </Link>
             );
           })}
         </nav>
 
         {/* Bottom */}
-        <div className="px-3 pb-8 pt-2 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="px-3 pb-8 pt-2 shrink-0" style={{ borderTop: "1px solid rgba(247,244,236,0.06)" }}>
           <Link
             href="/shop"
             onClick={() => setDrawerOpen(false)}
             className="flex items-center gap-4 px-4 py-3.5 rounded-xl mb-1 transition-all"
-            style={{ background: "rgba(201,168,76,0.06)" }}
+            style={{ background: "var(--accent-tint)" }}
           >
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.2)" }}
+              style={{ background: "var(--accent-tint)", border: "1px solid rgba(201,168,76,0.2)" }}
             >
-              <span className="material-symbols-outlined text-[18px]" style={{ color: "#c9a84c" }}>storefront</span>
+              <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--accent)" }}>storefront</span>
             </div>
-            <span className="text-[14px] font-medium" style={{ color: "#c9a84c" }}>Back to Shop</span>
+            <span className="text-[14px] font-medium" style={{ color: "var(--accent)" }}>Back to Shop</span>
           </Link>
 
           <button
@@ -249,11 +236,11 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
           >
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(186,26,26,0.1)", border: "1px solid rgba(186,26,26,0.15)" }}
+              style={{ background: "var(--danger-tint)", border: "1px solid rgba(186,26,26,0.15)" }}
             >
-              <span className="material-symbols-outlined text-[18px]" style={{ color: "#ba1a1a" }}>logout</span>
+              <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--danger)" }}>logout</span>
             </div>
-            <span className="text-[14px] font-medium" style={{ color: "rgba(186,26,26,0.8)" }}>Sign Out</span>
+            <span className="text-[14px] font-medium" style={{ color: "var(--danger)" }}>Sign Out</span>
           </button>
         </div>
       </aside>
