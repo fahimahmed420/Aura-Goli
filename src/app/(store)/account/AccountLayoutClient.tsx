@@ -19,16 +19,19 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
   const router = useRouter();
   const pathname = usePathname();
   // Session is resolved once, globally, by AuthProvider (store layout).
-  const { user, resolving } = useAuth();
+  const { user, status } = useAuth();
   const name = user?.name ?? "";
   const avatarUrl = user?.avatarUrl ?? null;
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Once the session has resolved and there's still no user, this is a
-  // protected route — bounce to login.
+  // Only redirect once the session check has definitively finished — never
+  // during "idle" (the initial render, before the check has even started).
+  // Gating on a boolean here previously let "haven't checked yet" and
+  // "confirmed logged out" collapse into the same falsy value, which could
+  // fire this redirect before AuthProvider had a chance to resolve at all.
   useEffect(() => {
-    if (!resolving && !user) router.replace("/login?next=" + pathname);
-  }, [resolving, user, router, pathname]);
+    if (status === "done" && !user) router.replace("/login?next=" + pathname);
+  }, [status, user, router, pathname]);
 
   // Close drawer on route change and notify Nav to revert icon
   useEffect(() => {
@@ -54,9 +57,10 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
     return () => { document.body.style.overflow = ""; };
   }, [drawerOpen]);
 
-  // Keep the branded loader up until we've confirmed a user — covers both the
-  // session-resolving window and the brief moment before the redirect fires.
-  if (resolving || !user) {
+  // Keep the branded loader up until we've confirmed a user — covers idle,
+  // resolving, and the brief moment between a confirmed logged-out state and
+  // the redirect above actually navigating away.
+  if (status !== "done" || !user) {
     return <AuraLoadingScreen fullScreen />;
   }
 

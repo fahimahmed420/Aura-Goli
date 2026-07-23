@@ -35,6 +35,56 @@ html { -webkit-tap-highlight-color: transparent; }
 main { animation: page-fade-in 0.4s ease both; }
 
 
+/* ── Boot auth loader ───────────────────────────────────────────
+   Plain CSS/HTML (no React) so it can appear before hydration ever runs.
+   A blocking inline script in the <head> (see layout.tsx) sets
+   data-auth-pending on <html> synchronously, during HTML parsing — before
+   the browser's first paint — whenever a stored session flag is found. That
+   is the only way to avoid showing the signed-out navbar for a split second
+   to a logged-in user: a React useLayoutEffect can only prevent flicker
+   between client re-renders, it can't hide server-rendered HTML that's
+   already on screen before React's JS has finished loading and hydrating.
+   AuthProvider removes the attribute once the real session check lands,
+   handing off to its own (visually identical) React-rendered loader. */
+#boot-auth-loader {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  background: var(--canvas);
+}
+html[data-auth-pending="1"] #boot-auth-loader { display: flex; }
+.boot-auth-loader__inner { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.boot-auth-loader__ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.boot-auth-loader__ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
+  animation: boot-spin 0.8s linear infinite;
+}
+.boot-auth-loader__ring img { height: 22px; width: auto; opacity: 0.9; }
+@keyframes boot-spin { to { transform: rotate(360deg); } }
+.boot-auth-loader__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+
 /* ── Focus ring ─────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--accent);

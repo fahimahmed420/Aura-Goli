@@ -78,8 +78,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block"
           rel="stylesheet"
         />
+        {/* Blocking (no async/defer) so it runs during HTML parsing, before the
+            browser's first paint — the only way to keep a logged-in visitor from
+            ever seeing the server-rendered signed-out navbar. Sets an attribute
+            that #boot-auth-loader (globals.css) reacts to purely via CSS; no
+            React involved yet. AuthProvider clears it once the real session
+            check resolves. Admin pages never set "ag_authed", so this is a
+            no-op there. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("ag_authed"))document.documentElement.setAttribute("data-auth-pending","1")}catch(e){}`,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-canvas text-fg" style={{ fontFamily: "var(--font-ui)" }}>
+        <div id="boot-auth-loader" role="status" aria-label="Loading">
+          <div className="boot-auth-loader__inner">
+            <div className="boot-auth-loader__ring">
+              <img src="/logo-mark.png" alt="" />
+            </div>
+            <p className="boot-auth-loader__label">Loading</p>
+          </div>
+        </div>
         <Analytics />
         {children}
         <ChatWidget />
