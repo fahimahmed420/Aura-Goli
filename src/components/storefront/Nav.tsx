@@ -1,24 +1,22 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { fetchCurrentUser } from "@/lib/client-auth";
+import { useAuth } from "@/components/storefront/AuthProvider";
 
-interface User { name: string; email: string; avatarUrl?: string | null; }
 interface Category { id: string; name: string; slug: string; }
 
 
 export default function Nav({ storeName = "Aura Goli", initialCategories = [] }: { storeName?: string; initialCategories?: Category[] }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  // Set synchronously (before paint) from the presence of the auth token, so
-  // a logged-in user never sees a flash of the signed-out "Sign In" UI while
-  // /api/auth/me is still resolving on reload.
-  const [presumedAuthed, setPresumedAuthed] = useState(false);
-  const showAsAuthed = !!user || presumedAuthed;
+  // Auth is owned by AuthProvider (store layout), which gates the page with a
+  // full-screen loader until the session resolves — so by the time the nav is
+  // visible, `user` is already correct and there is no signed-out flash.
+  const { user } = useAuth();
+  const showAsAuthed = !!user;
   const [cartCount, setCartCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -40,38 +38,18 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
     return () => window.removeEventListener("account-drawer-closed", handler);
   }, []);
 
-  // Runs synchronously before the browser paints, so the presumed-auth state
-  // is applied in the same commit as the initial (unauthenticated) SSR markup
-  // — no visible flicker, and no hydration mismatch since the server-rendered
-  // HTML is untouched.
-  useLayoutEffect(() => {
-    if (localStorage.getItem("ag_authed")) setPresumedAuthed(true);
-  }, []);
-
   useEffect(() => {
-    const updateUser = async () => {
-      const t = localStorage.getItem("ag_authed");
-      if (!t) { setUser(null); setPresumedAuthed(false); return; }
-      try {
-        const r = await fetchCurrentUser(t);
-        if (r.ok) { const d = await r.json(); setUser(d.user); }
-        else { localStorage.removeItem("ag_authed"); setUser(null); setPresumedAuthed(false); }
-      } catch { /* offline — keep the presumed-authed UI until we can confirm */ }
-    };
     const updateCart = () => {
       try {
         const c = JSON.parse(localStorage.getItem("cart") ?? "[]");
         setCartCount(c.reduce((s: number, i: { quantity: number }) => s + i.quantity, 0));
       } catch { setCartCount(0); }
     };
-    updateUser();
     updateCart();
     fetch("/api/categories").then((r) => r.json()).then((d) => setCategories(d.categories?.slice(0, 5) ?? []));
 
-    window.addEventListener("user-updated", updateUser);
     window.addEventListener("cart-updated", updateCart);
     return () => {
-      window.removeEventListener("user-updated", updateUser);
       window.removeEventListener("cart-updated", updateCart);
     };
   }, []);

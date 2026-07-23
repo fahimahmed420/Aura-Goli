@@ -41,7 +41,7 @@ export default function AccountOrdersPage() {
   });
 
   if (loading) {
-    return <AuraLoadingScreen />;
+    return <AuraLoadingScreen fullScreen />;
   }
 
   return (

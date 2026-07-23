@@ -11,7 +11,7 @@ export default function AuraLoadingScreen({
   label?: string;
 }) {
   const content = (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4" role="status" aria-label={label}>
       <div className="relative w-14 h-14 flex items-center justify-center">
         <span
           className="absolute inset-0 rounded-full animate-spin"

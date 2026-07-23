@@ -70,7 +70,7 @@ export default function AddressesPage() {
     setDeleting(null);
   }
 
-  if (loading) return <AuraLoadingScreen />;
+  if (loading) return <AuraLoadingScreen fullScreen />;
 
   return (
     <div className="space-y-6">

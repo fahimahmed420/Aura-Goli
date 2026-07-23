@@ -42,7 +42,7 @@ export default function WishlistPage() {
   }
 
   if (loading) {
-    return <AuraLoadingScreen />;
+    return <AuraLoadingScreen fullScreen />;
   }
 
   return (

@@ -1,5 +1,6 @@
 import Nav from "@/components/storefront/Nav";
 import Footer from "@/components/storefront/Footer";
+import AuthProvider from "@/components/storefront/AuthProvider";
 import WhatsAppButton from "@/components/storefront/WhatsAppButton";
 import FlashSaleBanner from "@/components/storefront/FlashSaleBanner";
 import ScrollToTop from "@/components/storefront/ScrollToTop";
@@ -24,12 +25,14 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     <CompareProvider>
       <ScrollToTop />
       <CartSync />
-      <FlashSaleBanner />
-      <Nav storeName={name} initialCategories={categories} />
-      <main className="flex-1">{children}</main>
-      <CompareDrawer />
-      <Footer />
-      <WhatsAppButton />
+      <AuthProvider>
+        <FlashSaleBanner />
+        <Nav storeName={name} initialCategories={categories} />
+        <main className="flex-1">{children}</main>
+        <CompareDrawer />
+        <Footer />
+        <WhatsAppButton />
+      </AuthProvider>
 
       {maintenanceMode && (
         <div

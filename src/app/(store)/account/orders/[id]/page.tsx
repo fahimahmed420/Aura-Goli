@@ -37,7 +37,7 @@ export default function OrderDetailPage() {
       .then(r => r.json()).then(d => setOrder(d.order ?? null)).finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <AuraLoadingScreen />;
+  if (loading) return <AuraLoadingScreen fullScreen />;
   if (!order) return <div className="text-center py-20 text-fg-subtle">Order not found.</div>;
 
   const currentStep = STATUS_STEPS.findIndex(s => s.key === order.status);

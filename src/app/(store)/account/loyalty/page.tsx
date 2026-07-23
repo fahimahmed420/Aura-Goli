@@ -28,7 +28,7 @@ export default function LoyaltyPage() {
 
   const taka = Math.floor(points / 10); // 10 points = ৳1
 
-  if (loading) return <AuraLoadingScreen />;
+  if (loading) return <AuraLoadingScreen fullScreen />;
 
   return (
     <div className="space-y-6 max-w-2xl">

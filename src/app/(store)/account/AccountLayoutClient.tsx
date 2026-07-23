@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { fetchCurrentUser } from "@/lib/client-auth";
+import { useAuth } from "@/components/storefront/AuthProvider";
 import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 const NAV = [
@@ -18,23 +18,17 @@ const NAV = [
 export default function AccountLayoutClient({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [checking, setChecking] = useState(true);
-  const [name, setName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  // Session is resolved once, globally, by AuthProvider (store layout).
+  const { user, resolving } = useAuth();
+  const name = user?.name ?? "";
+  const avatarUrl = user?.avatarUrl ?? null;
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Once the session has resolved and there's still no user, this is a
+  // protected route — bounce to login.
   useEffect(() => {
-    const token = localStorage.getItem("ag_authed");
-    if (!token) { router.replace("/login?next=" + pathname); return; }
-
-    fetchCurrentUser(token)
-      .then((r) => {
-        if (!r.ok) { localStorage.removeItem("ag_authed"); router.replace("/login?next=" + pathname); return null; }
-        return r.json();
-      })
-      .then((d) => { if (d) { setName(d.user?.name ?? ""); setAvatarUrl(d.user?.avatarUrl ?? null); setChecking(false); } })
-      .catch(() => router.replace("/login?next=" + pathname));
-  }, [router, pathname]);
+    if (!resolving && !user) router.replace("/login?next=" + pathname);
+  }, [resolving, user, router, pathname]);
 
   // Close drawer on route change and notify Nav to revert icon
   useEffect(() => {
@@ -60,7 +54,9 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
     return () => { document.body.style.overflow = ""; };
   }, [drawerOpen]);
 
-  if (checking) {
+  // Keep the branded loader up until we've confirmed a user — covers both the
+  // session-resolving window and the brief moment before the redirect fires.
+  if (resolving || !user) {
     return <AuraLoadingScreen fullScreen />;
   }
 
