@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Spinner from "@/components/ui/Spinner";
+import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 interface Transaction { id: string; points: number; type: string; description: string; orderId?: string; createdAt: string; }
 
@@ -28,11 +28,7 @@ export default function LoyaltyPage() {
 
   const taka = Math.floor(points / 10); // 10 points = ৳1
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <Spinner />
-    </div>
-  );
+  if (loading) return <AuraLoadingScreen />;
 
   return (
     <div className="space-y-6 max-w-2xl">

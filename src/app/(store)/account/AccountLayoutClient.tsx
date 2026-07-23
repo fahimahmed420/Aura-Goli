@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { fetchCurrentUser } from "@/lib/client-auth";
+import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 const NAV = [
   { href: "/account/profile", icon: "person", label: "Profile" },
@@ -25,7 +27,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
     const token = localStorage.getItem("ag_authed");
     if (!token) { router.replace("/login?next=" + pathname); return; }
 
-    fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
+    fetchCurrentUser(token)
       .then((r) => {
         if (!r.ok) { localStorage.removeItem("ag_authed"); router.replace("/login?next=" + pathname); return null; }
         return r.json();
@@ -59,18 +61,7 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
   }, [drawerOpen]);
 
   if (checking) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-canvas" style={{ zIndex: 100 }}>
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-12 h-12">
-            <div className="absolute inset-0 rounded-full border-2 border-t-accent border-r-accent border-b-transparent border-l-transparent animate-spin" />
-          </div>
-          <p className="dd-eyebrow text-fg-subtle">
-            Loading
-          </p>
-        </div>
-      </div>
-    );
+    return <AuraLoadingScreen fullScreen />;
   }
 
   const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);

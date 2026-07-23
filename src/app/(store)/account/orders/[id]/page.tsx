@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import Spinner from "@/components/ui/Spinner";
+import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 const STATUS_STEPS = [
   { key: "pending_payment", label: "Order Placed", icon: "receipt_long" },
@@ -37,11 +37,7 @@ export default function OrderDetailPage() {
       .then(r => r.json()).then(d => setOrder(d.order ?? null)).finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <Spinner />
-    </div>
-  );
+  if (loading) return <AuraLoadingScreen />;
   if (!order) return <div className="text-center py-20 text-fg-subtle">Order not found.</div>;
 
   const currentStep = STATUS_STEPS.findIndex(s => s.key === order.status);

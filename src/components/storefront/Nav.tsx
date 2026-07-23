@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { fetchCurrentUser } from "@/lib/client-auth";
 
 interface User { name: string; email: string; avatarUrl?: string | null; }
 interface Category { id: string; name: string; slug: string; }
@@ -52,7 +53,7 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
       const t = localStorage.getItem("ag_authed");
       if (!t) { setUser(null); setPresumedAuthed(false); return; }
       try {
-        const r = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${t}` } });
+        const r = await fetchCurrentUser(t);
         if (r.ok) { const d = await r.json(); setUser(d.user); }
         else { localStorage.removeItem("ag_authed"); setUser(null); setPresumedAuthed(false); }
       } catch { /* offline — keep the presumed-authed UI until we can confirm */ }

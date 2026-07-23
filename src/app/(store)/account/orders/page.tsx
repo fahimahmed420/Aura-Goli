@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import StatusPill from "@/components/ui/StatusPill";
 import EmptyState from "@/components/ui/EmptyState";
-import Spinner from "@/components/ui/Spinner";
+import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 interface OrderItem {
   productNameSnapshot: string;
@@ -41,11 +41,7 @@ export default function AccountOrdersPage() {
   });
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner />
-      </div>
-    );
+    return <AuraLoadingScreen />;
   }
 
   return (

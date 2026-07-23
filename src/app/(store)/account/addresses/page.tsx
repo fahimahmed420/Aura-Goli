@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 interface Address {
   id: string; fullName: string; phone: string;
@@ -69,7 +70,7 @@ export default function AddressesPage() {
     setDeleting(null);
   }
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) return <AuraLoadingScreen />;
 
   return (
     <div className="space-y-6">

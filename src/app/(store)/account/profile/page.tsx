@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import AuraLoadingScreen from "@/components/ui/AuraLoadingScreen";
 
 interface Profile { name: string; email: string; phone: string | null; bio: string | null; }
 
@@ -83,11 +84,7 @@ export default function AccountProfilePage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <AuraLoadingScreen />;
   }
 
   const initials = [firstName[0], lastName[0]].filter(Boolean).join("").toUpperCase() || "U";
