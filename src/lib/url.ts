@@ -11,5 +11,10 @@ import { NextRequest } from "next/server";
  * dashboard, instead of silently sending users back to localhost.
  */
 export function resolveAppUrl(req: NextRequest): string {
-  return process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+  const url = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+  // Strip any trailing slash — callers append their own leading slash, and a
+  // trailing slash here would produce a double slash (e.g. in the Google
+  // OAuth redirect_uri), which Google rejects as a mismatch even though the
+  // registered URI looks identical.
+  return url.replace(/\/+$/, "");
 }
