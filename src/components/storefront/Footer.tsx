@@ -7,8 +7,8 @@ export default async function Footer() {
   const { storeName, email, phone, address, facebookUrl } = await getSettings();
 
   // Portfolio owner's personal profile links — not admin-configurable settings.
-  const linkedinUrl = "https://www.linkedin.com/in/REPLACE_ME";
-  const githubUrl = "https://github.com/REPLACE_ME";
+  const linkedinUrl = "https://www.linkedin.com/in/-fahim-ahmed/";
+  const githubUrl = "https://github.com/fahimahmed420";
 
   const displayName = storeName || "Aura Goli";
 
