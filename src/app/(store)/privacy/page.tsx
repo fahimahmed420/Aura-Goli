@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             },
             {
               title: "4. Payment Security",
-              body: `All payment transactions are processed through SSLCommerz, a PCI-DSS compliant payment gateway. We do not store your card details on our servers. Payment data is encrypted using industry-standard SSL technology.`,
+              body: `All payment transactions are processed through Stripe, a PCI-DSS Level 1 certified payment processor. We do not store your card details on our servers.`,
             },
             {
               title: "5. Cookies",

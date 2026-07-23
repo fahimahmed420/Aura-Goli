@@ -32,8 +32,8 @@ const FAQS = [
   {
     category: "Payments",
     items: [
-      { q: "What payment methods do you accept?", a: "We accept bKash, Nagad, all major credit/debit cards (via SSLCommerz), and Cash on Delivery for orders within Dhaka." },
-      { q: "Is it safe to pay online?", a: "Yes. All transactions are secured by SSLCommerz, Bangladesh's leading payment gateway. We never store your card details." },
+      { q: "What payment methods do you accept?", a: "We accept all major credit/debit cards (via Stripe) and Cash on Delivery for orders within Dhaka." },
+      { q: "Is it safe to pay online?", a: "Yes. All card transactions are processed by Stripe, a PCI DSS Level 1 certified payment processor. We never store your card details." },
       { q: "Can I use a promo code?", a: "Yes! Enter your promo code at checkout in the 'Promo Code' field. Codes are case-insensitive. Only one code per order." },
     ],
   },

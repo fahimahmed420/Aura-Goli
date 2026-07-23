@@ -31,7 +31,7 @@ const STATUS_CHIP: Record<string, string> = {
   pending_payment: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
   confirmed: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
   packed: "bg-[color:var(--accent-tint)] text-[color:var(--accent)]",
-  shipped: "bg-[color:var(--accent)] text-[color:var(--accent)]",
+  shipped: "bg-[color:var(--accent)] text-[color:var(--accent-fg)]",
   delivered: "bg-[color:var(--surface-raised)] text-[color:var(--fg-muted)]",
   cancelled: "bg-[color:var(--danger-tint)] text-[color:var(--danger)]",
   refunded: "bg-[color:var(--warning-tint)] text-[color:var(--warning)]",

@@ -2,7 +2,7 @@ import { NextRequest, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evaluateOrder } from "@/lib/courier";
 import { apiError } from "@/lib/validation";
-import { initiateSSLPayment } from "@/lib/sslcommerz";
+import { createStripeCheckoutSession } from "@/lib/stripe";
 import { resolveTokenPayload } from "@/lib/require-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { randomBytes } from "crypto";
@@ -10,7 +10,7 @@ import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderStatusSms } from "@/lib/sms";
 import { getCartIdentity, cartWhere } from "@/lib/cart";
 
-const VALID_PAYMENT_METHODS = ["bkash", "nagad", "rocket", "card", "cod"] as const;
+const VALID_PAYMENT_METHODS = ["card", "cod"] as const;
 type PaymentMethod = typeof VALID_PAYMENT_METHODS[number];
 
 function generateOrderNumber() {
@@ -225,34 +225,26 @@ export async function POST(req: NextRequest) {
     return Response.json({ orderId: order.id, orderNumber, redirectUrl: `/order-confirmed?order=${orderNumber}` });
   }
 
-  // SSLCommerz for all digital payments
+  // Stripe Checkout for card payments
   try {
-    const ssl = await initiateSSLPayment({
+    const session = await createStripeCheckoutSession({
       orderNumber,
       total,
-      customerName: shippingAddress.name,
       customerEmail,
-      customerPhone: shippingAddress.phone,
-      shippingAddress: shippingAddress.address,
-      shippingCity: shippingAddress.city,
       productName: orderItems[0].variant.product.name + (orderItems.length > 1 ? ` +${orderItems.length - 1} more` : ""),
-      successUrl: `${appUrl}/api/payment/success`,
-      failUrl: `${appUrl}/api/payment/fail`,
+      successUrl: `${appUrl}/api/payment/stripe-success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${appUrl}/cart`,
-      ipnUrl: `${appUrl}/api/payment/ipn`,
-      paymentMethod,
     });
 
-    if (ssl.status === "SUCCESS" && ssl.GatewayPageURL) {
-      // Store session key
+    if (session.url) {
       await prisma.payment.create({
-        data: { orderId: order.id, gateway: "sslcommerz", amount: total, status: "pending", rawWebhookPayload: { sessionkey: ssl.sessionkey } },
+        data: { orderId: order.id, gateway: "stripe", amount: total, status: "pending", rawWebhookPayload: { sessionId: session.id } },
       });
-      return Response.json({ orderId: order.id, orderNumber, redirectUrl: ssl.GatewayPageURL });
+      return Response.json({ orderId: order.id, orderNumber, redirectUrl: session.url });
     }
 
     await cancelAndRestock(order.id, orderItems);
-    return apiError(ssl.failedreason ?? "Payment gateway unavailable", 502);
+    return apiError("Payment gateway unavailable", 502);
   } catch {
     await cancelAndRestock(order.id, orderItems);
     return apiError("Payment gateway error", 502);

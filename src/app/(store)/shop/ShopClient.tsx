@@ -528,8 +528,8 @@ export default function ShopClient() {
       {/* ═══════════════════════════════════════════════════════
           DESKTOP LAYOUT
       ═══════════════════════════════════════════════════════ */}
-      <div className="hidden md:block max-w-[1280px] mx-auto px-10 py-16">
-        <div className="mb-10">
+      <div className="hidden md:block max-w-[1280px] mx-auto px-10 pt-6 pb-16">
+        <div className="mb-6">
           <h1 className="dd-display text-4xl text-fg">
             {q ? `Search: "${q}"` : categorySlug ? (categories.find((c) => c.slug === categorySlug)?.name ?? "Shop") : "Shop All"}
           </h1>
@@ -541,7 +541,8 @@ export default function ShopClient() {
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-fg-subtle">{total} products</p>
               <select value={sort} onChange={(e) => updateParam("sort", e.target.value)}
-                className="field-input text-sm w-auto py-2">
+                className="field-input text-sm py-2"
+                style={{ width: "auto", minWidth: 0 }}>
                 {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>

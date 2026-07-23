@@ -265,9 +265,8 @@ export default function CartClient() {
               {/* Trust badges */}
               <div className="flex items-center justify-center gap-4 pt-2 text-fg-subtle opacity-70">
                 <span className="text-xs font-medium tracking-wider">VISA</span>
-                <span className="text-xs font-medium tracking-wider">bKash</span>
-                <span className="text-xs font-medium tracking-wider">Nagad</span>
-                <span className="text-xs font-medium tracking-wider">SSL</span>
+                <span className="text-xs font-medium tracking-wider">Mastercard</span>
+                <span className="text-xs font-medium tracking-wider">Stripe</span>
               </div>
             </div>
           </div>

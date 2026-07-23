@@ -118,9 +118,6 @@ function paymentLabel(method: string) {
   const map: Record<string, string> = {
     cod: "Cash on Delivery",
     card: "Card",
-    bkash: "bKash",
-    nagad: "Nagad",
-    rocket: "Rocket",
   };
   return map[method] ?? method;
 }

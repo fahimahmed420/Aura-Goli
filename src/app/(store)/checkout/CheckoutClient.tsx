@@ -32,14 +32,9 @@ interface CheckoutState {
 }
 
 const PAYMENT_METHODS = [
-  { id: "bkash", label: "bKash", icon: "phone_android", sub: "Mobile banking" },
-  { id: "nagad", label: "Nagad", icon: "phone_android", sub: "Mobile banking" },
-  { id: "rocket", label: "Rocket", icon: "phone_android", sub: "DBBL mobile banking" },
-  { id: "card", label: "Card", icon: "credit_card", sub: "Visa / Mastercard" },
+  { id: "card", label: "Card", icon: "credit_card", sub: "Visa / Mastercard, via Stripe" },
   { id: "cod", label: "Cash on Delivery", icon: "payments", sub: "Pay when received" },
 ];
-
-const WALLET_LABELS: Record<string, string> = { bkash: "bKash", nagad: "Nagad", rocket: "Rocket" };
 
 // All 64 districts of Bangladesh — offered as autocomplete for the City field
 const BD_DISTRICTS = [
@@ -61,7 +56,7 @@ export default function CheckoutClient() {
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<CheckoutState | null>(null);
   const [shipping, setShipping] = useState<ShippingForm>({ name: "", phone: "", email: "", address: "", city: "", postalCode: "" });
-  const [paymentMethod, setPaymentMethod] = useState("bkash");
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -367,27 +362,14 @@ export default function CheckoutClient() {
                 ))}
               </div>
 
-              {WALLET_LABELS[paymentMethod] && (
-                <div className="rounded-lg px-4 py-3 space-y-1 bg-accent-tint border border-accent/30">
-                  <p className="text-xs font-medium text-accent">How {WALLET_LABELS[paymentMethod]} payment works</p>
-                  <ol className="text-xs text-fg-muted list-decimal list-inside space-y-0.5">
-                    <li>Click &quot;Place Order&quot; — you&apos;ll be redirected to the {WALLET_LABELS[paymentMethod]} payment page.</li>
-                    <li>Enter your {WALLET_LABELS[paymentMethod]} account number and press &quot;Pay Now&quot;.</li>
-                    <li>Check your phone for the OTP and enter it to confirm.</li>
-                    <li>You&apos;ll be brought back here once payment is complete.</li>
-                  </ol>
-                  <p className="text-[11px] text-fg-subtle mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
-                </div>
-              )}
-
               {paymentMethod === "card" && (
                 <div className="rounded-lg px-4 py-3 space-y-1 bg-accent-tint border border-accent/30">
                   <p className="text-xs font-medium text-accent">Card payment</p>
                   <p className="text-xs text-fg-muted">
-                    You&apos;ll be redirected to SSLCommerz&apos;s secure payment page to enter your card details.
+                    You&apos;ll be redirected to Stripe&apos;s secure payment page to enter your card details.
                     Your card number never touches our servers.
                   </p>
-                  <p className="text-[11px] text-fg-subtle mt-1">Secured by SSLCommerz · 128-bit SSL encryption</p>
+                  <p className="text-[11px] text-fg-subtle mt-1">Secured by Stripe · PCI DSS compliant</p>
                 </div>
               )}
 

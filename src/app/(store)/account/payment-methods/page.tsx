@@ -19,14 +19,11 @@ export default function PaymentMethodsPage() {
           Pay your way at checkout
         </h3>
         <p className="text-fg-muted text-[14px] max-w-sm mx-auto mb-6">
-          We support bKash, Nagad, Rocket, card, and cash on delivery. Choose your preferred method each time you place an order.
+          We support card payments via Stripe and cash on delivery. Choose your preferred method each time you place an order.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
           {[
-            { icon: "account_balance_wallet", label: "bKash", color: "#e2136e" },
-            { icon: "account_balance_wallet", label: "Nagad", color: "#f7941d" },
-            { icon: "account_balance_wallet", label: "Rocket", color: "#8b2fc9" },
             { icon: "credit_card", label: "Card", color: "var(--accent)" },
             { icon: "local_shipping", label: "Cash on Delivery", color: "var(--fg-muted)" },
           ].map((m) => (
@@ -47,7 +44,7 @@ export default function PaymentMethodsPage() {
       <div className="flex items-start gap-3 bg-surface-raised border border-line rounded-2xl p-4">
         <span className="material-symbols-outlined text-accent flex-shrink-0 mt-0.5">lock</span>
         <p className="text-[13px] text-fg-muted">
-          All transactions are encrypted end-to-end via SSL Commerz. We never store your card details.
+          All card transactions are processed by Stripe. We never store your card details.
         </p>
       </div>
     </div>

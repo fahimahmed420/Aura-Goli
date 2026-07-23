@@ -66,7 +66,7 @@ export const chatTools: Groq.Chat.Completions.ChatCompletionTool[] = [
           district:       { type: "string", description: "District, e.g. 'Dhaka'." },
           area:           { type: "string", description: "Upazila/thana/area, e.g. 'Mirpur'." },
           addressDetails: { type: "string", description: "Street, building, flat details." },
-          paymentMethod:  { type: "string", enum: ["cod", "bkash", "nagad", "rocket", "card"], description: "Payment method." },
+          paymentMethod:  { type: "string", enum: ["cod"], description: "Payment method. Card payments are not placed via chat — direct the customer to the website checkout instead." },
           notes:          { type: "string", description: "Any special instructions from the customer." },
         },
       },
@@ -145,7 +145,7 @@ async function placeOrder(
     district: string;
     area: string;
     addressDetails: string;
-    paymentMethod: "cod" | "bkash" | "nagad" | "rocket" | "card";
+    paymentMethod: "cod";
     notes?: string;
   },
   ctx: ChatToolContext
@@ -206,7 +206,7 @@ async function placeOrder(
     data: {
       orderNumber,
       userId:         ctx.userId ?? undefined,
-      status:         args.paymentMethod === "cod" ? "confirmed" : "pending_payment",
+      status:         "confirmed",
       subtotal,
       shippingFee,
       total,
@@ -225,7 +225,7 @@ async function placeOrder(
       },
       statusHistory: {
         create: {
-          status: args.paymentMethod === "cod" ? "confirmed" : "pending_payment",
+          status: "confirmed",
           note:   "Order placed via Aura Bot",
         },
       },
@@ -243,10 +243,7 @@ async function placeOrder(
     currency:     "BDT",
     paymentMethod: args.paymentMethod,
     status:       order.status,
-    message:
-      args.paymentMethod === "cod"
-        ? `Order confirmed! ✅ Your order number is ${order.orderNumber}. Pay ৳${total} on delivery. We'll call you at ${args.phone} to confirm.`
-        : `Order placed! 📋 Order number: ${order.orderNumber}. Total: ৳${total}. Please send payment via ${args.paymentMethod.toUpperCase()} to 01774433063 with your order number as reference. We'll confirm once payment is received.`,
+    message:      `Order confirmed! ✅ Your order number is ${order.orderNumber}. Pay ৳${total} on delivery. We'll call you at ${args.phone} to confirm.`,
   };
 }
 
