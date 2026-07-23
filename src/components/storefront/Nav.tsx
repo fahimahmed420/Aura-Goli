@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -13,6 +13,11 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  // Set synchronously (before paint) from the presence of the auth token, so
+  // a logged-in user never sees a flash of the signed-out "Sign In" UI while
+  // /api/auth/me is still resolving on reload.
+  const [presumedAuthed, setPresumedAuthed] = useState(false);
+  const showAsAuthed = !!user || presumedAuthed;
   const [cartCount, setCartCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -34,15 +39,23 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
     return () => window.removeEventListener("account-drawer-closed", handler);
   }, []);
 
+  // Runs synchronously before the browser paints, so the presumed-auth state
+  // is applied in the same commit as the initial (unauthenticated) SSR markup
+  // — no visible flicker, and no hydration mismatch since the server-rendered
+  // HTML is untouched.
+  useLayoutEffect(() => {
+    if (localStorage.getItem("ag_authed")) setPresumedAuthed(true);
+  }, []);
+
   useEffect(() => {
     const updateUser = async () => {
       const t = localStorage.getItem("ag_authed");
-      if (!t) { setUser(null); return; }
+      if (!t) { setUser(null); setPresumedAuthed(false); return; }
       try {
         const r = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${t}` } });
         if (r.ok) { const d = await r.json(); setUser(d.user); }
-        else { localStorage.removeItem("ag_authed"); setUser(null); }
-      } catch { /* offline */ }
+        else { localStorage.removeItem("ag_authed"); setUser(null); setPresumedAuthed(false); }
+      } catch { /* offline — keep the presumed-authed UI until we can confirm */ }
     };
     const updateCart = () => {
       try {
@@ -251,16 +264,19 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
             {/* Account dropdown (desktop) */}
             <div className="hidden md:block relative group">
               {/* Trigger */}
-              <Link href="/account/profile"
+              <Link href={showAsAuthed ? "/account/profile" : `/login?next=${encodeURIComponent(pathname)}`}
+                aria-label={showAsAuthed ? "Account" : "Sign in"}
                 className={`w-10 h-10 flex items-center justify-center rounded-full overflow-hidden transition-all ${
-                  user ? "bg-accent-tint text-accent" : "text-fg-muted"
+                  showAsAuthed ? "bg-accent-tint text-accent" : "text-fg-muted"
                 }`}>
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt={user.name} width={40} height={40} decoding="async" className="w-full h-full object-cover" />
                 ) : user ? (
                   <span className="text-sm font-bold">{userInitial}</span>
-                ) : (
+                ) : showAsAuthed ? (
                   <span className="material-symbols-outlined text-xl">person</span>
+                ) : (
+                  <span className="material-symbols-outlined text-xl">login</span>
                 )}
               </Link>
 
@@ -296,6 +312,8 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
                         </button>
                       </div>
                     </>
+                  ) : showAsAuthed ? (
+                    <div className="px-4 py-6 text-center text-xs text-fg-subtle">Loading…</div>
                   ) : (
                     <div className="p-3 space-y-2">
                       <Link href={`/login?next=${encodeURIComponent(pathname)}`}
@@ -351,7 +369,7 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
               { type: "link", href: "/shop", label: "Shop", icon: "storefront" },
               { type: "action", label: "Search", icon: "search" },
               { type: "link", href: "/cart", label: "Bag", icon: "shopping_bag", badge: cartCount },
-              { type: "link", href: user ? "/account/profile" : `/login?next=${encodeURIComponent(pathname)}`, label: user ? "Account" : "Sign In", icon: user ? "person" : "login" },
+              { type: "link", href: showAsAuthed ? "/account/profile" : `/login?next=${encodeURIComponent(pathname)}`, label: showAsAuthed ? "Account" : "Sign In", icon: showAsAuthed ? "person" : "login" },
             ] as ({ type: "link"; href: string; label: string; icon: string; badge?: number } | { type: "action"; label: string; icon: string })[]).map((item) => {
               const active = item.type === "action"
                 ? searchOpen
