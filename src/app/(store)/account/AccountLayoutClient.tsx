@@ -241,9 +241,13 @@ export default function AccountLayoutClient({ children }: { children: React.Reac
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: "var(--danger-tint)", border: "1px solid rgba(186,26,26,0.15)" }}
+                  style={{
+                    background: "linear-gradient(135deg, rgba(186,26,26,0.22), rgba(186,26,26,0.07))",
+                    border: "1px solid rgba(186,26,26,0.3)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                  }}
                 >
-                  <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--danger)" }}>logout</span>
+                  <span className="material-symbols-outlined text-[18px]" style={{ color: "var(--danger)", fontVariationSettings: "'FILL' 1" }}>logout</span>
                 </div>
                 <span className="text-[14px] font-medium" style={{ color: "var(--danger)" }}>Sign Out</span>
               </button>

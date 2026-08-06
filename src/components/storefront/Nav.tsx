@@ -29,14 +29,6 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
 
   const isHome = pathname === "/";
   const isAccountPage = pathname.startsWith("/account");
-  const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
-
-  // Sync icon state when drawer is closed from inside AccountLayoutClient
-  useEffect(() => {
-    const handler = () => setAccountDrawerOpen(false);
-    window.addEventListener("account-drawer-closed", handler);
-    return () => window.removeEventListener("account-drawer-closed", handler);
-  }, []);
 
   useEffect(() => {
     const updateCart = () => {
@@ -124,10 +116,7 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
       <header
         data-store-nav
         className="fixed inset-x-0 z-50"
-        style={{
-          top: "0",
-          zIndex: isAccountPage && accountDrawerOpen ? 90 : 50,
-        }}
+        style={{ top: "0" }}
       >
         {/*
           Backdrop layer, separated from content, and deliberately WITHOUT
@@ -208,34 +197,16 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
                     </div>
                   </>
                 )}
+                {/* Opens the drawer, which now sits above this header (z-80 vs
+                    z-50) and covers this button once open — closing happens
+                    via the drawer's own backdrop-click, so this never needs
+                    to render a "close" state itself. */}
                 <button
                   className="md:hidden w-10 h-10 flex items-center justify-center rounded-full text-fg-muted"
                   aria-label="Account menu"
-                  onClick={() => {
-                    if (accountDrawerOpen) {
-                      setAccountDrawerOpen(false);
-                      window.dispatchEvent(new Event("close-account-drawer"));
-                    } else {
-                      setAccountDrawerOpen(true);
-                      window.dispatchEvent(new Event("open-account-drawer"));
-                    }
-                  }}
+                  onClick={() => window.dispatchEvent(new Event("open-account-drawer"))}
                 >
-                  {/* Animated menu ↔ close icon */}
-                  <span style={{ position: "relative", width: 22, height: 22, display: "inline-block" }}>
-                    <span className="material-symbols-outlined text-xl" style={{
-                      position: "absolute", inset: 0,
-                      transition: "opacity 0.22s ease, transform 0.28s ease",
-                      opacity: accountDrawerOpen ? 0 : 1,
-                      transform: accountDrawerOpen ? "rotate(-45deg) scale(0.6)" : "rotate(0deg) scale(1)",
-                    }}>menu</span>
-                    <span className="material-symbols-outlined text-xl" style={{
-                      position: "absolute", inset: 0,
-                      transition: "opacity 0.22s ease, transform 0.28s ease",
-                      opacity: accountDrawerOpen ? 1 : 0,
-                      transform: accountDrawerOpen ? "rotate(0deg) scale(1)" : "rotate(45deg) scale(0.6)",
-                    }}>close</span>
-                  </span>
+                  <span className="material-symbols-outlined text-xl">menu</span>
                 </button>
               </>
             )}
