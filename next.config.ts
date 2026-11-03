@@ -22,6 +22,8 @@ const securityHeaders = [
   // HSTS — force HTTPS for 2 years incl. subdomains (only sent over HTTPS by browsers)
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-DNS-Prefetch-Control", value: "on" },
+  // Portfolio demo: keep every page out of search engines.
+  { key: "X-Robots-Tag", value: "noindex, nofollow" },
   {
     key: "Content-Security-Policy",
     value: [

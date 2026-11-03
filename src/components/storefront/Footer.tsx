@@ -134,7 +134,7 @@ export default async function Footer() {
             © {year} {displayName}. All rights reserved.
           </p>
           <p className="text-[11px] text-fg-subtle opacity-70">
-            Crafted with care · Bangladesh
+            Demo store by <a href="https://www.zordev.com/work/aura-goli?utm_source=auragoli-demo&utm_medium=footer" className="underline underline-offset-2 hover:text-fg">Zordev</a> · not a real brand
           </p>
         </div>
       </div>

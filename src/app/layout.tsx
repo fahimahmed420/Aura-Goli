@@ -47,6 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
       ],
       apple: "/apple-touch-icon.png?v=2"
     },
+    robots: { index: false, follow: false },
     alternates: { canonical: "/" },
     openGraph: { type: "website", siteName: name, url: SITE_URL },
     appleWebApp: { capable: true, title: name, statusBarStyle: "black-translucent" },

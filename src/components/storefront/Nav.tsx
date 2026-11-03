@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { useAuth } from "@/components/storefront/AuthProvider";
 interface Category { id: string; name: string; slug: string; }
 
 
-export default function Nav({ storeName = "Aura Goli", initialCategories = [] }: { storeName?: string; initialCategories?: Category[] }) {
+export default function Nav({ storeName = "Aura Goli", initialCategories = [], notice }: { storeName?: string; initialCategories?: Category[]; notice?: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   // Auth is owned by AuthProvider (store layout), which gates the page with a
@@ -118,6 +118,8 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
         className="fixed inset-x-0 z-50"
         style={{ top: "0" }}
       >
+        {/* Optional strip above the bar (the demo-store notice). Kept inside the fixed header so it never slides under it. */}
+        {notice && <div className="relative z-[1]">{notice}</div>}
         {/*
           Backdrop layer, separated from content, and deliberately WITHOUT
           backdrop-filter: blurring the backdrop over the WebGL hero canvas
@@ -388,8 +390,8 @@ export default function Nav({ storeName = "Aura Goli", initialCategories = [] }:
         </div>
       </nav>
 
-      {/* Spacer — matches the fixed 64px (h-16) header so content never tucks under it */}
-      {!isHome && <div className="h-16" />}
+      {/* Spacer — matches the fixed header (64px bar, plus the 28px notice strip when present) so content never tucks under it */}
+      {!isHome && <div className={notice ? "h-[92px]" : "h-16"} />}
     </>
   );
 }

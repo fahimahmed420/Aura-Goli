@@ -4,6 +4,7 @@ import AuthProvider from "@/components/storefront/AuthProvider";
 import WhatsAppButton from "@/components/storefront/WhatsAppButton";
 import FlashSaleBanner from "@/components/storefront/FlashSaleBanner";
 import ScrollToTop from "@/components/storefront/ScrollToTop";
+import { DemoStrip, DemoPill } from "@/components/storefront/DemoNotice";
 import CartSync from "@/components/storefront/CartSync";
 import { CompareProvider, CompareDrawer } from "@/components/storefront/CompareDrawer";
 import { getSettings } from "@/lib/settings";
@@ -27,11 +28,12 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <CartSync />
       <AuthProvider>
         <FlashSaleBanner />
-        <Nav storeName={name} initialCategories={categories} />
+        <Nav storeName={name} initialCategories={categories} notice={<DemoStrip />} />
         <main className="flex-1">{children}</main>
         <CompareDrawer />
         <Footer />
         <WhatsAppButton />
+        <DemoPill />
       </AuthProvider>
 
       {maintenanceMode && (
