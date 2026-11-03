@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import LoadingScreen from "@/components/storefront/LoadingScreen";
 import Badge from "@/components/ui/Badge";
+import { ProductCardSkeleton } from "@/components/ui/ProductCard";
 
 interface Product {
   id: string; name: string; slug: string; price: number; compareAtPrice?: number;
@@ -254,12 +255,14 @@ export default function ShopClient() {
           {/* Category pills */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
             <button onClick={() => updateParam("category", "")}
-              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium border ${!categorySlug ? "bg-accent text-accent-fg border-accent" : "bg-surface text-fg-muted border-line"}`}>
+              className={`shrink-0 px-4 py-2 rounded-full text-[12px] font-medium border transition-colors ${!categorySlug ? "bg-accent text-accent-fg border-accent" : "bg-surface text-fg-muted border-line"}`}
+              style={{ minHeight: 36 }}>
               All
             </button>
             {categories.map(c => (
               <button key={c.id} onClick={() => updateParam("category", c.slug)}
-                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium border ${categorySlug === c.slug ? "bg-accent text-accent-fg border-accent" : "bg-surface text-fg-muted border-line"}`}>
+                className={`shrink-0 px-4 py-2 rounded-full text-[12px] font-medium border transition-colors ${categorySlug === c.slug ? "bg-accent text-accent-fg border-accent" : "bg-surface text-fg-muted border-line"}`}
+                style={{ minHeight: 36 }}>
                 {c.name}
               </button>
             ))}
@@ -549,13 +552,7 @@ export default function ShopClient() {
             {loading ? (
               <div className="grid grid-cols-3 gap-5">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="animate-pulse overflow-hidden bg-surface" style={{ borderRadius: "var(--radius-card)" }}>
-                    <div className="aspect-[3/4] bg-surface-raised" />
-                    <div className="p-3 space-y-2">
-                      <div className="h-4 rounded-full bg-surface-raised" style={{ width: "75%" }} />
-                      <div className="h-4 rounded-full bg-surface-raised" style={{ width: "33%" }} />
-                    </div>
-                  </div>
+                  <ProductCardSkeleton key={i} />
                 ))}
               </div>
             ) : products.length === 0 ? (
@@ -730,7 +727,7 @@ function DesktopProductCard({ product }: { product: Product }) {
         </div>
       ) : null}
       <div className="flex items-baseline gap-2.5">
-        <span className="text-[15px] font-medium text-fg">৳{Number(product.price).toLocaleString()}</span>
+        <span className="dd-display text-[1.25rem] tabular-nums text-fg">৳{Number(product.price).toLocaleString()}</span>
         {hasDiscount && <span className="text-[13px] text-fg-subtle line-through">৳{Number(product.compareAtPrice).toLocaleString()}</span>}
       </div>
     </Link>

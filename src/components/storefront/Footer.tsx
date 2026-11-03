@@ -41,8 +41,10 @@ export default async function Footer() {
   ];
 
   return (
-    <footer className="bg-canvas text-fg border-t border-line">
-      <div className="max-w-[1400px] mx-auto px-5 md:px-10 pt-14 pb-10">
+    <footer className="relative bg-canvas text-fg border-t border-line overflow-hidden">
+      <div aria-hidden="true" className="ag-hairline absolute top-0 inset-x-0" />
+      <div aria-hidden="true" className="absolute inset-0 ag-grain" />
+      <div className="relative max-w-[1400px] mx-auto px-5 md:px-10 pt-16 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr] gap-8">
 
           {/* Brand column */}
@@ -60,8 +62,8 @@ export default async function Footer() {
                 )}
               </span>
             </Link>
-            <p className="text-sm leading-relaxed mb-5 text-fg-muted">
-              Premium threads crafted with intention. Every piece is designed to endure — in quality, in style, in feeling.
+            <p className="dd-display text-[1.35rem] leading-snug mb-5 text-fg-muted max-w-xs">
+              Premium threads crafted with intention. Every piece is designed to endure — <span style={{ fontStyle: "italic" }}>in quality, in style, in feeling.</span>
             </p>
 
             {/* Contact info from settings */}

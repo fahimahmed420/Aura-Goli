@@ -61,6 +61,8 @@ export default function ProductDetailClient({ product, related }: { product: Pro
   const tabsRef  = useRef<HTMLDivElement>(null);
   const atcRef   = useRef<HTMLButtonElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const mobileAtcRef = useRef<HTMLButtonElement>(null);
+  const [showMobileBar, setShowMobileBar] = useState(false);
 
   function openSizeChart() {
     setSizeModalOpen(true);
@@ -194,6 +196,19 @@ export default function ProductDetailClient({ product, related }: { product: Pro
     const el = atcRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([entry]) => setShowStickyBar(!entry.isIntersecting), { threshold: 0 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Phone: the bottom bar shows once the in-flow Add to Bag has scrolled past
+  // the top of the screen, and hides again when it is back in view.
+  useEffect(() => {
+    const el = mobileAtcRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowMobileBar(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 },
+    );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -512,8 +527,8 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => addToCart()} disabled={!inStock}
-                className="flex-1 h-11 rounded-xl text-[13px] font-medium atc-btn active:scale-[0.98]"
+              <button ref={mobileAtcRef} onClick={() => addToCart()} disabled={!inStock}
+                className="flex-1 h-12 rounded-xl text-[13px] font-medium atc-btn active:scale-[0.98]"
                 style={{
                   background: addedToCart ? "var(--success)" : inStock ? "var(--accent)" : "var(--surface-raised)",
                   color: addedToCart ? "var(--canvas)" : inStock ? "var(--accent-fg)" : "var(--fg-subtle)",
@@ -696,6 +711,23 @@ export default function ProductDetailClient({ product, related }: { product: Pro
               color: inStock ? "var(--accent-fg)" : "var(--fg-subtle)",
               cursor: inStock ? "pointer" : "not-allowed",
             }}>
+            {addedToCart ? "✓ Added" : "Add to Bag"}
+          </button>
+        </div>
+      )}
+
+      {/* ── Phone sticky ATC bar — sits above the bottom nav, clear of the
+             WhatsApp / chat buttons on the right ── */}
+      {showMobileBar && inStock && (
+        <div className="md:hidden fixed left-4 right-[76px] z-[45] flex items-center gap-3 pl-4 pr-1.5 py-1.5 rounded-full bg-surface/95 backdrop-blur-xl border border-line-strong shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
+          style={{ bottom: "calc(104px + env(safe-area-inset-bottom, 0px))", animation: "fadeUp 0.3s cubic-bezier(.4,0,.2,1) both" }}>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] font-medium truncate text-fg">{product.name}</p>
+            <p className="dd-display text-[15px] text-accent">৳{(finalPrice * qty).toLocaleString()}</p>
+          </div>
+          <button onClick={() => addToCart()}
+            className="shrink-0 h-11 px-5 rounded-full text-[11px] font-medium uppercase tracking-[0.16em] transition-colors"
+            style={{ background: addedToCart ? "var(--success)" : "var(--accent)", color: addedToCart ? "var(--canvas)" : "var(--accent-fg)" }}>
             {addedToCart ? "✓ Added" : "Add to Bag"}
           </button>
         </div>

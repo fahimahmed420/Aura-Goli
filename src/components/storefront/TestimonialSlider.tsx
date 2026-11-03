@@ -12,7 +12,7 @@ interface Review {
   product: { name: string } | null;
 }
 
-const AUTO_INTERVAL = 5000;
+const AUTO_INTERVAL = 6000;
 
 export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
   const [active, setActive] = useState(0);
@@ -46,35 +46,36 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
 
   return (
     <section
-      className="py-14 md:py-28 overflow-hidden bg-canvas"
+      className="relative py-16 md:py-32 overflow-hidden bg-canvas"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="max-w-[1280px] mx-auto px-5 md:px-14">
+      <div aria-hidden="true" className="absolute inset-0 ag-glow ag-glow--left" />
+      <div className="relative max-w-[1280px] mx-auto px-5 md:px-14">
 
         {/* Header */}
-        <div className="flex items-end justify-between mb-8 md:mb-14">
+        <div className="flex items-end justify-between mb-10 md:mb-16">
           <div>
-            <p className="dd-eyebrow text-fg-subtle mb-2">What they say</p>
-            <h2 className="dd-display text-fg" style={{ fontSize: "clamp(1.8rem, 6vw, 3rem)" }}>
-              Worn &amp; loved
+            <p className="dd-eyebrow text-fg-subtle mb-3">What they say</p>
+            <h2 className="dd-display text-fg" style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)" }}>
+              Worn &amp; <span style={{ fontStyle: "italic" }}>loved</span>
             </h2>
           </div>
           {reviews.length > 1 && (
             <div className="flex items-center gap-2">
               <button onClick={() => manualNav(prev)} aria-label="Previous"
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90 border border-line-strong text-fg-muted hover:text-fg">
+                className="w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90 border border-line-strong text-fg-muted hover:text-fg hover:border-fg">
                 <span className="material-symbols-outlined text-xl">arrow_back</span>
               </button>
               <button onClick={() => manualNav(next)} aria-label="Next"
-                className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90 bg-accent text-accent-fg">
+                className="w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all active:scale-90 bg-accent text-accent-fg hover:bg-accent-hover">
                 <span className="material-symbols-outlined text-xl">arrow_forward</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Card */}
+        {/* Quote */}
         <div
           onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
           onTouchEnd={(e) => {
@@ -83,7 +84,7 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
           }}
         >
           <div className="relative overflow-hidden bg-surface border border-line"
-            style={{ minHeight: "240px", borderRadius: "var(--radius-card)" }}>
+            style={{ minHeight: "280px", borderRadius: "var(--radius-card)" }}>
 
             {/* Progress bar */}
             {reviews.length > 1 && (
@@ -96,33 +97,36 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
               </div>
             )}
 
-            <div className="p-7 md:p-12">
+            {/* Oversized opening quote, set in the serif as a watermark */}
+            <span aria-hidden="true" className="dd-display absolute -top-6 left-5 md:left-10 text-accent select-none pointer-events-none"
+              style={{ fontSize: "clamp(8rem, 18vw, 14rem)", lineHeight: 1, opacity: 0.12 }}>
+              “
+            </span>
+
+            <div key={review.id} className="dd-rise relative p-7 pt-14 md:p-14 md:pt-20 md:pr-20">
               {/* Stars */}
-              <div className="flex items-center gap-1 mb-4 text-fg-subtle">
+              <div className="flex items-center gap-1 mb-6 text-fg-subtle">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <svg key={i} viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"
                     fill={i < review.rating ? "var(--accent)" : "none"} stroke="currentColor" strokeWidth="1.2">
                     <path d="m10 2 2.4 5.1 5.6.8-4 4 .9 5.6-4.9-2.7-4.9 2.7.9-5.6-4-4 5.6-.8z" />
                   </svg>
                 ))}
+                {review.title && (
+                  <span className="dd-eyebrow text-fg-muted ml-3">{review.title}</span>
+                )}
               </div>
 
-              {/* Title */}
-              {review.title && (
-                <p className="dd-display text-fg text-[1.15rem] md:text-[1.5rem] leading-snug mb-3">
-                  {review.title}
-                </p>
-              )}
-
-              {/* Body */}
-              <p className="text-[0.9rem] md:text-[1.05rem] leading-relaxed text-fg-muted">
+              {/* Body — the quote is the headline here */}
+              <blockquote className="dd-display text-fg max-w-4xl"
+                style={{ fontSize: "clamp(1.45rem, 3vw, 2.4rem)", lineHeight: 1.2 }}>
                 {review.body}
-              </p>
+              </blockquote>
 
               {/* Author + product */}
-              <div className="flex items-center justify-between mt-7 flex-wrap gap-3">
+              <div className="flex items-center justify-between mt-9 flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 bg-accent-tint text-accent border border-accent/25">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 bg-accent-tint text-accent border border-accent/25">
                     {authorInitial}
                   </div>
                   <div>
@@ -130,7 +134,7 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
                       {review.user?.name ?? "Verified Buyer"}
                     </p>
                     <p className="text-[11px] text-fg-subtle">
-                      {new Date(review.createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+                      Verified buyer · {new Date(review.createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
                     </p>
                   </div>
                 </div>
@@ -146,10 +150,11 @@ export default function TestimonialSlider({ reviews }: { reviews: Review[] }) {
 
         {/* Counter */}
         {reviews.length > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-5">
-            <span className="text-[11px] font-medium text-fg-subtle">
-              {active + 1} / {reviews.length}
-            </span>
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {reviews.map((r, i) => (
+              <button key={r.id} onClick={() => manualNav(() => setActive(i))} aria-label={`Review ${i + 1}`}
+                className={`h-1 rounded-full transition-all duration-500 ${i === active ? "w-8 bg-accent" : "w-2 bg-line-strong"}`} />
+            ))}
           </div>
         )}
       </div>
