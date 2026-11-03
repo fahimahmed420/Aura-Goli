@@ -279,7 +279,7 @@ export default function Hero3D({ featured }: { featured?: HeroFeatured }) {
 
           <p className="text-[15px] md:text-[17px] leading-relaxed mb-9 max-w-xs md:max-w-md text-fg-muted"
             style={fadeUp(0.32)}>
-            Premium clothing for those who let quality speak louder than logos. Each piece cut, poured and finished with intention.
+            Premium clothing for those who let quality speak louder than logos. Each piece cut, sewn and finished with intention.
           </p>
 
           {/* CTAs — accent lives on the one action that matters */}
